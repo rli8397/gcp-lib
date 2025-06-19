@@ -84,8 +84,27 @@ public class Solution {
     } 
     objective  = obj;
   } 
-  
 
+  //Makes one random move to generate new Neighbor
+  public Solution generateNewNeighbor(){
+    Solution neighbor  = new Solution (this);
+
+    int oldColor = neighbor.coloring[index];
+    int newColor = 0;
+    do{
+      newColor = (int)(Math.random()*k) + 1;
+    }while (newColor == oldColor);
+    
+    neighbor.vertexChange((int)(Math.random()*coloring.length), newColor);
+    return neighbor;
+  }
+
+  //index 0 to n-1, color 1 to k
+  public void vertexChange(int index, int color){
+    coloring[index] = color;
+    calcObjective();
+  }
+  
   //Accessors 
   public double getObjective(){ 
     return objective; 
