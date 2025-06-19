@@ -11,10 +11,6 @@ public class Solution {
     k = colors; //Must be >= 1 
     
     coloring =  new int[n]; 
-
-    //-1 
-    for (int i = 0; i < n; i++){
-
     graph = g;
 
     if (random){
@@ -24,7 +20,7 @@ public class Solution {
       stable_coloring();
     }
 
-    objective = calcObjective();
+    calcObjective();
   
   }
   
@@ -34,7 +30,7 @@ public class Solution {
     this.objective = other.objective;
 
     //Placeholder for instance class
-    this.graph  = new Instance (other.graph);
+    this.graph  = other.graph;
 
     this.coloring = new int[other.coloring.length];
     
@@ -65,9 +61,13 @@ public class Solution {
   
   }
 
+  public void stable_coloring(){
+      return;
+  }
+
   //Counts number of conflicting edges and updates objective
   public void calcObjective(){
-    int obj = 0;
+    double obj = 0;
     for (int i = 0; i < coloring.length; i++){
        
       //Placeholder
@@ -88,14 +88,14 @@ public class Solution {
   //Makes one random move to generate new Neighbor
   public Solution generateNewNeighbor(){
     Solution neighbor  = new Solution (this);
-
+    int index = (int)(Math.random()*coloring.length);
     int oldColor = neighbor.coloring[index];
     int newColor = 0;
     do{
       newColor = (int)(Math.random()*k) + 1;
     }while (newColor == oldColor);
     
-    neighbor.vertexChange((int)(Math.random()*coloring.length), newColor);
+    neighbor.vertexChange(index, newColor);
     return neighbor;
   }
 
