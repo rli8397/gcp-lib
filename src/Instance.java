@@ -31,6 +31,7 @@ public class Instance {
             e.printStackTrace();
         }
     }
+
     // this void method adds an edge between two given nodes
     public void addEdge(int edge1, int edge2) {
         adjacencySet[edge1].add(edge2);
@@ -38,7 +39,7 @@ public class Instance {
     }
 
     // returns an array of size n + 1, the first element in the array is number of neighbors, followed by the neighbors themselves
-    public HashSet<Integer> getNeighbors(int node) {
+    public HashSet<Integer> getAdjacent(int node) {
         return adjacencySet[node];
     }
 

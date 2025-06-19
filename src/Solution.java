@@ -7,34 +7,33 @@ public class Solution {
   private Instance graph; 
   
   //Empty coloring
-  public Solution (int colors, int n, Instance g, bool random, bool stable) {
+  public Solution (int colors, int n, Instance g, boolean random, boolean stable) {
     k = colors; //Must be >= 1 
     
     coloring =  new int[n]; 
 
     //-1 
-    for (int i = 0; i < n; i++){
-
     graph = g;
-
     if (random){
       random_coloring();
     }
     else if (stable){
       stable_coloring();
     }
-
-    objective = calcObjective();
-  
+    calcObjective();
   }
   
+  public void stable_coloring() {
+
+  }
+
   //Copy Constructor, Deep Copy
   public Solution (Solution other){
     this.k = other.k;
     this.objective = other.objective;
 
     //Placeholder for instance class
-    this.graph  = new Instance (other.graph);
+    this.graph = other.graph;
 
     this.coloring = new int[other.coloring.length];
     
@@ -71,7 +70,7 @@ public class Solution {
     for (int i = 0; i < coloring.length; i++){
        
       //Placeholder
-      Hashset<Integer> adj = graph.getAdjacent(i);
+      HashSet<Integer> adj = graph.getAdjacent(i);
 
       for (int adjv : adj){
          //If i < adjv, that edge hasn't been checked yet
@@ -82,20 +81,20 @@ public class Solution {
          }
        }  
     } 
-    objective  = obj;
+    objective = obj;
   } 
 
   //Makes one random move to generate new Neighbor
   public Solution generateNewNeighbor(){
     Solution neighbor  = new Solution (this);
-
+    int index = (int)(Math.random()*coloring.length);
     int oldColor = neighbor.coloring[index];
     int newColor = 0;
     do{
       newColor = (int)(Math.random()*k) + 1;
     }while (newColor == oldColor);
     
-    neighbor.vertexChange((int)(Math.random()*coloring.length), newColor);
+    neighbor.vertexChange(index, newColor);
     return neighbor;
   }
 
@@ -116,7 +115,7 @@ public class Solution {
 
   //Print
   public String toString(){
-    System.out.println("Coloring" + coloring);
+    return "Coloring: " + coloring;
   }
   
 
