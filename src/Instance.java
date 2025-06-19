@@ -4,19 +4,35 @@ import java.util.Scanner;
 
 public class Instance {
     private HashSet<Integer>[] adjacencySet; // adjacency matrix is boolean because it is non-directed and unweighted
-    
+    private int numNodes;
     @SuppressWarnings("unchecked")
     public Instance(int numNodes) {
+        numNodes = numNodes;
         adjacencySet = new HashSet[numNodes];
         for (int i = 0; i < numNodes; i++) {
             adjacencySet[i] = new HashSet<Integer>();
         }
     }
 
+    /* 
+     * Constructor for an Intance that reads from a file
+     * Format:
+     * <number of nodes>
+     * <edge1> <edge2>
+     * ...
+     * 
+     * Ex:
+     * 5 // this is the number of nodes
+     * 0 1 // this is an edge between node 0 and node 1
+     * 1 2
+     * ... 
+     * 
+     */
     public Instance (File file) {
         try {
             Scanner scanner = new Scanner(file);
             int numNodes = scanner.nextInt();
+            this.numNodes = numNodes;
             adjacencySet = new HashSet[numNodes];
             for (int i = 0; i < numNodes; i++) {
                 adjacencySet[i] = new HashSet<Integer>();
@@ -41,6 +57,10 @@ public class Instance {
     // returns an array of size n + 1, the first element in the array is number of neighbors, followed by the neighbors themselves
     public HashSet<Integer> getAdjacent(int node) {
         return adjacencySet[node];
+    }
+
+    public int getNumNodes() {
+        return numNodes;
     }
 
     public void printInstance() {
