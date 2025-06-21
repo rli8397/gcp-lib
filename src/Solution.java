@@ -6,47 +6,31 @@ public class Solution {
   private double objective;
   private Instance graph; 
   
-  //Empty coloring
-  public Solution (int colors, int n, Instance g, boolean random, boolean stable) {
+ 
+  public Solution (int colors, int n, Instance g, bool random, bool stable) {
     k = colors; //Must be >= 1 
     
     coloring =  new int[n]; 
-<<<<<<< HEAD
-=======
-
-    //-1 
->>>>>>> 644dbbb9ddb239b28b17a66305621cd84f42b65a
     graph = g;
+
     if (random){
       random_coloring();
     }
     else if (stable){
       stable_coloring();
     }
-<<<<<<< HEAD
 
     calcObjective();
   
-=======
-    calcObjective();
->>>>>>> 644dbbb9ddb239b28b17a66305621cd84f42b65a
   }
   
-  public void stable_coloring() {
-
-  }
-
   //Copy Constructor, Deep Copy
   public Solution (Solution other){
     this.k = other.k;
     this.objective = other.objective;
 
     //Placeholder for instance class
-<<<<<<< HEAD
     this.graph  = other.graph;
-=======
-    this.graph = other.graph;
->>>>>>> 644dbbb9ddb239b28b17a66305621cd84f42b65a
 
     this.coloring = new int[other.coloring.length];
     
@@ -59,6 +43,17 @@ public class Solution {
   //Splits graph into k sets 
   public void random_coloring(){
       Random randcol = new Random();
+      
+      ArrayList<Integer> indices = new ArrayList<>();
+      for (int i = 0; i < coloring.length; i++) {
+          indices.add(i);
+      }
+
+      Collections.shuffle(indicies);
+      
+      for (int i = 0; i < coloring.length; i++) {
+        indices.add(i);
+      }
 
       //Ensures each color gets at least 1 assignment 1 to k
       for (int i = 1; i < k+1; i++){
@@ -87,7 +82,7 @@ public class Solution {
     for (int i = 0; i < coloring.length; i++){
        
       //Placeholder
-      HashSet<Integer> adj = graph.getAdjacent(i);
+      Hashset<Integer> adj = graph.getAdjacent(i);
 
       for (int adjv : adj){
          //If i < adjv, that edge hasn't been checked yet
@@ -98,7 +93,7 @@ public class Solution {
          }
        }  
     } 
-    objective = obj;
+    objective  = obj;
   } 
 
   //Makes one random move to generate new Neighbor
@@ -111,6 +106,7 @@ public class Solution {
       newColor = (int)(Math.random()*k) + 1;
     }while (newColor == oldColor);
     
+    neighbor.vertexChange(index, newColor);
     neighbor.vertexChange(index, newColor);
     return neighbor;
   }
@@ -132,9 +128,12 @@ public class Solution {
 
   //Print
   public String toString(){
-    return "Coloring: " + coloring;
+    System.out.print("Coloring: ");
+
+    for (int i = 0; i < coloring.length; i++){
+      System.out.print(coloring[i] + " ");
+    }
   }
   
 
-  
 }
