@@ -1,10 +1,11 @@
 import java.util.*;
 
+// ADD A METHOD THAT UPDATES K WHEN SOLUTION CHANGES
 public class Solution {
-  private int k;
-  private int[] coloring;
-  private double objective;
-  private Instance graph; 
+  protected int k;
+  protected int[] coloring;
+  protected double objective;
+  protected Instance graph; 
   
  
   public Solution (int colors, int n, Instance g, bool random, bool stable) {
@@ -24,6 +25,8 @@ public class Solution {
   
   }
   
+ 
+
   //Copy Constructor, Deep Copy
   public Solution (Solution other){
     this.k = other.k;
@@ -42,24 +45,19 @@ public class Solution {
 
   //Splits graph into k sets 
   public void random_coloring(){
-      Random randcol = new Random();
+     Random randcol = new Random();
       
-      ArrayList<Integer> indices = new ArrayList<>();
+      ArrayList<Integer> indicies = new ArrayList<>();
       for (int i = 0; i < coloring.length; i++) {
-          indices.add(i);
+          indicies.add(i);
       }
 
       Collections.shuffle(indicies);
       
-      for (int i = 0; i < coloring.length; i++) {
-        indices.add(i);
+      for (int i = 1; i < k+1; i++){
+        coloring[indicies.get(i-1)] = i;
       }
 
-      //Ensures each color gets at least 1 assignment 1 to k
-      for (int i = 1; i < k+1; i++){
-        coloring[(int)(Math.random() * coloring.length)] = i;
-      }
-      
       //Partitions graph into k subsets
       for (int i = 0; i < coloring.length; i++){
         
@@ -69,7 +67,6 @@ public class Solution {
       }
 
       calcObjective();
-  
   }
 
   public void stable_coloring(){
@@ -104,13 +101,13 @@ public class Solution {
     int newColor = 0;
     do{
       newColor = (int)(Math.random()*k) + 1;
-    }while (newColor == oldColor);
+    } while (newColor == oldColor);
     
     neighbor.vertexChange(index, newColor);
     neighbor.vertexChange(index, newColor);
     return neighbor;
   }
-
+   
   //index 0 to n-1, color 1 to k
   public void vertexChange(int index, int color){
     coloring[index] = color;
@@ -128,12 +125,13 @@ public class Solution {
 
   //Print
   public String toString(){
-    System.out.print("Coloring: ");
-
-    for (int i = 0; i < coloring.length; i++){
-      System.out.print(coloring[i] + " ");
+    String str = "";
+    for (int i = 0; i < coloring.length; i++) {
+      str += "Node " + i + ": Color " + coloring[i] + "\n";
     }
+    return str;
   }
   
 
+  
 }
