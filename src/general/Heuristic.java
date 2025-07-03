@@ -1,3 +1,4 @@
+package general;
 public class Heuristic {
     private Instance instance;
     private double runtime_limit;
@@ -15,5 +16,11 @@ public class Heuristic {
     // gets the current run time of the heuristic in seconds
     public double getCurrRunTime() {
         return (System.currentTimeMillis() - start_time) / 1000.0; 
+    }
+
+    // This method can be used to report the current state of the heuristic
+    // returns true if the heuristic time is less than runtime limit
+    public boolean report() {
+        return getCurrRunTime() < runtime_limit;
     }
 }

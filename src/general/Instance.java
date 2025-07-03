@@ -1,3 +1,4 @@
+package general;
 import java.util.HashSet;
 import java.io.File; 
 import java.util.Scanner; 
@@ -5,9 +6,10 @@ import java.util.Scanner;
 public class Instance {
     private HashSet<Integer>[] adjacencySet; // adjacency matrix is boolean because it is non-directed and unweighted
     private int numNodes;
+    
     @SuppressWarnings("unchecked")
     public Instance(int numNodes) {
-        numNodes = numNodes;
+        this.numNodes = numNodes;
         adjacencySet = new HashSet[numNodes];
         for (int i = 0; i < numNodes; i++) {
             adjacencySet[i] = new HashSet<Integer>();

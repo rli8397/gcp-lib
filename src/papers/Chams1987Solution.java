@@ -1,4 +1,5 @@
-
+package papers;
+import general.Instance;
 
 public class Chams1987Solution extends Solution{
     public Chams1987Solution(int colors, int n, Instance g) {
