@@ -18,6 +18,10 @@ public class Heuristic {
         return (System.currentTimeMillis() - start_time) / 1000.0; 
     }
 
+    public void startHeuristic() {
+        start_time = System.currentTimeMillis();
+    }
+    
     // This method can be used to report the current state of the heuristic
     // returns true if the heuristic time is less than runtime limit
     public boolean report() {

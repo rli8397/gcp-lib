@@ -11,10 +11,10 @@ public class Solution {
   protected Instance graph; 
   
   //Empty coloring
-  public Solution (int colors, int n, Instance g, boolean random, boolean stable) {
+  public Solution (int colors, Instance g, boolean random, boolean stable) {
     k = colors; //Must be >= 1 
     
-    coloring =  new int[n]; 
+    coloring =  new int[g.getNumNodes()]; 
 
     //-1 
     graph = g;
@@ -75,6 +75,8 @@ public class Solution {
   }
 
   //Counts number of conflicting edges and updates objective
+  // O(n^2) - outside loop iterates through coloring which is len n inside loop
+  // iterates through all adj nodes which is max n nodes 
   public void calcObjective(){
     int obj = 0;
     for (int i = 0; i < coloring.length; i++){
@@ -93,6 +95,20 @@ public class Solution {
     objective = obj;
   } 
 
+  // this calculates the objective function for a neigboring solution
+  // O(n) - you must iterate through all adjacent nodes, which can be at most n nodes
+  public double calcNeighborObjective (int node, int newColor) {
+    double obj = objective;
+    for (int adj : graph.getAdjacent(node)) {
+      if (coloring[adj] == coloring[node]) {
+        obj--;
+      } else if (coloring[adj] == newColor) {
+        obj++;
+      }
+    }
+
+    return obj;
+  }
   //Makes one random move to generate new Neighbor
   public Solution generateNewNeighbor(){
     Solution neighbor  = new Solution (this);
@@ -108,68 +124,8 @@ public class Solution {
     return neighbor;
   }
    
-// This function generates the best neighbor of the current solution
-// If no neighbors are found, return null (will most likely never happen)
-// Allows for neighbors that are worse than the current solution to be returned if it the best out of all neighbors
-public Solution generateBestNeighbor(Condition condition) {
-    int bestNode = -1;
-    int bestColor = -1;
-    double bestDelta = Double.POSITIVE_INFINITY;; // tracks improvement (negative = improvement), does allow generating worse neighbors
-
-    // iterate through all nodes in the coloring (where coloring[node] is the color of node)
-    for (int node = 0; node < coloring.length; node++) {
-        int oldColor = coloring[node];
-        
-        // Calculate current conflicts for this node
-        int currConflicts = 0;
-        for (int adj : graph.getAdjacent(node)) {
-            if (coloring[adj] == oldColor) {
-                currConflicts++;
-            }
-        }
-        
-        // Try all other colors
-        for (int newColor = 1; newColor <= k; newColor++) {
-            if (newColor != oldColor) {
-              // Calculate new conflicts for this node
-              int newConflicts = 0;
-              for (int adj : graph.getAdjacent(node)) {
-                  if (coloring[adj] == newColor) {
-                      newConflicts++;
-                  }
-              }
-              
-              double delta = newConflicts - currConflicts;
-              // temporary changes this solution to check if it is a valid solution
-              coloring[node] = newColor;
-              objective += delta;
-              if (delta < bestDelta && condition.isValid(this)) {
-                  // update for the best neighbor found so far
-                  bestDelta = delta;
-                  bestNode = node;
-                  bestColor = newColor;
-              }
-
-              // revert the temporary changes to this solution
-              coloring[node] = oldColor;
-              objective -= delta;
-            }
-            
-        }
-    }
-
-    // If there are no neighbors return null(very unlikely)
-    if (bestNode == -1) {
-      return null;
-    }
-
-    // Apply the best move found
-    Solution bestNeighbor = new Solution(this);
-    bestNeighbor.coloring[bestNode] = bestColor;
-    bestNeighbor.objective += bestDelta;
-    return bestNeighbor;
-}
   // this function decrements k then redisrupts the color that was previously the kth color
+  // O(n^2) because of calcObjective()
   public void reduceK() {
     for (int i = 0; i < coloring.length; i++) {
       if (coloring[i] == k) {
