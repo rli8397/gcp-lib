@@ -9,19 +9,37 @@ public class Solution {
   protected int[] coloring; // colors start from 1 to k, 0 indicates uncolored node
   protected double objective;
   protected Instance graph; 
-  
-  //Empty coloring
-  public Solution (int colors, Instance g, boolean random, boolean stable) {
-    k = colors; //Must be >= 1 
-    
-    coloring =  new int[g.getNumNodes()]; 
 
-    //-1 
-    graph = g;
-    if (random){
+  // this inner class allows a node color pair to be used as a hashable key
+  public class NodePair {
+      int node;
+      int color;
+      public NodePair(int node, int color) {
+          this.node = node;
+          this.color = color; 
+      }
+
+      public boolean equals(Object obj) {
+          if (this == obj) return true; 
+          if (!(obj instanceof NodePair)) return false;
+          NodePair other = (NodePair) obj;
+          return node == other.node && color == other.color;
+      }
+
+      public int hashCode() {
+          return Objects.hash(node, color);
+      }
+  }
+
+  //Empty coloring
+  public Solution (int colors, Instance graph, boolean random, boolean stable) {
+    k = colors; //Must be >= 1 
+    coloring =  new int[graph.getNumNodes()];
+    this.graph = graph;
+
+    if (random) {
       random_coloring();
-    }
-    else if (stable){
+    } else if (stable) {
       stable_coloring();
     }
     calcObjective();
@@ -95,14 +113,31 @@ public class Solution {
     objective = obj;
   } 
 
+  // this generates a random move from the current graph to a neighbor, doesn't modify the current graph yet
+  public NodePair generateRandomMove() {
+    Random rand = new Random();
+    int node = rand.nextInt(graph.getNumNodes());
+    int color = rand.nextInt(k) + 1; // add 1 since colors start from 1 to k
+    
+    // Note: this might not be the most random, it gives more probability to the color greater than the curr color
+    if (coloring[node] == color) { // makes sure that the coloring is not the same color
+        color += 1;
+        if (color > k) {
+            color = 1;
+        }
+    }
+
+    return new NodePair(node, color);
+  }
+
   // this calculates the objective function for a neigboring solution
   // O(n) - you must iterate through all adjacent nodes, which can be at most n nodes
-  public double calcNeighborObjective (int node, int newColor) {
+  public double calcNeighborObjective (NodePair move) {
     double obj = objective;
-    for (int adj : graph.getAdjacent(node)) {
-      if (coloring[adj] == coloring[node]) {
+    for (int adj : graph.getAdjacent(move.node)) {
+      if (coloring[adj] == coloring[move.node]) {
         obj--;
-      } else if (coloring[adj] == newColor) {
+      } else if (coloring[adj] == move.color) {
         obj++;
       }
     }
@@ -123,6 +158,7 @@ public class Solution {
     neighbor.calcObjective();
     return neighbor;
   }
+<<<<<<< HEAD
 
   //Picks a random node in the coloring
   public int random_node(){
@@ -140,6 +176,20 @@ public class Solution {
     k--;
     calcObjective();
   }
+=======
+   
+  // this function decrements k then redisrupts the color that was previously the kth color
+  // O(n^2) because of calcObjective()
+  public void reduceK() {
+    for (int i = 0; i < coloring.length; i++) {
+      if (coloring[i] == k) {
+        coloring[i] = (int) (Math.random() * (k - 1)) + 1;
+      }
+    }
+    k--;
+    calcObjective();
+  }
+>>>>>>> 745d60e2bd2ab37328db0ad2b8557b398d2734e9
 
   //Accessors 
   public double getObjective(){ 
@@ -159,6 +209,13 @@ public class Solution {
     return str;
   }
   
+  // prints the current k the solution is checking and the best objective and solution found so far
+  public void printStatus() {
+        System.out.println("k: " + k);
+        System.out.println("f: " + objective);
+        System.out.println(this);
+  }
+
   // checks if two solutions are equal based on their coloring and their k value
   public boolean equals(Object o) {
     if (this == o) return true;
