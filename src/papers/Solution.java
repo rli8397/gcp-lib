@@ -123,6 +123,7 @@ public class Solution {
     neighbor.calcObjective();
     return neighbor;
   }
+<<<<<<< HEAD
 
   //Picks a random node in the coloring
   public int random_node(){
@@ -140,6 +141,20 @@ public class Solution {
     k--;
     calcObjective();
   }
+=======
+   
+  // this function decrements k then redisrupts the color that was previously the kth color
+  // O(n^2) because of calcObjective()
+  public void reduceK() {
+    for (int i = 0; i < coloring.length; i++) {
+      if (coloring[i] == k) {
+        coloring[i] = (int) (Math.random() * (k - 1)) + 1;
+      }
+    }
+    k--;
+    calcObjective();
+  }
+>>>>>>> 745d60e2bd2ab37328db0ad2b8557b398d2734e9
 
   //Accessors 
   public double getObjective(){ 
@@ -166,7 +181,10 @@ public class Solution {
     Solution solution = (Solution) o;
     return k == solution.k && Arrays.equals(coloring, solution.coloring);
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 745d60e2bd2ab37328db0ad2b8557b398d2734e9
   
   
 }
