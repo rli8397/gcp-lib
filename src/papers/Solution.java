@@ -1,30 +1,35 @@
+package papers;
 import java.util.*;
+
+import general.Instance;
 
 // ADD A METHOD THAT UPDATES K WHEN SOLUTION CHANGES
 public class Solution {
   protected int k;
-  protected int[] coloring;
+  protected int[] coloring; // colors start from 1 to k, 0 indicates uncolored node
   protected double objective;
   protected Instance graph; 
   
- 
-  public Solution (int colors, int n, Instance g, bool random, bool stable) {
+  //Empty coloring
+  public Solution (int colors, Instance g, boolean random, boolean stable) {
     k = colors; //Must be >= 1 
     
-    coloring =  new int[n]; 
-    graph = g;
+    coloring =  new int[g.getNumNodes()]; 
 
+    //-1 
+    graph = g;
     if (random){
       random_coloring();
     }
     else if (stable){
       stable_coloring();
     }
-
     calcObjective();
-  
   }
   
+  public void stable_coloring() {
+
+  }
  
 
   //Copy Constructor, Deep Copy
@@ -33,7 +38,7 @@ public class Solution {
     this.objective = other.objective;
 
     //Placeholder for instance class
-    this.graph  = other.graph;
+    this.graph = other.graph;
 
     this.coloring = new int[other.coloring.length];
     
@@ -69,18 +74,15 @@ public class Solution {
       calcObjective();
   }
 
-  public void stable_coloring(){
-      return;
-  }
-
   //Counts number of conflicting edges and updates objective
+  // O(n^2) - outside loop iterates through coloring which is len n inside loop
+  // iterates through all adj nodes which is max n nodes 
   public void calcObjective(){
-    double obj = 0;
+    int obj = 0;
     for (int i = 0; i < coloring.length; i++){
        
       //Placeholder
-      Hashset<Integer> adj = graph.getAdjacent(i);
-
+      HashSet<Integer> adj = graph.getAdjacent(i);
       for (int adjv : adj){
          //If i < adjv, that edge hasn't been checked yet
          if (i < adjv){
@@ -90,9 +92,23 @@ public class Solution {
          }
        }  
     } 
-    objective  = obj;
+    objective = obj;
   } 
 
+  // this calculates the objective function for a neigboring solution
+  // O(n) - you must iterate through all adjacent nodes, which can be at most n nodes
+  public double calcNeighborObjective (int node, int newColor) {
+    double obj = objective;
+    for (int adj : graph.getAdjacent(node)) {
+      if (coloring[adj] == coloring[node]) {
+        obj--;
+      } else if (coloring[adj] == newColor) {
+        obj++;
+      }
+    }
+
+    return obj;
+  }
   //Makes one random move to generate new Neighbor
   public Solution generateNewNeighbor(){
     Solution neighbor  = new Solution (this);
@@ -103,17 +119,28 @@ public class Solution {
       newColor = (int)(Math.random()*k) + 1;
     } while (newColor == oldColor);
     
-    neighbor.vertexChange(index, newColor);
-    neighbor.vertexChange(index, newColor);
+    neighbor.coloring[index] = newColor;
+    neighbor.calcObjective();
     return neighbor;
   }
-   
-  //index 0 to n-1, color 1 to k
-  public void vertexChange(int index, int color){
-    coloring[index] = color;
-    calcObjective();
+
+  //Picks a random node in the coloring
+  public int random_node(){
+    return (int)(Math.random() * coloring.length);
   }
   
+  // this function decrements k then redisrupts the color that was previously the kth color
+  // O(n^2) because of calcObjective()
+  public void reduceK() {
+    for (int i = 0; i < coloring.length; i++) {
+      if (coloring[i] == k) {
+        coloring[i] = (int) (Math.random() * (k - 1)) + 1;
+      }
+    }
+    k--;
+    calcObjective();
+  }
+
   //Accessors 
   public double getObjective(){ 
     return objective; 
@@ -132,6 +159,14 @@ public class Solution {
     return str;
   }
   
+  // checks if two solutions are equal based on their coloring and their k value
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Solution)) return false;
+    Solution solution = (Solution) o;
+    return k == solution.k && Arrays.equals(coloring, solution.coloring);
+  }
 
+  
   
 }

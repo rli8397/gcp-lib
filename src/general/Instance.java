@@ -1,3 +1,4 @@
+package general;
 import java.util.HashSet;
 import java.io.File; 
 import java.util.Scanner; 
@@ -5,7 +6,10 @@ import java.util.Scanner;
 public class Instance {
     private HashSet<Integer>[] adjacencySet; // adjacency matrix is boolean because it is non-directed and unweighted
     private int numNodes;
+    private int maxChromatic;
+    
     @SuppressWarnings("unchecked")
+    
     public Instance(int numNodes) {
         numNodes = numNodes;
         adjacencySet = new HashSet[numNodes];
@@ -32,6 +36,7 @@ public class Instance {
         try {
             Scanner scanner = new Scanner(file);
             int numNodes = scanner.nextInt();
+            
             this.numNodes = numNodes;
             adjacencySet = new HashSet[numNodes];
             for (int i = 0; i < numNodes; i++) {
@@ -43,6 +48,16 @@ public class Instance {
                 addEdge(edge1, edge2);
             }
             scanner.close();
+
+            //Calculate the maxchromatic number for the instance (maxdegree + 1)
+            int maxDegree = 0;
+            for (HashSet<Integer> adj : adjacencySet){
+                if (maxDegree < adj.size()){
+                    maxDegree = adj.size();
+                }
+            }
+
+            maxChromatic = maxDegree + 1;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -62,6 +77,11 @@ public class Instance {
     public int getNumNodes() {
         return numNodes;
     }
+
+    public int getMaxChromatic(){
+        return maxChromatic;
+    }
+    
 
     public void printInstance() {
         for (int i = 0; i < adjacencySet.length; i++) {

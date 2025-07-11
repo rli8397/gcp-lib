@@ -1,12 +1,13 @@
-public class Main{
+import java.io.File;
 
-    public static void main (String[] args){
-        File tester = new File("C:\Users\shrey\OneDrive\Documents\GraphCol\gcp-lib\Testing Graph.txt");
-        Instance test  = new Instance (tester);
+public class main{
+    public static void main(String[] args){
+        File test= new File ("C:\\Users\\shrey\\OneDrive\\Documents\\GraphCol\\gcp-lib\\test.txt");
+        Instance testergraph  = new Instance (test);
 
-        Solution = new Solution (3, )
+        SolutionConflict testing = new SolutionConflict(1,5,testergraph,true, false);
+
+        System.out.println(testing);
+
     }
-
-
-
 }
