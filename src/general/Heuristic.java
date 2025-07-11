@@ -1,9 +1,9 @@
 package general;
 public class Heuristic {
-    private Instance instance;
-    private double runtime_limit;
-    private long start_time;
-    private int best;
+    protected Instance instance;
+    protected double runtime_limit;
+    protected long start_time;
+    protected int best;
 
     // constructor for the heuristic class
     public Heuristic(Instance instance, double runtime_limit) {
