@@ -11,17 +11,14 @@ public class Solution {
   protected Instance graph; 
   
   //Empty coloring
-  public Solution (int colors, Instance g, boolean random, boolean stable) {
+  public Solution (int colors, Instance graph, boolean random, boolean stable) {
     k = colors; //Must be >= 1 
-    
-    coloring =  new int[g.getNumNodes()]; 
+    coloring =  new int[graph.getNumNodes()];
+    this.graph = graph;
 
-    //-1 
-    graph = g;
-    if (random){
+    if (random) {
       random_coloring();
-    }
-    else if (stable){
+    } else if (stable) {
       stable_coloring();
     }
     calcObjective();
@@ -108,20 +105,6 @@ public class Solution {
     }
 
     return obj;
-  }
-  //Makes one random move to generate new Neighbor
-  public Solution generateNewNeighbor(){
-    Solution neighbor  = new Solution (this);
-    int index = (int)(Math.random()*coloring.length);
-    int oldColor = neighbor.coloring[index];
-    int newColor = 0;
-    do{
-      newColor = (int)(Math.random()*k) + 1;
-    } while (newColor == oldColor);
-    
-    neighbor.coloring[index] = newColor;
-    neighbor.calcObjective();
-    return neighbor;
   }
    
   // this function decrements k then redisrupts the color that was previously the kth color

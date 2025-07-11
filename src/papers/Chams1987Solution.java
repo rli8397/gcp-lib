@@ -2,8 +2,8 @@ package papers;
 import general.Instance;
 
 public class Chams1987Solution extends Solution{
-    public Chams1987Solution(int colors, int n, Instance g) {
-        super(colors, n, g, false, false);
+    public Chams1987Solution(int colors, Instance g) {
+        super(colors, g, false, false);
     }
     
     public void Chams1987() {

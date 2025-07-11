@@ -28,24 +28,6 @@ public class Hertz1987Solution extends Solution {
     public Hertz1987Solution (Instance graph) {
         super(graph.getNumNodes(), graph, true, false);
     }
-
-    public void testing() {
-        NodePair pair = new NodePair(1, 2);
-        System.out.println(pair.node + " " + pair.color);
-        HashMap<NodePair, Integer> map = new HashMap<>();
-        map.put(pair, 1);
-        map.put(pair, 2);
-        map.put(new NodePair(1, 2), 0);
-        map.put(new NodePair(3, 2), 5);
-
-        NodePair notinmap = new NodePair(2,3);
-        System.out.println(map.containsKey(pair));
-        System.out.println(map.get(pair));
-        for(NodePair i : map.keySet()){
-            System.out.println(i.node + " "+ i.color);
-        }
-        System.out.println(isTabu(map, new NodePair(3,2), 10, 5));
-    }
     
     // checks to see if a move is tabu based on the tabu map and the current iteration
     public boolean isTabu(HashMap<NodePair, Integer> tabuMap, NodePair move, int iteration, int tenure) {
@@ -86,21 +68,23 @@ public class Hertz1987Solution extends Solution {
         return bestMove;
     }
 
-    public void Hertz1987 (Heuristic heuristic, int tabuTenure, int rep) {
+    public void tabuSearch (Heuristic heuristic, int tabuTenure, int rep) {
         // Initialization
         // hash map where the keys are node and coloring parings, value is where the pairing was made tabu
         HashMap<NodePair, Integer> tabuMap = new HashMap<>();
         int iteration = 0;
-        
+
+        while (objective > 0 && heuristic.report()) {
+            NodePair neighbor = generateBestRepNeighbor(rep, tabuMap, iteration, tabuTenure);
+            tabuMap.put(neighbor, iteration);
+            coloring[neighbor.node] = neighbor.color;
+            iteration++;
+        }
+    }
+    public void Hertz1987 (Heuristic heuristic, int tabuTenure, int rep) {        
         while (heuristic.report()) {
             reduceK(); // start with reducing k because finding a k coloring where k = n is trivial
-            while (objective > 0 && heuristic.report()) {
-                // this section runs in O(rep * n), as checking for objective is O(n) which is run rep times, thus O(rep * n)
-                NodePair neighbor = generateBestRepNeighbor(rep, tabuMap, iteration, tabuTenure);
-                tabuMap.put(neighbor, iteration);
-                coloring[neighbor.node] = neighbor.color;
-                iteration++;
-            }
+            tabuSearch(heuristic, tabuTenure, rep);
             System.out.println("k: " + k);
             System.out.println("f: " + objective);
             System.out.println(this);
@@ -111,4 +95,5 @@ public class Hertz1987Solution extends Solution {
         System.out.println("f: " + objective);
         System.out.println(this);
     }
+
 }
