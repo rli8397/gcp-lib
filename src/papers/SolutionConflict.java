@@ -55,21 +55,9 @@ public class SolutionConflict extends Solution {
         return str;
     }
 
-    //Picks a random node with conflicts
-    public int random_connode(){
+    
 
-        ArrayList<Integer> indicies = new ArrayList<Integer>();
-            for (int i = 0; i < concount.length; i ++){
-                if (concount[i] > 0){
-                    indicies.add(i);
-                }
-            }
-            int random_node  = (int)(Math.random()*indicies.size());
-
-            return indicies.get(random_node);
-    }
-
-    public 
+     
 
     
 }   

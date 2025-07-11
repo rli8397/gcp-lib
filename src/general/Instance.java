@@ -11,7 +11,7 @@ public class Instance {
     @SuppressWarnings("unchecked")
     
     public Instance(int numNodes) {
-        numNodes = numNodes;
+        this.numNodes = numNodes;
         adjacencySet = new HashSet[numNodes];
         for (int i = 0; i < numNodes; i++) {
             adjacencySet[i] = new HashSet<Integer>();
