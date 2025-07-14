@@ -157,6 +157,25 @@ public class Solution {
 
     return obj;
   }
+  //Makes one random move to generate new Neighbor
+  public Solution generateNewNeighbor(){
+    Solution neighbor  = new Solution (this);
+    int index = (int)(Math.random()*coloring.length);
+    int oldColor = neighbor.coloring[index];
+    int newColor = 0;
+    do{
+      newColor = (int)(Math.random()*k) + 1;
+    } while (newColor == oldColor);
+    
+    neighbor.coloring[index] = newColor;
+    neighbor.calcObjective();
+    return neighbor;
+  }
+
+  //Picks a random node in the coloring
+  public int random_node(){
+    return (int)(Math.random() * coloring.length);
+  }
    
   public void makeMove(Move move) {
     this.coloring[move.node] = move.color;

@@ -10,7 +10,7 @@ public class Johnson1991 {
 
     public class Johnson1991Solution extends SolutionConflict {
 
-        public Johnson1991Solution(int colors, int n, Instance g) {
+        public Johnson1991Solution(int colors, Instance g) {
             super(colors, g, true, false);
         }
 
@@ -146,15 +146,35 @@ public class Johnson1991 {
             super(i, r);
         }
 
-        public void heuristic() {
-
-            // according to paper, start k above max chromatic, which would be max degree +
-            // 1 + some arbitrary number
+        public Johnson1991Solution heuristic (){            
+            //according to paper, start k above max chromatic, which would be max degree + 1 + some arbitrary number
             int k = instance.getMaxChromatic() + 5;
-            while (getCurrRunTime() < runtime_limit) {
 
+            Johnson1991Solution bestSolution  = null;
+
+            while (report()){
+                Johnson1991Solution sol = new Johnson1991Solution(k, instance);
+
+                sol.Johnson1991FixedK();
+
+                //Successful k-coloring
+                
+                if (sol.objective  == 0 && report()){
+                    bestSolution = new Johnson1991Solution(sol);
+                    System.out.println("k: " + k);
+                    System.out.println(sol);
+                    k--;
+                }
+                
             }
+
+            if (bestSolution != null){
+                System.out.println("Best Coloring: " + bestSolution.k);
+            }
+
+            return bestSolution;
         }
 
+        
     }
 }

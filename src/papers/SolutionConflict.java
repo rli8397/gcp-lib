@@ -63,19 +63,19 @@ public class SolutionConflict extends Solution {
         return new Move(node, newColor);
     }
 
-    // public String toString() {
-    //     String str = "";
-    //     for (int i = 0; i < coloring.length; i++) {
-    //         str += "Node " + i + ": Color " + coloring[i] + "\n";
-    //     }
+    public String toString() {
+        String str = "";
+        for (int i = 0; i < coloring.length; i++) {
+            str += "Node " + i + ": Color " + coloring[i] + "\n";
+        }
 
-    //     str += "\nObjective: " + getObjective() + "\nConflict List: ";
+        str += "\nObjective: " + getObjective() + "\nConflict List: ";
 
-    //     for (int i = 0; i < conflictCount.length; i++) {
-    //         str += conflictCount[i] + " ";
-    //     }
+        for (int i = 0; i < conflictCount.length; i++) {
+            str += conflictCount[i] + " ";
+        }
 
-    //     return str;
-    // }
+        return str;
+    }
 
 }
