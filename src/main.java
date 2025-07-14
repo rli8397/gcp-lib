@@ -1,13 +1,13 @@
-import java.io.File;
-import general.Instance;
-import papers.Chams1987Solution;
-import papers.Hertz1987Solution;
 import general.Heuristic;
+import general.Instance;
+import java.io.*;
+import java.util.*;
 
-public class main{
-    public static void main(String[] args){
-        Instance graph = new Instance(new File("../test.txt"));
-        Chams1987Solution solution = new Chams1987Solution(graph.getNumNodes(), graph);
-        solution.Chams1987(new Heuristic(graph,10));
+import papers.Hertz1987;
+import papers.Hertz1987.*;
+public class main {
+    public static void main(String[] var0) {
+        Instance instance = new Instance(new File("../test.txt"));
+        Hertz1987 run = new Hertz1987(instance, 10, 7, 3);
     }
 }

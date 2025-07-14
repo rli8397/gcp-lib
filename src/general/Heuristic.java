@@ -4,6 +4,7 @@ public class Heuristic {
     protected double runtime_limit;
     protected long start_time;
     protected int best;
+    // we should maintain a "answer" best non-conflicted solution with lowest k
 
     // constructor for the heuristic class
     public Heuristic(Instance instance, double runtime_limit) {
@@ -16,10 +17,6 @@ public class Heuristic {
     // gets the current run time of the heuristic in seconds
     public double getCurrRunTime() {
         return (System.currentTimeMillis() - start_time) / 1000.0; 
-    }
-
-    public void startHeuristic() {
-        start_time = System.currentTimeMillis();
     }
     
     // This method can be used to report the current state of the heuristic

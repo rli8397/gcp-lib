@@ -45,7 +45,7 @@ public class Johnson1991 {
                 while (trials < sizefactor * ncap && change < cutoff * ncap) {
 
                     // Finding target node
-                    int target = random_node();
+                    int target = generateRandConflictedNode();
 
                     int newColor = 0;
                     // Switching color randomly 1 to k
@@ -54,7 +54,7 @@ public class Johnson1991 {
                     } while (newColor != coloring[target]);
 
                     // Calculate Delta
-                    double delta = calcNeighborObjective(new NodePair(target, newColor)) - objective;
+                    double delta = calcNeighborObjective(new Move(target, newColor)) - objective;
 
                     trials += 1;
 
@@ -91,19 +91,6 @@ public class Johnson1991 {
 
         }
 
-        // Picks a random node with conflicts, devaition from picking ANY random node
-        public int random_node() {
-
-            ArrayList<Integer> indicies = new ArrayList<Integer>();
-            for (int i = 0; i < conflictCount.length; i++) {
-                if (conflictCount[i] > 0) {
-                    indicies.add(i);
-                }
-            }
-            int random_node = (int) (Math.random() * indicies.size());
-
-            return indicies.get(random_node);
-        }
         /*
          * //FixedK method calls for switching a random node with conflicting edges to a
          * new color
