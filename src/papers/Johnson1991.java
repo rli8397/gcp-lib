@@ -34,11 +34,12 @@ public class Johnson1991 {
 
             int trials = 0;
             double t = 2.0;
+
             // Not specified
             int cutoff = 0;
             int change = 0;
 
-            while (freezecount < freeze_lim) {
+            while (objective > 0 && freezecount < freeze_lim) {
                 change = 0;
                 trials = 0;
 
@@ -48,6 +49,7 @@ public class Johnson1991 {
                     int target = random_node();
 
                     int newColor = 0;
+
                     // Switching color randomly 1 to k
                     do {
                         newColor = (int) (Math.random() * k) + 1;
@@ -66,13 +68,14 @@ public class Johnson1991 {
                         break;
                     } else {
                         double p = Math.exp(-delta / t);
-                        double x = Math.random();
+                        double x = Math.random(); // One source of randomness
 
                         if (x < p) {
                             coloring[target] = newColor;
                             objective += delta;
                             freezecount = 0;
-
+                            
+                            //Check this
                             if (delta != 0) {
                                 change += 1;
                             }
@@ -157,11 +160,11 @@ public class Johnson1991 {
     public class Johnson1991Heuristic extends Heuristic {
         public Johnson1991Heuristic(Instance i, double r) {
             super(i, r);
+            
+            heuristic();
         }
 
         public Johnson1991Solution heuristic (){
-
-            startHeuristic();
             
             //according to paper, start k above max chromatic, which would be max degree + 1 + some arbitrary number
             int k = instance.getMaxChromatic() + 5;
@@ -175,8 +178,8 @@ public class Johnson1991 {
 
                 //Successful k-coloring
                 
-                if (sol.objective  == 0 && report()){
-                    bestSolution = new Johnson1991Solution(sol);
+                if (sol.objective == 0 && report()){
+                    bestSolution = new Johnson1991Solution(sol); // deep copy
                     System.out.println("k: " + k);
                     System.out.println(sol);
                     k--;

@@ -55,21 +55,5 @@ public class SolutionConflict extends Solution {
     }
 
     
-
-<<<<<<< HEAD
-     
-
-=======
-        ArrayList<Integer> indicies = new ArrayList<Integer>();
-            for (int i = 0; i < conflictCount.length; i ++){
-                if (conflictCount[i] > 0){
-                    indicies.add(i);
-                }
-            }
-            int random_node  = (int)(Math.random()*indicies.size());
-
-            return indicies.get(random_node);
-    }
->>>>>>> 7c8a517d7a958b271909a98b227900cfd7d8809c
     
 }   
