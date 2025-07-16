@@ -3,13 +3,14 @@ package papers;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import general.Heuristic;
 import general.Instance;
 
 public class SolutionConflict extends Solution {
     protected int[] conflictCount;
 
-    public SolutionConflict(int k, Instance g, boolean random, boolean stable) {
-        super(k, g, random, stable);
+    public SolutionConflict(Heuristic heuristic, int k, Instance g, boolean random, boolean stable) {
+        super(heuristic, k, g, random, stable);
         conflictCount = new int[g.getNumNodes()];
     }
 

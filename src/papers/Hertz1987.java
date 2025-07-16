@@ -4,17 +4,25 @@ import general.*;
 import java.util.*;
 
 public class Hertz1987 {
-    private Hertz1987Heuristic heuristic;
+    private Solution bestSolution;
+    private Solution bestValidSolution;
     public Hertz1987(Instance graph, double runtime, int tabuTenure, int rep) {
-        heuristic = new Hertz1987Heuristic(graph, runtime, tabuTenure, rep);
+        Heuristic heuristic = new Hertz1987Heuristic(graph, runtime, tabuTenure, rep);
+    }
+
+    public Solution getBestSolution() {
+        return bestSolution;
+    }
+
+    public Solution getBestValidSolution() {
+        return bestValidSolution;
     }
 
     public class Hertz1987Solution extends SolutionConflict {
         private double[] A;
-
         // constructor
-        public Hertz1987Solution(Instance graph) {
-            super(graph.getMaxChromatic(), graph, true, false);
+        public Hertz1987Solution(Heuristic heuristic, Instance graph) {
+            super(heuristic, graph.getMaxChromatic(), graph, true, false);
             A = new double[graph.getNumEdges() + 1];
             A[(int)this.objective] = this.objective - 1;
         }
@@ -80,16 +88,19 @@ public class Hertz1987 {
     public class Hertz1987Heuristic extends Heuristic {
         public Hertz1987Heuristic(Instance graph, double runtime, int tabuTenure, int rep) {
             super(graph, runtime);
-            Hertz1987Solution solution = new Hertz1987Solution(graph);
+            Hertz1987Solution solution = new Hertz1987Solution(this, graph);
             while (this.report()) {
                 solution.reduceK(); // start with reducing k because finding a k coloring where k = n is trivial
                 solution.tabuSearch(tabuTenure, rep);
+                if (solution.objective == 0) {
+                    bestValidSolution = solution;
+                }
                 solution.printStatus();
             }
 
+            bestSolution = solution;
             System.out.println("runtime: " + this.getCurrRunTime());
             solution.printStatus();
-
         }
     }
 }
