@@ -16,7 +16,7 @@ public class Chams1987Solution extends Solution{
                 change = false;
                 int rep = (int) Math.exp(2/t);
                 for(int i = 0; i < rep; i++) {
-                    NodePair move = generateRandomMove();
+                    Move move = generateRandomMove();
                     double delta = calcNeighborObjective(move) - this.getObjective();
                     if (delta < 0) {
                         coloring[move.node] = move.color;

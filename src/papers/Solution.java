@@ -10,23 +10,36 @@ public class Solution {
   protected Instance graph; 
 
   // this inner class allows a node color pair to be used as a hashable key
-  public class NodePair {
+  public class Move {
       int node;
       int color;
-      public NodePair(int node, int color) {
+      double objective = -1;
+
+      public Move(int node, int color) {
           this.node = node;
           this.color = color; 
       }
 
       public boolean equals(Object obj) {
           if (this == obj) return true; 
-          if (!(obj instanceof NodePair)) return false;
-          NodePair other = (NodePair) obj;
+          if (!(obj instanceof Move)) return false;
+          Move other = (Move) obj;
           return node == other.node && color == other.color;
       }
 
       public int hashCode() {
           return Objects.hash(node, color);
+      }
+      
+      public double getObjective() {
+        if (objective == -1) {
+          objective = calcNeighborObjective(this);
+        }
+        return objective;
+      }
+
+      public String toString() {
+        return "Node: " + node + " Color: " + color + " Objective: " + getObjective();
       }
   }
 
@@ -113,7 +126,7 @@ public class Solution {
   } 
 
   // this generates a random move from the current graph to a neighbor, doesn't modify the current graph yet
-  public NodePair generateRandomMove() {
+  public Move generateRandomMove() {
     Random rand = new Random();
     int node = rand.nextInt(graph.getNumNodes());
     int color = rand.nextInt(k) + 1; // add 1 since colors start from 1 to k
@@ -126,12 +139,12 @@ public class Solution {
         }
     }
 
-    return new NodePair(node, color);
+    return new Move(node, color);
   }
 
   // this calculates the objective function for a neigboring solution
   // O(n) - you must iterate through all adjacent nodes, which can be at most n nodes
-  public double calcNeighborObjective (NodePair move) {
+  public double calcNeighborObjective (Move move) {
     double obj = objective;
     for (int adj : graph.getAdjacent(move.node)) {
       if (coloring[adj] == coloring[move.node]) {
@@ -162,17 +175,34 @@ public class Solution {
   public int random_node(){
     return (int)(Math.random() * coloring.length);
   }
+<<<<<<< HEAD
   
+=======
+   
+  public void makeMove(Move move) {
+    this.coloring[move.node] = move.color;
+    this.objective = move.getObjective();
+  }
+>>>>>>> 99faed6bd4a33f17756e52e3c2df0efbcb4ea84f
   // this function decrements k then redisrupts the color that was previously the kth color
   // O(n^2) because of calcObjective()
   public void reduceK() {
     for (int i = 0; i < coloring.length; i++) {
+<<<<<<< HEAD
       if (coloring[i] == k) {
         coloring[i] = (int) (Math.random() * (k - 1)) + 1;
       }
     }
     k--;
     calcObjective();
+=======
+      if (this.coloring[i] == k) {
+        this.coloring[i] = (int) (Math.random() * (k - 1)) + 1;
+      }
+    }
+    k--;
+    calcObjective(); // maybe call make move instead of calcObjective
+>>>>>>> 99faed6bd4a33f17756e52e3c2df0efbcb4ea84f
   }
 
   //Accessors 

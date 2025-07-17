@@ -7,7 +7,7 @@ public class Instance {
     private HashSet<Integer>[] adjacencySet; // adjacency matrix is boolean because it is non-directed and unweighted
     private int numNodes;
     private int maxChromatic;
-    
+    private int numEdges;
     @SuppressWarnings("unchecked")
     
     public Instance(int numNodes) {
@@ -65,7 +65,9 @@ public class Instance {
 
     // this void method adds an edge between two given nodes
     public void addEdge(int edge1, int edge2) {
-        adjacencySet[edge1].add(edge2);
+        if(adjacencySet[edge1].add(edge2)){
+            numEdges += 1;
+        }
         adjacencySet[edge2].add(edge1); // since the graph is undirected, we add both directions
     }
 
@@ -82,6 +84,9 @@ public class Instance {
         return maxChromatic;
     }
     
+    public int getNumEdges() {
+        return numEdges;
+    }
 
     public void printInstance() {
         for (int i = 0; i < adjacencySet.length; i++) {
