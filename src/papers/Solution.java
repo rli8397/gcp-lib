@@ -2,6 +2,7 @@ package papers;
 import java.util.*;
 
 import general.Instance;
+import general.Heuristic;
 
 // ADD A METHOD THAT UPDATES K WHEN SOLUTION CHANGES
 public class Solution {
@@ -9,6 +10,7 @@ public class Solution {
   protected int[] coloring; // colors start from 1 to k, 0 indicates uncolored node
   protected double objective;
   protected Instance graph; 
+  protected Heuristic heuristic;
 
   // this inner class allows a node color pair to be used as a hashable key
   public class Move {
@@ -45,10 +47,11 @@ public class Solution {
   }
 
   //Empty coloring
-  public Solution (int colors, Instance graph, boolean random, boolean stable) {
+  public Solution (Heuristic heuristic, int colors, Instance graph, boolean random, boolean stable) {
     k = colors; //Must be >= 1 
     coloring =  new int[graph.getNumNodes()];
     this.graph = graph;
+    this.heuristic = heuristic;
 
     if (random) {
       random_coloring();
@@ -67,8 +70,8 @@ public class Solution {
   public Solution (Solution other){
     this.k = other.k;
     this.objective = other.objective;
-
     //Placeholder for instance class
+    this.heuristic = other.heuristic; // this is wrong for a deepcopy but just a placeholder for now
     this.graph = other.graph;
 
     this.coloring = new int[other.coloring.length];
@@ -191,6 +194,10 @@ public class Solution {
     }
     k--;
     calcObjective(); // maybe call make move instead of calcObjective
+  }
+  
+  public int maxCardinality() {
+    return 1;
   }
 
   //Accessors 
