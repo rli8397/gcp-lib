@@ -3,6 +3,7 @@ import java.util.*;
 
 import general.Instance;
 
+// ADD A METHOD THAT UPDATES K WHEN SOLUTION CHANGES
 public class Solution {
   protected int k;
   protected int[] coloring; // colors start from 1 to k, 0 indicates uncolored node
@@ -175,34 +176,21 @@ public class Solution {
   public int random_node(){
     return (int)(Math.random() * coloring.length);
   }
-<<<<<<< HEAD
-  
-=======
    
   public void makeMove(Move move) {
     this.coloring[move.node] = move.color;
     this.objective = move.getObjective();
   }
->>>>>>> 99faed6bd4a33f17756e52e3c2df0efbcb4ea84f
   // this function decrements k then redisrupts the color that was previously the kth color
   // O(n^2) because of calcObjective()
   public void reduceK() {
     for (int i = 0; i < coloring.length; i++) {
-<<<<<<< HEAD
-      if (coloring[i] == k) {
-        coloring[i] = (int) (Math.random() * (k - 1)) + 1;
-      }
-    }
-    k--;
-    calcObjective();
-=======
       if (this.coloring[i] == k) {
         this.coloring[i] = (int) (Math.random() * (k - 1)) + 1;
       }
     }
     k--;
     calcObjective(); // maybe call make move instead of calcObjective
->>>>>>> 99faed6bd4a33f17756e52e3c2df0efbcb4ea84f
   }
 
   //Accessors 

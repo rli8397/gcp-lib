@@ -145,20 +145,16 @@ public class Johnson1991 {
     }
 
     public class Johnson1991Heuristic extends Heuristic {
+        
         public Johnson1991Heuristic(Instance i, double r) {
             super(i, r);
             
             heuristic();
         }
 
-<<<<<<< HEAD
-        public Johnson1991Solution heuristic (){
-            
-=======
         public Johnson1991Solution heuristic (){            
->>>>>>> 99faed6bd4a33f17756e52e3c2df0efbcb4ea84f
             //according to paper, start k above max chromatic, which would be max degree + 1 + some arbitrary number
-            int k = instance.getMaxChromatic() + 5;
+            int k = instance.getMaxChromatic();
 
             Johnson1991Solution bestSolution  = null;
 
