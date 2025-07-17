@@ -9,8 +9,8 @@ import general.Instance;
 public class SolutionConflict extends Solution {
     protected int[] conflictCount;
 
-    public SolutionConflict(Heuristic heuristic, int k, Instance g, boolean random, boolean stable) {
-        super(heuristic, k, g, random, stable);
+    public SolutionConflict(Heuristic heuristic, int[] c, int k, Instance g) {
+        super(heuristic, c, k, g);
         conflictCount = new int[g.getNumNodes()];
     }
 

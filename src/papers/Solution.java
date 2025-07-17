@@ -47,24 +47,16 @@ public class Solution {
   }
 
   //Empty coloring
-  public Solution (Heuristic heuristic, int colors, Instance graph, boolean random, boolean stable) {
+  public Solution (Heuristic heuristic, int[] c, int colors, Instance graph) {
     k = colors; //Must be >= 1 
-    coloring =  new int[graph.getNumNodes()];
+    coloring = c;
     this.graph = graph;
     this.heuristic = heuristic;
 
-    if (random) {
-      random_coloring();
-    } else if (stable) {
-      stable_coloring();
-    }
     calcObjective();
-  }
-  
-  public void stable_coloring() {
 
   }
- 
+  
 
   //Copy Constructor, Deep Copy
   public Solution (Solution other){
@@ -83,29 +75,33 @@ public class Solution {
   }
 
   //Splits graph into k sets 
-  public void random_coloring(){
-     Random randcol = new Random();
+  protected static int[] random_coloring(int numNodes, int k){
+    int[] coloring = new int[numNodes];
+    Random randcol = new Random();
+    
+
+    //Change this
+    ArrayList<Integer> indicies = new ArrayList<>();
+    for (int i = 0; i < coloring.length; i++) {
+        indicies.add(i);
+    }
+
+    Collections.shuffle(indicies);
+    
+    for (int i = 1; i < k+1; i++){
+      coloring[indicies.get(i-1)] = i;
+    }
+
+    //Partitions graph into k subsets
+    for (int i = 0; i < coloring.length; i++){
       
-      ArrayList<Integer> indicies = new ArrayList<>();
-      for (int i = 0; i < coloring.length; i++) {
-          indicies.add(i);
-      }
+      //Colors it from 1 to k if node is uncolored
+      if (coloring[i] == 0)
+        coloring[i] = randcol.nextInt(k+1) + 1; 
+    }
 
-      Collections.shuffle(indicies);
-      
-      for (int i = 1; i < k+1; i++){
-        coloring[indicies.get(i-1)] = i;
-      }
-
-      //Partitions graph into k subsets
-      for (int i = 0; i < coloring.length; i++){
-        
-        //Colors it from 1 to k if node is uncolored
-        if (coloring[i] == 0)
-          coloring[i] = randcol.nextInt(k+1) + 1; 
-      }
-
-      calcObjective();
+    //returns coloring which is then used to instantiate solution class
+    return coloring;
   }
 
   //Counts number of conflicting edges and updates objective
@@ -207,6 +203,10 @@ public class Solution {
   
   public int[] getColoring(){
     return coloring;
+  }
+
+  public int getK(){
+    return k;
   }
 
   //Print
