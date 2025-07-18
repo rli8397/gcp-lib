@@ -76,6 +76,10 @@ public class Instance {
         return adjacencySet[node];
     }
 
+    public boolean areAdjacent(int node1, int node2) {
+        return adjacencySet[node1].contains(node2);
+    }
+    
     public int getNumNodes() {
         return numNodes;
     }

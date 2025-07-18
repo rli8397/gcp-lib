@@ -61,7 +61,7 @@ public class SolutionConflict extends Solution {
             newColor = (int) (Math.random() * k) + 1;
         } while (newColor == coloring[node]);
 
-        return new Move(node, newColor);
+        return new Move(node, newColor, this);
     }
 
     public String toString() {

@@ -3,63 +3,35 @@ import java.util.*;
 
 import general.Instance;
 import general.Heuristic;
+import papers.Move;
 
+public abstract class Solution {
+  protected int k;
+  protected boolean conflicted;
+  protected int[] coloring;
+  Random rand = new Random(0);
+  Instance instance;
+
+//Splits instance into k sets then calculates the objective
+  public void randomColoring(){
+     for (int i = 0; i < coloring.length; i++) {
+        coloring[i] = rand.nextInt(k) + 1; // colors start from 1 to k
+     }
+     calcObjective();
+  }
+
+  public abstract void calcObjective();
+}
 // ADD A METHOD THAT UPDATES K WHEN SOLUTION CHANGES
 public class Solution {
   protected int k;
   protected int[] coloring; // colors start from 1 to k, 0 indicates uncolored node
   protected double objective;
-  protected Instance graph; 
+  protected Instance instance; 
   protected Heuristic heuristic;
+  protected Random rand = new Random();
 
-  // this inner class allows a node color pair to be used as a hashable key
-  public class Move {
-      int node;
-      int color;
-      double objective = -1;
 
-      public Move(int node, int color) {
-          this.node = node;
-          this.color = color; 
-      }
-
-      public boolean equals(Object obj) {
-          if (this == obj) return true; 
-          if (!(obj instanceof Move)) return false;
-          Move other = (Move) obj;
-          return node == other.node && color == other.color;
-      }
-
-      public int hashCode() {
-          return Objects.hash(node, color);
-      }
-      
-      public double getObjective() {
-        if (objective == -1) {
-          objective = calcNeighborObjective(this);
-        }
-        return objective;
-      }
-
-      public String toString() {
-        return "Node: " + node + " Color: " + color + " Objective: " + getObjective();
-      }
-  }
-
-  //Empty coloring
-  public Solution (Heuristic heuristic, int colors, Instance graph, boolean random, boolean stable) {
-    k = colors; //Must be >= 1 
-    coloring =  new int[graph.getNumNodes()];
-    this.graph = graph;
-    this.heuristic = heuristic;
-
-    if (random) {
-      random_coloring();
-    } else if (stable) {
-      stable_coloring();
-    }
-    calcObjective();
-  }
   
   public void stable_coloring() {
 
@@ -72,7 +44,7 @@ public class Solution {
     this.objective = other.objective;
     //Placeholder for instance class
     this.heuristic = other.heuristic; // this is wrong for a deepcopy but just a placeholder for now
-    this.graph = other.graph;
+    this.instance = other.instance;
 
     this.coloring = new int[other.coloring.length];
     
@@ -82,7 +54,7 @@ public class Solution {
     }
   }
 
-  //Splits graph into k sets 
+  //Splits instance into k sets then calculates the objective
   public void random_coloring(){
      Random randcol = new Random();
       
@@ -97,14 +69,13 @@ public class Solution {
         coloring[indicies.get(i-1)] = i;
       }
 
-      //Partitions graph into k subsets
+      //Partitions instance into k subsets
       for (int i = 0; i < coloring.length; i++){
         
         //Colors it from 1 to k if node is uncolored
         if (coloring[i] == 0)
           coloring[i] = randcol.nextInt(k+1) + 1; 
       }
-
       calcObjective();
   }
 
@@ -116,7 +87,7 @@ public class Solution {
     for (int i = 0; i < coloring.length; i++){
        
       //Placeholder
-      HashSet<Integer> adj = graph.getAdjacent(i);
+      HashSet<Integer> adj = instance.getAdjacent(i);
       for (int adjv : adj){
          //If i < adjv, that edge hasn't been checked yet
          if (i < adjv){
@@ -129,10 +100,10 @@ public class Solution {
     objective = obj;
   } 
 
-  // this generates a random move from the current graph to a neighbor, doesn't modify the current graph yet
+  // this generates a random move from the current instance to a neighbor, doesn't modify the current instance yet
   public Move generateRandomMove() {
     Random rand = new Random();
-    int node = rand.nextInt(graph.getNumNodes());
+    int node = rand.nextInt(instance.getNumNodes());
     int color = rand.nextInt(k) + 1; // add 1 since colors start from 1 to k
     
     // Note: this might not be the most random, it gives more probability to the color greater than the curr color
@@ -143,14 +114,14 @@ public class Solution {
         }
     }
 
-    return new Move(node, color);
+    return new Move(node, color, this);
   }
 
   // this calculates the objective function for a neigboring solution
   // O(n) - you must iterate through all adjacent nodes, which can be at most n nodes
   public double calcNeighborObjective (Move move) {
     double obj = objective;
-    for (int adj : graph.getAdjacent(move.node)) {
+    for (int adj : instance.getAdjacent(move.node)) {
       if (coloring[adj] == coloring[move.node]) {
         obj--;
       } else if (coloring[adj] == move.color) {
@@ -184,6 +155,7 @@ public class Solution {
     this.coloring[move.node] = move.color;
     this.objective = move.getObjective();
   }
+
   // this function decrements k then redisrupts the color that was previously the kth color
   // O(n^2) because of calcObjective()
   public void reduceK() {
@@ -196,10 +168,6 @@ public class Solution {
     calcObjective(); // maybe call make move instead of calcObjective
   }
   
-  public int maxCardinality() {
-    return 1;
-  }
-
   //Accessors 
   public double getObjective(){ 
     return objective; 
