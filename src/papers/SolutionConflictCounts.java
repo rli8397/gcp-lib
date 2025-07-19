@@ -6,26 +6,27 @@ import java.util.HashSet;
 import general.Heuristic;
 import general.Instance;
 
-public class SolutionConflict extends Solution {
+public abstract class SolutionConflictCounts extends SolutionConflictObjective {
     protected int[] conflictCount;
 
-    public SolutionConflict(Heuristic heuristic, int[] c, int k, Instance g) {
-        super(heuristic, c, k, g);
-        conflictCount = new int[g.getNumNodes()];
-    }
+    // public SolutionConflictCounts(Heuristic heuristic, int[] coloring, int k) {
+    //     super(heuristic, coloring, k);
+    //     conflictCount = new int[this.instance.getNumNodes()];
+    // }
 
-    public SolutionConflict(SolutionConflict other) {
-        super(other);
-        conflictCount = other.conflictCount;
-
-    }
+    // public SolutionConflictCounts(SolutionConflictCounts other) {
+    //     super(other);
+    //     for (int i = 0; i < other.conflictCount.length; i++) {
+    //         this.conflictCount[i] = other.conflictCount[i];
+    //     }
+    // }
 
     public void calcObjective() {
-        double obj = 0;
+        int obj = 0;
         for (int i = 0; i < coloring.length; i++) {
 
             // Placeholder
-            HashSet<Integer> adj = graph.getAdjacent(i);
+            HashSet<Integer> adj = this.instance.getAdjacent(i);
 
             for (int adjv : adj) {
                 // If i < adjv, that edge hasn't been checked yet
@@ -49,7 +50,7 @@ public class SolutionConflict extends Solution {
                 indicies.add(i);
             }
         }
-        int random_node = (int) (Math.random() * indicies.size());
+        int random_node = heuristic.random(indicies.size());
 
         return indicies.get(random_node);
     }
@@ -58,7 +59,7 @@ public class SolutionConflict extends Solution {
         int node = randConflictedNode();
         int newColor = 0;
         do {
-            newColor = (int) (Math.random() * k) + 1;
+            newColor = heuristic.random(this.k) + 1;
         } while (newColor == coloring[node]);
 
         return new Move(node, newColor, this);

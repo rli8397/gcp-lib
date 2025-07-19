@@ -11,56 +11,141 @@ import general.Heuristic;
 import general.Instance;
 import papers.Move;
 
-public abstract class SolutionConflictObjective {
-    protected int k;
+public abstract class SolutionConflictObjective extends Solution {
     protected int objective;
-    protected Instance instance;
-    protected Heuristic heuristic;
-    protected int[] coloring;
-    protected Random rand = new Random();
-    
-    public abstract void randomColoring();
 
-    public abstract void calcObjective();
+    // public SolutionConflictObjective(Heuristic heuristic, int[] coloring, int k) {
+    //     this.heuristic = heuristic;
+    //     this.instance = heuristic.getInstance();
+    //     this.k = k;
+    //     this.coloring = coloring;
+    //     calcObjective();
+    // }
 
-    public abstract void makeMove(Move move);
+    // public SolutionConflictObjective(SolutionConflictObjective other) {
+    //     this.heuristic = other.heuristic;
+    //     this.instance = other.instance;
+    //     this.k = other.k;
+    //     for (int i = 0; i < other.coloring.length; i++) {
+    //         this.coloring[i] = other.coloring[i];
+    //     }
+    //     this.objective = other.objective;
+    //     this.validSolution = other.validSolution;
+    // }
 
-    public abstract void reduceK();
+    // Counts number of conflicting edges and updates objective
+    // O(n^2) - outside loop iterates through coloring which is len n inside loop
+    // iterates through all adj nodes which is max n nodes
+    public void calcObjective() {
+        int obj = 0;
+        for (int i = 0; i < coloring.length; i++) {
 
-    // Accessors
+            // Placeholder
+            HashSet<Integer> adj = heuristic.getInstance().getAdjacent(i);
+            for (int adjv : adj) {
+                // If i < adjv, that edge hasn't been checked yet
+                if (i < adjv) {
+                    if (coloring[i] == coloring[adjv]) {
+                        obj += 1;
+                    }
+                }
+            }
+        }
+        objective = obj;
+        validSolution = objective == 0;
+    }
+
+    // this calculates the objective function for a neigboring solution
+    // O(n) - you must iterate through all adjacent nodes, which can be at most n
+    // nodes
+    public int calcNeighborObjective(Move move) {
+        int obj = objective;
+        for (int adj : heuristic.getInstance().getAdjacent(move.node)) {
+            if (coloring[adj] == coloring[move.node]) {
+                obj--;
+            } else if (coloring[adj] == move.color) {
+                obj++;
+            }
+        }
+
+        return obj;
+    }
+
+    public void makeMove(Move move) {
+        coloring[move.node] = move.color;
+        objective = move.getObjective();
+        validSolution = objective == 0;
+    }
+
+    // this generates a random move from the current instance to a neighbor, doesn't
+    // modify the current instance yet
+    public Move generateRandomMove() {
+        Random rand = new Random();
+        int node = rand.nextInt(heuristic.getInstance().getNumNodes());
+        int color = rand.nextInt(k) + 1; // add 1 since colors start from 1 to k
+
+        // Note: this might not be the most random, it gives more probability to the
+        // color greater than the curr color
+        if (coloring[node] == color) { // makes sure that the coloring is not the same color
+            color += 1;
+            if (color > k) {
+                color = 1;
+            }
+        }
+
+        return new Move(node, color, this);
+    }
+
     public double getObjective() {
         return objective;
     }
 
-    public T[] getColoring() {
-        return coloring;
-    }
-
     // prints the current k the solution is checking and the best objective and
     // solution found so far
+    // for debugging purposes
     public void printStatus() {
         System.out.println("k: " + k);
         System.out.println("f: " + objective);
         System.out.println(this);
     }
 
-    // Override toString()
-    // Note this toString assumes that any type T is printable
-    public String toString() {
-        String str = "";
+    public int randConflictedNode() {
+        int[] conflictedNodes = new int[coloring.length];
+        int count = 0;
         for (int i = 0; i < coloring.length; i++) {
-            str += "Node " + i + ": Color " + coloring[i] + "\n";
+            for (int neighbor : this.instance.getAdjacent(i)) {
+                if (coloring[i] == coloring[neighbor]) {
+                    conflictedNodes[count] = i;
+                    count++;
+                    break;
+                }
+            }
         }
-        return str;
+
+        if (count == 0) {
+            return -1;
+        }
+        return conflictedNodes[heuristic.random(count)];
     }
 
-    // checks if two solutions are equal based on their coloring and their k value
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (!(o instanceof Solution2))
-            return false;
-        Solution2<T> solution = (Solution2<T>) o;
-        return k == solution.k && Arrays.equals(coloring, solution.coloring);
+    public Move randConflictedMove() {
+        int node = randConflictedNode();
+        int newColor = 0;
+        do {
+            newColor = heuristic.random(k) + 1;
+        } while (newColor == coloring[node]);
+
+        return new Move(node, newColor, this);
     }
+
+    public Move randMove() {
+        int node = heuristic.random(coloring.length);
+        int newColor = 0;
+        do {
+            newColor = heuristic.random(k) + 1;
+        } while (newColor == coloring[node]);
+
+        return new Move(node, newColor, this);
+    }
+
 }
