@@ -39,11 +39,9 @@ public abstract class SolutionConflictObjective extends Solution {
     public void calcObjective() {
         int obj = 0;
         for (int i = 0; i < coloring.length; i++) {
-
-            // Placeholder
-            HashSet<Integer> adj = heuristic.getInstance().getAdjacent(i);
+            HashSet<Integer> adj = this.instance.getAdjacent(i);
             for (int adjv : adj) {
-                // If i < adjv, that edge hasn't been checked yet
+                // If i < adjv, that edge hasn't been checked yet, this prevents from double counting
                 if (i < adjv) {
                     if (coloring[i] == coloring[adjv]) {
                         obj += 1;
@@ -143,7 +141,7 @@ public abstract class SolutionConflictObjective extends Solution {
         int newColor = 0;
         do {
             newColor = heuristic.random(k) + 1;
-        } while (newColor == coloring[node]);
+        } while (newColor == coloring[node] && k > 1);
 
         return new Move(node, newColor, this);
     }

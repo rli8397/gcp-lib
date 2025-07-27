@@ -9,18 +9,6 @@ import general.Instance;
 public abstract class SolutionConflictCounts extends SolutionConflictObjective {
     protected int[] conflictCount;
 
-    // public SolutionConflictCounts(Heuristic heuristic, int[] coloring, int k) {
-    //     super(heuristic, coloring, k);
-    //     conflictCount = new int[this.instance.getNumNodes()];
-    // }
-
-    // public SolutionConflictCounts(SolutionConflictCounts other) {
-    //     super(other);
-    //     for (int i = 0; i < other.conflictCount.length; i++) {
-    //         this.conflictCount[i] = other.conflictCount[i];
-    //     }
-    // }
-
     public void calcObjective() {
         int obj = 0;
         for (int i = 0; i < coloring.length; i++) {

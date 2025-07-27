@@ -4,7 +4,6 @@ import java.util.*;
 
 import general.Instance;
 import general.Heuristic;
-import papers.Move;
 
 public abstract class Solution {
   protected int k;
@@ -30,7 +29,7 @@ public abstract class Solution {
 
   public abstract void makeMove(Move move);
 
-  public abstract Move generateRandomMove();
+  public abstract Move randMove();
   
   public int randomNode() {
     return heuristic.random(instance.getNumNodes());

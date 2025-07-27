@@ -1,12 +1,12 @@
-import general.Heuristic;
 import general.Instance;
-import papers.SolutionConflict;
+import papers.Garlinier1999Heuristic;
+import papers.Hertz1987Heuristic;
 
 import java.util.*;
-
-public class main{
-    public static void main(String[] args){
-        File test= new File ("C:\\Users\\shrey\\OneDrive\\Documents\\GraphCol\\gcp-lib\\test.txt");
-        Instance testergraph  = new Instance (test);
+import java.io.*;
+public class main {
+    public static void main(String[] args) {
+       Instance instance = new Instance(new File("../test.txt"));
+       Garlinier1999Heuristic heuristic = new Garlinier1999Heuristic(instance, 0, 5);
     }
 }

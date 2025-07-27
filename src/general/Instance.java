@@ -71,7 +71,7 @@ public class Instance {
         adjacencySet[edge2].add(edge1); // since the graph is undirected, we add both directions
     }
 
-    // returns an array of size n + 1, the first element in the array is number of neighbors, followed by the neighbors themselves
+    // returns a set of size n + 1, the first element in the array is number of neighbors, followed by the neighbors themselves
     public HashSet<Integer> getAdjacent(int node) {
         return adjacencySet[node];
     }

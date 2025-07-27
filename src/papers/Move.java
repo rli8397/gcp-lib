@@ -5,7 +5,7 @@ import java.util.Objects;
 public class Move {
     protected int node;
     protected int color;
-    protected double objective = -1;
+    protected int objective = -1;
     protected Solution solution;
 
     public Move(int node, int color, Solution solution) {
@@ -27,7 +27,7 @@ public class Move {
         return Objects.hash(node, color);
     }
 
-    public double getObjective() {
+    public int getObjective() {
         if (objective == -1) {
             objective = solution.calcNeighborObjective(this);
         }
