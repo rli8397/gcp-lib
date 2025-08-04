@@ -53,7 +53,7 @@ public class Heuristic {
     // This method can be used to report the current state of the heuristic
     // returns true if the heuristic time is less than runtime limit
     public boolean report(Solution solution) {
-        if (solution.isValidSolution() && (!log.isEmpty() || log.peek().k > solution.getK())) {
+        if (solution.isValidSolution() && (log.isEmpty() || log.peek().k > solution.getK())) {
             log.push(new Entry(solution.getColoring(), getCurrRunTime(), solution.getK()));
         } 
         return report();
@@ -70,5 +70,15 @@ public class Heuristic {
     // returns the Random object
     public Random getRandom() {
         return rand;
+    }
+
+    public String toString(){
+        String result = "\nLog:\n";
+
+        for (Entry e : log){
+            result += e.toString() + "\n";
+        }
+
+        return result;
     }
 }
