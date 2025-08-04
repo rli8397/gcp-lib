@@ -6,15 +6,19 @@ import general.Instance;
 //No new solution classes made, simple small changes, can keep it within solution 
 public class Johnson1991 {
 
-    public class Johnson1991Solution extends SolutionConflict {
+    public class Johnson1991Solution extends SolutionConflictCounts {
 
-        public Johnson1991Solution(Heuristic heuristic, Instance g) {
-            super(heuristic, Solution.random_coloring(g.getNumNodes(), g.getMaxChromatic()), g.getMaxChromatic(), g);
+        public Johnson1991Solution(Heuristic heuristic, Instance instance) {
+            super(
+                heuristic, 
+                Solution.randomColoring(instance.getNumNodes(), instance.getMaxChromatic(), heuristic.getRandom()), 
+                instance.getMaxChromatic()
+            );
         }
 
-        public Johnson1991Solution(Johnson1991Solution other) {
-            super(other);
-        }
+        // public Johnson1991Solution(Johnson1991Solution other) {
+        //     super(other);
+        // }
 
 
         public void Johnson1991FixedK() {
@@ -108,8 +112,8 @@ public class Johnson1991 {
                 sol.Johnson1991FixedK();
 
                 //Successful k-coloring
-                if (sol.objective == 0 && report()){
-                    makeEntry(sol); // Snapshot of current solution
+                if (sol.objective == 0){
+                    report(sol); // Snapshot of current solution
                     sol.printStatus();
                     sol.reduceK();
                 }
