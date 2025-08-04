@@ -7,28 +7,32 @@ import general.Instance;
 
 
 public class Johnson1991Heuristic extends Heuristic {
-        
+        protected int k;
+
         public Johnson1991Heuristic(Instance i, double r) {
             super(i, r);
+            
+            this.k = i.getMaxChromatic();
+
             //according to paper, start k above max chromatic, which would be max degree + 1 + some arbitrary number
-            Johnson1991Solution sol = new Johnson1991Solution(this, instance);
+            Johnson1991Solution sol = new Johnson1991Solution(this, instance, k);
 
             do{
                 sol.Johnson1991FixedK();
+                
+                if (sol.isValidSolution()){
+                    this.k--;
+                    sol.reduceK();
+                }
 
             }while (report(sol));
             
-            
-
         }
-
 
         public class Johnson1991Solution extends SolutionConflictCounts {
 
-            public Johnson1991Solution(Heuristic h, Instance g) {
-                this.heuristic = h;
-                this.instance = g;
-                this.coloring  = Solution.randomColoring(instance.getNumNodes(), instance.getMaxChromatic() ,h.getRandom());
+            public Johnson1991Solution(Heuristic h, Instance g, int k) {
+                super(h, Solution.randomColoring(g.getNumNodes(), g.getMaxChromatic() ,h.getRandom()),k);
             }
 
             public void Johnson1991FixedK() {

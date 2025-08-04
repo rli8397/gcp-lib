@@ -1,14 +1,12 @@
 package papers;
 
 import java.util.HashMap;
-
 import general.Heuristic;
 
 public abstract class TabuSearch {
     protected int tenure;
     protected HashMap<Move, Integer> tabuMap;
     protected SolutionConflictCounts solution;
-    protected Heuristic heuristic;
     protected int[] A;
 
     protected abstract void updateTenure();
@@ -42,7 +40,7 @@ public abstract class TabuSearch {
                     return bestMove;
                 }
             }
-
+            
             Move currMove = solution.randConflictedMove();
             int currObj = currMove.getObjective();
             if (!isTabu(currMove, iteration) || currObj <= A[solution.objective]) {
@@ -57,6 +55,7 @@ public abstract class TabuSearch {
                 i += 1;
             }
             loopCount++;
+            
         }
 
         return bestMove;

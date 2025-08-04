@@ -8,7 +8,7 @@ public class Heuristic {
     protected long start_time;
     protected Stack<Entry> log;
     protected int best;
-    protected Random rand = new Random(0);
+    protected Random rand = new Random(1);
     
     // we should maintain a "answer" best non-conflicted solution with lowest k
 
@@ -25,7 +25,7 @@ public class Heuristic {
         }
 
         public String toString(){
-            return "TimeStamp: " + time + " Colors: " + k + " Coloring " + Arrays.toString(coloring); 
+            return "\nTimeStamp: " + time + "\nColors: " + k + "\nColoring " + Arrays.toString(coloring); 
         }
     }
 
@@ -60,6 +60,7 @@ public class Heuristic {
         }
         if (solution.isValidSolution() && (log.isEmpty() || log.peek().k > solution.getK())) {
             log.push(new Entry(solution.getColoring(), getCurrRunTime(), solution.getK()));
+            System.out.println(log.peek());
         } 
         return report();
     }
@@ -77,13 +78,11 @@ public class Heuristic {
         return rand;
     }
 
-    public String toString(){
-        String result = "\nLog:\n";
-
-        for (Entry e : log){
-            result += e.toString() + "\n";
+    public void printLog() {
+        System.out.println("Results: ");
+        for (Entry entry : log) {
+            System.out.println(entry);
         }
-
-        return result;
     }
+
 }

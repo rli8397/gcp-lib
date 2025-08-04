@@ -37,8 +37,10 @@ public class Glass2003Heuristic extends Heuristic {
                 s2 = this.random(population.length);
             }
 
-            solution = crossOver(population[s1], population[s2]);
-            solution.vertexDescent();
+            solution = new Glass2003Solution(this, crossOver(population[s1], population[s2]), this.k);
+            /*
+             * Creating a solution object calls calc objective and vertex desent on it
+             */
 
             // if a valid solution is found, we will restart the algorithm looking for k - 1
             // colors
@@ -63,15 +65,15 @@ public class Glass2003Heuristic extends Heuristic {
         for (int i = 0; i < popSize; i++) {
 
             if (report()){
-                population[i] = new Glass2003Solution(this, k);
-                population[i].greedyConstruction();
+                population[i] = new Glass2003Solution(this, Glass2003Solution.greedyConstruction(getInstance(), this.k, this), k);
             }
         }
     }
     
-    public Glass2003Solution crossOver(Glass2003Solution s1, Glass2003Solution s2){
+    public int[] crossOver(Glass2003Solution s1, Glass2003Solution s2){
 
-        Glass2003Solution combined = new Glass2003Solution(this, this.k);
+        int[] combined = new int[instance.getNumNodes()];
+
         for (int l = 1; l <= k; l++) {
             if (l % 2 == 1) {
                 s1.calcMaxCardinalityClass();
@@ -80,7 +82,7 @@ public class Glass2003Heuristic extends Heuristic {
                     if (s1.coloring[i] == color) {
                         s1.coloring[i] = -1;
                         s2.coloring[i] = -1;
-                        combined.coloring[i] = l;
+                        combined[i] = l;
                     }
                 }
             } else {
@@ -90,7 +92,7 @@ public class Glass2003Heuristic extends Heuristic {
                     if (s2.coloring[i] == color) {
                         s1.coloring[i] = -1;
                         s2.coloring[i] = -1;
-                        combined.coloring[i] = l;
+                        combined[i] = l;
                     }
                 }
             }
@@ -98,8 +100,10 @@ public class Glass2003Heuristic extends Heuristic {
 
         // if there are leftover nodes, just randomly assign them
         for (int i = 0; i < instance.getNumNodes(); i++) {
-            if (combined.coloring[i] <= 0) {
-                combined.coloring[i] = this.random(instance.getNumNodes());
+            if (combined[i] <= 0) {
+
+                //Changed this to this.random(k) + 1
+                combined[i] = this.random(k)+1;
             }
         }
 
@@ -110,18 +114,19 @@ public class Glass2003Heuristic extends Heuristic {
 
         private int maxCardinalityClass = -1;
 
-        public Glass2003Solution(Heuristic heuristic, int colors) {
-            this.heuristic = heuristic;
-            this.instance = heuristic.getInstance();
-            this.k = colors;
-            this.objective = 0;
-            this.coloring = new int[instance.getNumNodes()];
-            
+        public Glass2003Solution(Heuristic heuristic, int[] coloring, int colors) {
+            super(heuristic, coloring, colors);
+            calcObjective();
+
+            //CHANGE VERTEX DESCENT SO THAT IT DOESN'T CALL CALCOBJECTIVE AND JUST ALTERS THE OBJECTIVE ALREADY THERE
+            vertexDescent();
         }
 
-        private void greedyConstruction() {
+        private static int[] greedyConstruction(Instance instance, int k, Heuristic heuristic) {
             // Initialization
             HashSet<Integer>[] satDegree = new HashSet[instance.getNumNodes()];
+            int[] coloring  = new int[instance.getNumNodes()];
+
             for (int i = 0; i < instance.getNumNodes(); i++) {
                 satDegree[i] = new HashSet<Integer>();
             }
@@ -129,17 +134,17 @@ public class Glass2003Heuristic extends Heuristic {
             for (int i = 0; i < instance.getNumNodes(); i++) {
                 int minAllowed = Integer.MAX_VALUE;
                 int currNode = -1;
-                boolean[] usedColors = new boolean[this.k + 1];
+                boolean[] usedColors = new boolean[k + 1];
 
                 // loops through all nodes and searchs for the node with the minimum colors
                 // allowed without giving penalty
                 for (int node = 0; node < instance.getNumNodes(); node++) {
-                    if (this.coloring[node] == 0) { // Note: 0 means unvisited
-                        int allowed = this.k - satDegree[node].size();
+                    if (coloring[node] == 0) { // Note: 0 means unvisited
+                        int allowed = k - satDegree[node].size();
                         // -1 will notate that there is no allowed color
                         // these nodes will be randomly colored later
                         if (allowed == 0) {
-                            this.coloring[node] = -1;
+                            coloring[node] = -1;
                         } else if (allowed < minAllowed) {
                             minAllowed = allowed;
                             currNode = node;
@@ -155,8 +160,8 @@ public class Glass2003Heuristic extends Heuristic {
                 // fills up an array denoted which colors are used by the current nodes
                 // neighbors
                 for (int neighbor : instance.getAdjacent(currNode)) {
-                    if (this.coloring[neighbor] > 0) {
-                        usedColors[this.coloring[neighbor]] = true;
+                    if (coloring[neighbor] > 0) {
+                        usedColors[coloring[neighbor]] = true;
                     }
                 }
 
@@ -173,23 +178,24 @@ public class Glass2003Heuristic extends Heuristic {
                 // currNode is assigned minColor, then updates the sat degree of all its
                 // neighbors by adding the minColor to the set of colors neighboring the
                 // neighbor
-                this.coloring[currNode] = minColor;
+                coloring[currNode] = minColor;
                 for (int neighbor : instance.getAdjacent(currNode)) {
                     satDegree[neighbor].add(minColor);
                 }
+
+
             }
 
             // randomly colors any nodes that couldn't be colored without penalty
             // (aka where this.coloring[i] == -1)
             for (int i = 0; i < instance.getNumNodes(); i++) {
-                if (this.coloring[i] == -1) {
-                    this.coloring[i] = heuristic.random(this.k) + 1;
-                    this.objective++;
+                if (coloring[i] == -1) {
+                    coloring[i] = heuristic.random(k) + 1;
                 }
             }
 
-            vertexDescent();
-            calcObjective();
+            return coloring;
+
         }
 
         public void vertexDescent() {

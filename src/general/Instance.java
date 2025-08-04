@@ -9,14 +9,6 @@ public class Instance {
     private int maxChromatic;
     private int numEdges;
     @SuppressWarnings("unchecked")
-    
-    public Instance(int numNodes) {
-        this.numNodes = numNodes;
-        adjacencySet = new HashSet[numNodes];
-        for (int i = 0; i < numNodes; i++) {
-            adjacencySet[i] = new HashSet<Integer>();
-        }
-    }
 
     /* 
      * Constructor for an Intance that reads from a file
@@ -38,13 +30,13 @@ public class Instance {
             int numNodes = scanner.nextInt();
             
             this.numNodes = numNodes;
-            adjacencySet = new HashSet[numNodes];
-            for (int i = 0; i < numNodes; i++) {
+            adjacencySet = new HashSet[numNodes + 1];
+            for (int i = 0; i < adjacencySet.length; i++) {
                 adjacencySet[i] = new HashSet<Integer>();
             }
             while (scanner.hasNextInt()) {
-                int edge1 = scanner.nextInt();
-                int edge2 = scanner.nextInt();
+                int edge1 = scanner.nextInt()-1;
+                int edge2 = scanner.nextInt()-1;
                 addEdge(edge1, edge2);
             }
             scanner.close();

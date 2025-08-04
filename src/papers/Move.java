@@ -6,9 +6,9 @@ public class Move {
     protected int node;
     protected int color;
     protected int objective = -1;
-    protected Solution solution;
+    protected SolutionConflictObjective solution;
 
-    public Move(int node, int color, Solution solution) {
+    public Move(int node, int color, SolutionConflictObjective solution) {
         this.node = node;
         this.color = color;
         this.solution = solution;

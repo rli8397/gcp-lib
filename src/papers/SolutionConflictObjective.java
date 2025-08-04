@@ -11,27 +11,17 @@ import general.Heuristic;
 import general.Instance;
 import papers.Move;
 
-public abstract class SolutionConflictObjective extends Solution {
+// maybe allow to be instantiated for testing purposes
+public class SolutionConflictObjective extends Solution {
     protected int objective;
 
-    // public SolutionConflictObjective(Heuristic heuristic, int[] coloring, int k) {
-    //     this.heuristic = heuristic;
-    //     this.instance = heuristic.getInstance();
-    //     this.k = k;
-    //     this.coloring = coloring;
-    //     calcObjective();
-    // }
-
-    // public SolutionConflictObjective(SolutionConflictObjective other) {
-    //     this.heuristic = other.heuristic;
-    //     this.instance = other.instance;
-    //     this.k = other.k;
-    //     for (int i = 0; i < other.coloring.length; i++) {
-    //         this.coloring[i] = other.coloring[i];
-    //     }
-    //     this.objective = other.objective;
-    //     this.validSolution = other.validSolution;
-    // }
+    public SolutionConflictObjective(Heuristic heuristic, int[] coloring, int colors) {
+        this.heuristic = heuristic;
+        this.instance = heuristic.getInstance();
+        this.coloring = coloring;
+        this.k = colors;
+        calcObjective();
+    }
 
     // Counts number of conflicting edges and updates objective
     // O(n^2) - outside loop iterates through coloring which is len n inside loop
@@ -41,7 +31,8 @@ public abstract class SolutionConflictObjective extends Solution {
         for (int i = 0; i < coloring.length; i++) {
             HashSet<Integer> adj = this.instance.getAdjacent(i);
             for (int adjv : adj) {
-                // If i < adjv, that edge hasn't been checked yet, this prevents from double counting
+                // If i < adjv, that edge hasn't been checked yet, this prevents from double
+                // counting
                 if (i < adjv) {
                     if (coloring[i] == coloring[adjv]) {
                         obj += 1;
@@ -58,7 +49,7 @@ public abstract class SolutionConflictObjective extends Solution {
     // nodes
     public int calcNeighborObjective(Move move) {
         int obj = objective;
-        for (int adj : heuristic.getInstance().getAdjacent(move.node)) {
+        for (int adj : this.instance.getAdjacent(move.node)) {
             if (coloring[adj] == coloring[move.node]) {
                 obj--;
             } else if (coloring[adj] == move.color) {
@@ -79,7 +70,7 @@ public abstract class SolutionConflictObjective extends Solution {
     // modify the current instance yet
     public Move generateRandomMove() {
         Random rand = new Random();
-        int node = rand.nextInt(heuristic.getInstance().getNumNodes());
+        int node = rand.nextInt(this.instance.getNumNodes()) + 1;
         int color = rand.nextInt(k) + 1; // add 1 since colors start from 1 to k
 
         // Note: this might not be the most random, it gives more probability to the
@@ -94,7 +85,7 @@ public abstract class SolutionConflictObjective extends Solution {
         return new Move(node, color, this);
     }
 
-    public double getObjective() {
+    public int getObjective() {
         return objective;
     }
 
@@ -146,4 +137,13 @@ public abstract class SolutionConflictObjective extends Solution {
         return new Move(node, newColor, this);
     }
 
+    public void reduceK() {
+        for (int i = 1; i < coloring.length; i++) {
+            if (this.coloring[i] == k) {
+                this.coloring[i] = heuristic.random(k - 1) + 1; // reassigns the color to a random color from 1 to k-1
+            }
+        }
+        k--;
+        calcObjective();
+    }
 }
