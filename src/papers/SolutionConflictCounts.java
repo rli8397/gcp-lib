@@ -11,6 +11,7 @@ public abstract class SolutionConflictCounts extends SolutionConflictObjective {
 
     public void calcObjective() {
         int obj = 0;
+        conflictCount = new int[instance.getNumNodes() + 1];
         for (int i = 0; i < coloring.length; i++) {
 
             // Placeholder
@@ -28,6 +29,8 @@ public abstract class SolutionConflictCounts extends SolutionConflictObjective {
             }
         }
         objective = obj;
+        validSolution = objective == 0;
+
     }
 
     // Picks a random node with conflicts, devaition from picking ANY random node

@@ -53,6 +53,11 @@ public class Heuristic {
     // This method can be used to report the current state of the heuristic
     // returns true if the heuristic time is less than runtime limit
     public boolean report(Solution solution) {
+        System.out.println("Condtions Print: \n Log Empty: " + log.isEmpty() + "\nsolution.isValidSolution(): " + solution.isValidSolution());
+
+        if (!log.isEmpty()){
+            System.out.println("K improved: " + (log.peek().k > solution.getK()));
+        }
         if (solution.isValidSolution() && (log.isEmpty() || log.peek().k > solution.getK())) {
             log.push(new Entry(solution.getColoring(), getCurrRunTime(), solution.getK()));
         } 

@@ -1,30 +1,44 @@
 package papers;
 
-import java.util.HashSet;
-import java.util.HashMap;
+import java.util.*;
 
 import general.Heuristic;
 import general.Instance;
 
-public class Garlinier1999Heuristic extends Heuristic {
-    private Garlinier1999Solution[] population;
+public class Glass2003Heuristic extends Heuristic {
+    private Glass2003Solution[] population;
     private int k;
 
-    public Garlinier1999Heuristic(Instance instance, double runtime, int popSize) {
+    public Glass2003Heuristic(Instance instance, double runtime, int popSize) {
         super(instance, runtime);
         k = instance.getMaxChromatic();
-        Garlinier1999Solution solution;
+
+        Glass2003Solution solution;
+        System.out.println("Population About to be Initialized");
         InitPopulation(popSize);
+        System.out.println("Population Initialized");
+        int[] coloringprint;
+
+        for (int i = 0; i < population.length; i++){
+            coloringprint  = population[i].coloring;
+            System.out.print("Coloring " + i + ": ");
+            for (int u = 0; u < coloringprint.length; u++){
+                System.out.print(coloringprint[u]);
+            }
+            System.out.println("");
+        }
+
         do {
             // chooses 2 random parents
             int s1 = this.random(population.length);
             int s2 = this.random(population.length);
+
             while (s2 == s1) {
                 s2 = this.random(population.length);
             }
 
             solution = crossOver(population[s1], population[s2]);
-            solution.localSearch(1000, 10, 4, 3);
+            solution.vertexDescent();
 
             // if a valid solution is found, we will restart the algorithm looking for k - 1
             // colors
@@ -45,15 +59,19 @@ public class Garlinier1999Heuristic extends Heuristic {
     }
 
     public void InitPopulation(int popSize) {
-        this.population = new Garlinier1999Solution[popSize];
+        this.population = new Glass2003Solution[popSize];
         for (int i = 0; i < popSize; i++) {
-            population[i] = new Garlinier1999Solution(this, k);
-            population[i].greedyConstruction();
+
+            if (report()){
+                population[i] = new Glass2003Solution(this, k);
+                population[i].greedyConstruction();
+            }
         }
     }
+    
+    public Glass2003Solution crossOver(Glass2003Solution s1, Glass2003Solution s2){
 
-    public Garlinier1999Solution crossOver(Garlinier1999Solution s1, Garlinier1999Solution s2) {
-        Garlinier1999Solution combined = new Garlinier1999Solution(this, this.k);
+        Glass2003Solution combined = new Glass2003Solution(this, this.k);
         for (int l = 1; l <= k; l++) {
             if (l % 2 == 1) {
                 s1.calcMaxCardinalityClass();
@@ -86,40 +104,19 @@ public class Garlinier1999Heuristic extends Heuristic {
         }
 
         return combined;
-
     }
 
-    public class Garlinier1999Solution extends SolutionConflictObjective {
-        private Heuristic heuristic;
-        private int maxCardinalityClass = -1;
-        private int nb_cfl;
-        private double[] A;
+    public class Glass2003Solution extends SolutionConflictCounts{
 
-        public Garlinier1999Solution(Heuristic heuristic, int colors) {
+        private int maxCardinalityClass = -1;
+
+        public Glass2003Solution(Heuristic heuristic, int colors) {
             this.heuristic = heuristic;
             this.instance = heuristic.getInstance();
             this.k = colors;
             this.objective = 0;
             this.coloring = new int[instance.getNumNodes()];
-            A = new double[instance.getNumEdges() + 1];
-            for (int i = 0; i < A.length; i++) {
-                A[i] = i - 1;
-            }
-        }
-
-        public class GarlinierTabuSearch extends TabuSearch {
-            private int a;
-            private int alpha;
-
-            public GarlinierTabuSearch(int a, int alpha) {
-                tabuMap = new HashMap<>();
-                this.a = a;
-                this.alpha = alpha;
-            }
-
-            public void updateTenure() {
-                tenure = heuristic.random(a) + alpha * nb_cfl;
-            }
+            
         }
 
         private void greedyConstruction() {
@@ -191,60 +188,115 @@ public class Garlinier1999Heuristic extends Heuristic {
                 }
             }
 
-            localSearch(2000, 10, 4, 3);
+            vertexDescent();
             calcObjective();
         }
 
-        // this is different than the normal calc objective because it also updates
-        // nb_cfl which will be used to
-        // determine the length of the tabu tenure at each iteration
-        public void calcObjective() {
-            int obj = 0;
-            for (int i = 0; i < coloring.length; i++) {
-                HashSet<Integer> adj = this.instance.getAdjacent(i);
-                boolean conflictedNode = false;
-                for (int adjv : adj) {
-                    // If i < adjv, that edge hasn't been checked yet, this prevents from double
-                    // counting
-                    if (coloring[i] == coloring[adjv]) {
-                        if (i < adjv) {
-                            obj += 1;
+        public void vertexDescent() {
+
+            int numNodes = instance.getNumNodes();
+            int[][] costMatrix = new int[numNodes][k];
+
+            //Best color List Structure for each vertex
+            ArrayList<Integer>[] bestColorList = new ArrayList[numNodes];
+
+            int minConflict = Integer.MAX_VALUE;
+
+            // Initialize cost matrix and best color list
+            for (int i = 0; i < numNodes; i++) {
+                bestColorList[i] = new ArrayList<Integer>();
+                
+                //Compute Cost of each Vertex if Moved to different color
+                for (int c = 1; c <= k; c++) {
+                    costMatrix[i][c-1] = computeCost(i, c);
+
+                    if (costMatrix[i][c-1] < minConflict){
+                        bestColorList[i].clear();
+                        bestColorList[i].add(c);
+                        minConflict =  costMatrix[i][c-1];
+                    }
+                    else if (costMatrix[i][c-1] == minConflict){
+                        bestColorList[i].add(c);
+                    }
+                }
+
+            }
+
+            boolean changed = true;
+
+            //Cycles until no changes can be made
+            while (changed && heuristic.report()) {
+
+                changed = false;
+                for (int i = 0; i < numNodes; i++) {
+                    int currentColor = coloring[i];
+                    minConflict = Integer.MAX_VALUE;
+
+                    if (bestColorList[i].size() > 0 && !bestColorList[i].contains(currentColor)) {
+                        int newColor = bestColorList[i].get(heuristic.random(bestColorList[i].size()));
+                        coloring[i] = newColor;
+                        changed = true;
+
+                        // Update cost matrix and bestColorList for neighbors
+                        for (int neighbor : instance.getAdjacent(i)) {
+                            for (int c = 1; c <= k; c++) {
+                                costMatrix[neighbor][c-1] = computeCost(neighbor, c);
+
+                                if (costMatrix[neighbor][c-1] < minConflict){
+                                    bestColorList[neighbor].clear();
+                                    bestColorList[neighbor].add(c);
+                                    minConflict =  costMatrix[neighbor][c-1];
+
+                                }
+                                else if (costMatrix[neighbor][c-1] == minConflict){
+                                    bestColorList[neighbor].add(c);
+                                }   
+                            }
                         }
-                        if (!conflictedNode) {
-                            nb_cfl++;
-                            conflictedNode = true;
+
+                        
+                        // Update own row too
+                        for (int c = 1; c <= k; c++) {
+                            costMatrix[i][c-1] = computeCost(i, c);
+
+                            if (costMatrix[i][c-1] < minConflict){
+                                    bestColorList[i].clear();
+                                    bestColorList[i].add(c);
+                                    minConflict =  costMatrix[i][c-1];
+
+                                }
+                            else if (costMatrix[i][c-1] == minConflict){
+                                bestColorList[i].add(c);
+                            }   
                         }
                     }
                 }
             }
-            objective = obj;
-            validSolution = objective == 0;
-        }
 
-        public void localSearch(int iterations, int rep, int A, int alpha) {
-            // read more about tabu tenure and rep count
-            GarlinierTabuSearch ts = new GarlinierTabuSearch(A, alpha);
-            int iteration = 0;
-            while (objective > 0 && iteration < iterations && heuristic.report()) {
-                Move neighbor = ts.generateBestRepNeighbor(rep, iteration);
-                Move tabuMove = new Move(neighbor.node, this.coloring[neighbor.node], this);
-                ts.updateTenure();
-                ts.tabuMap.put(tabuMove, iteration + ts.tenure); // a move is still tabu as long as the iteration is <=
-                                                                 // curr iteration + tabuTenure
-                makeMove(neighbor);
-                iteration++;
+            // Finally update the objective and conflict counters
+            calcObjective();
+        } 
+
+        //Computes Cost of each move
+        private int computeCost(int vertex, int color) {
+            int cost = 0;
+            for (int neighbor : instance.getAdjacent(vertex)) {
+                if (coloring[neighbor] == color) {
+                    cost++;
+                }
             }
-
+            return cost;
         }
+
 
         public void calcMaxCardinalityClass() {
             int[] counts = new int[this.k];
             int maxCardinality = -1;
-            for (int i = 0; i < coloring.length; i++) {
+            for (int i = 0; i < instance.getNumNodes(); i++) {
                 if (this.coloring[i] > 0) {
-                    counts[this.coloring[i]]++;
-                    if (counts[this.coloring[i]] > maxCardinality) {
-                        maxCardinality = counts[this.coloring[i]];
+                    counts[this.coloring[i]-1]++;
+                    if (counts[this.coloring[i]-1] > maxCardinality) {
+                        maxCardinality = counts[this.coloring[i]-1];
                         maxCardinalityClass = this.coloring[i];
                     }
                 }
@@ -252,4 +304,6 @@ public class Garlinier1999Heuristic extends Heuristic {
         }
 
     }
+
+
 }
