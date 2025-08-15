@@ -2,8 +2,8 @@ package papers;
 
 import java.util.*;
 
-import general.Instance;
 import general.Heuristic;
+import general.Instance;
 
 public abstract class Solution {
   protected int k;
@@ -14,17 +14,26 @@ public abstract class Solution {
 
   // generates a random coloring array and returns it 
   protected static int[] randomColoring(int numNodes, int k, Random rand) {
-    int[] coloring = new int[numNodes + 1];
+    int[] coloring = new int[numNodes];
 
-    for (int i = 1; i < coloring.length; i++) {
+    for (int i = 0; i < coloring.length; i++) {
       coloring[i] = rand.nextInt(k) + 1; // colors start from 1 to k
     }
 
     return coloring;
   }
   
+  public static ArrayList<Integer> randTraversalOrder(Instance instance) {
+    ArrayList<Integer> order = new ArrayList<>();
+    for (int i = 0; i < instance.getNumNodes(); i++) {
+      order.add(i);
+    }
+    Collections.shuffle(order, Heuristic.getRandom());
+    return order;
+  }
+  
   public int randomNode() {
-    return heuristic.random(instance.getNumNodes());
+    return Heuristic.random(instance.getNumNodes());
   }
 
   // this function decrements k then redisrupts the color that was previously the

@@ -1,15 +1,12 @@
 package papers;
 
 import java.util.HashMap;
-import general.Heuristic;
 
 public abstract class TabuSearch {
     protected int tenure;
     protected HashMap<Move, Integer> tabuMap;
-    protected SolutionConflictCounts solution;
+    protected SolutionConflictObjective solution;
     protected int[] A;
-
-    protected abstract void updateTenure();
 
     // checks to see if a move is tabu based on the tabu map and the current
     // iteration

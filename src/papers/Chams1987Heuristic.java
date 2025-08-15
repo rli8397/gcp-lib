@@ -17,7 +17,7 @@ public class Chams1987Heuristic extends Heuristic {
 
     public class Chams1987Solution extends SolutionConflictObjective {
         public Chams1987Solution(Heuristic heuristic, Instance instance) {
-            super(heuristic, Solution.randomColoring(instance.getNumNodes(), instance.getMaxChromatic(), heuristic.getRandom()), instance.getMaxChromatic());
+            super(heuristic, Solution.randomColoring(instance.getNumNodes(), instance.getMaxChromatic(), Heuristic.getRandom()), instance.getMaxChromatic());
         }
 
         public void Chams1987() {

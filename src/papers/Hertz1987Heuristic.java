@@ -23,7 +23,7 @@ public class Hertz1987Heuristic extends Heuristic {
         // constructor
         public Hertz1987Solution(Heuristic heuristic, Instance instance) {
             super(heuristic, Solution.randomColoring(instance.getNumNodes(), instance.getMaxChromatic(),
-                    heuristic.getRandom()), instance.getMaxChromatic());
+                    Heuristic.getRandom()), instance.getMaxChromatic());
             this.conflictCount = new int[instance.getNumNodes() + 1];
         }
 

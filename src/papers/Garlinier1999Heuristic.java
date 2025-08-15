@@ -13,24 +13,22 @@ public class Garlinier1999Heuristic extends Heuristic {
     public Garlinier1999Heuristic(Instance instance, double runtime, int popSize) {
         super(instance, runtime);
         System.out.println("Running heuristic");
-        k = instance.getMaxChromatic();
         Garlinier1999Solution solution;
+        k = instance.getMaxChromatic();
         InitPopulation(popSize);
         do {
             // chooses 2 random parents
-            int s1 = this.random(population.length);
-            int s2 = this.random(population.length);
+            int s1 = random(population.length);
+            int s2 = random(population.length);
             while (s2 == s1) {
-                s2 = this.random(population.length);
+                s2 = random(population.length);
             }
 
-            solution = crossOver(population[s1], population[s2]);
-            solution.localSearch(1000, 10, 4, 3);
+            solution = new Garlinier1999Solution(this, crossOver(population[s1], population[s2]), this.k);
 
             // if a valid solution is found, we will restart the algorithm looking for k - 1
             // colors
             if (solution.objective == 0) {
-                System.out.println(k);
                 this.k--;
                 InitPopulation(popSize);
             } else {
@@ -47,16 +45,16 @@ public class Garlinier1999Heuristic extends Heuristic {
     public void InitPopulation(int popSize) {
         this.population = new Garlinier1999Solution[popSize];
         for (int i = 0; i < popSize; i++) {
-            population[i] = greedyConstruction();
+            population[i] = new Garlinier1999Solution(this, Garlinier1999Solution.greedyConstruction(this.instance, this.k, this), this.k);
         }
     }
 
-    public Garlinier1999Solution crossOver(Garlinier1999Solution s1, Garlinier1999Solution s2) {
-        int[] coloring = new int[instance.getNumNodes() + 1];
+    public int[] crossOver(Garlinier1999Solution s1, Garlinier1999Solution s2) {
+        int[] coloring = new int[instance.getNumNodes()];
         for (int l = 1; l <= k; l++) {
             if (l % 2 == 1) {
                 int color = s1.getMaxCardinalityClass();
-                for (int i = 1; i < instance.getNumNodes(); i++) {
+                for (int i = 0; i < coloring.length; i++) {
                     if (s1.coloring[i] == color) {
                         s1.coloring[i] = -1;
                         s2.coloring[i] = -1;
@@ -65,7 +63,7 @@ public class Garlinier1999Heuristic extends Heuristic {
                 }
             } else {
                 int color = s2.getMaxCardinalityClass();
-                for (int i = 1; i < instance.getNumNodes(); i++) {
+                for (int i = 0; i < coloring.length; i++) {
                     if (s2.coloring[i] == color) {
                         s1.coloring[i] = -1;
                         s2.coloring[i] = -1;
@@ -76,90 +74,91 @@ public class Garlinier1999Heuristic extends Heuristic {
         }
 
         // if there are leftover nodes, just randomly assign them
-        for (int i = 1; i < coloring.length; i++) {
+        for (int i = 0; i < coloring.length; i++) {
             if (coloring[i] <= 0) {
-                coloring[i] = this.random(this.k) + 1;
+                coloring[i] = random(this.k) + 1;
             }
         }
 
-        Garlinier1999Solution solution = new Garlinier1999Solution(this, coloring, this.k);
-        solution.calcObjective();
-        return solution;
+        return coloring;
     }
 
-    public Garlinier1999Solution greedyConstruction() {
-        // Initialization
-        int [] coloring = new int[instance.getNumNodes() + 1];
-        HashSet<Integer>[] satDegree = new HashSet[instance.getNumNodes() + 1];
-        for (int i = 1; i < satDegree.length; i++) {
-            satDegree[i] = new HashSet<Integer>();
-        }
+    // public Garlinier1999Solution greedyConstruction() {
+    //     // Initialization
+    //     int[] coloring = new int[instance.getNumNodes()];
+    //     int maxColor = Integer.MAX_VALUE;
+    //     HashSet<Integer>[] satDegree = new HashSet[instance.getNumNodes()];
+    //     for (int i = 0; i < satDegree.length; i++) {
+    //         satDegree[i] = new HashSet<Integer>();
+    //     }
 
-        for (int i = 1; i < coloring.length; i++) {
-            int minAllowed = Integer.MAX_VALUE;
-            int currNode = -1;
-            boolean[] usedColors = new boolean[this.k + 1];
+    //     for (int i = 0; i < coloring.length; i++) {
+    //         int minAllowed = Integer.MAX_VALUE;
+    //         int currNode = -1;
+    //         boolean[] usedColors = new boolean[this.k + 1];
 
-            // loops through all nodes and searchs for the node with the minimum colors
-            // allowed without giving penalty
-            for (int node = 1; node < satDegree.length; node++) {
-                if (coloring[node] == 0) { // Note: 0 means unvisited
-                    int allowed = this.k - satDegree[node].size();
-                    // -1 will notate that there is no allowed color
-                    // these nodes will be randomly colored later
-                    if (allowed == 0) {
-                        coloring[node] = -1;
-                    } else if (allowed < minAllowed) {
-                        minAllowed = allowed;
-                        currNode = node;
-                    }
-                }
-            }
+    //         // loops through all nodes and searchs for the node with the minimum colors
+    //         // allowed without giving penalty
+    //         for (int node = 0; node < satDegree.length; node++) {
+    //             if (coloring[node] == 0) { // Note: 0 means unvisited
+    //                 int allowed = this.k - satDegree[node].size();
+    //                 // -1 will notate that there is no allowed color
+    //                 // these nodes will be randomly colored later
+    //                 if (allowed == 0) {
+    //                     coloring[node] = -1;
+    //                 } else if (allowed < minAllowed) {
+    //                     minAllowed = allowed;
+    //                     currNode = node;
+    //                 }
+    //             }
+    //         }
 
-            // if no new node is able to be colored without penalty, break
-            if (currNode == -1) {
-                break;
-            }
+    //         // if no new node is able to be colored without penalty, break
+    //         if (currNode == -1) {
+    //             break;
+    //         }
 
-            // fills up an array denoted which colors are used by the current nodes
-            // neighbors
-            for (int neighbor : instance.getAdjacent(currNode)) {
-                if (coloring[neighbor] > 0) {
-                    usedColors[coloring[neighbor]] = true;
-                }
-            }
+    //         // fills up an array denoted which colors are used by the current nodes
+    //         // neighbors
+    //         for (int neighbor : instance.getAdjacent(currNode)) {
+    //             if (coloring[neighbor] > 0) {
+    //                 usedColors[coloring[neighbor]] = true;
+    //             }
+    //         }
 
-            // finds the smallest color class that is not used by the current nodes
-            // neighbors
-            int minColor = -1;
-            for (int j = 1; j < usedColors.length; j++) {
-                if (!usedColors[j]) {
-                    minColor = j;
-                    break;
-                }
-            }
+    //         // finds the smallest color class that is not used by the current nodes
+    //         // neighbors
+    //         int minColor = -1;
+    //         for (int j = 1; j < usedColors.length; j++) {
+    //             if (!usedColors[j]) {
+    //                 minColor = j;
+    //                 break;
+    //             }
+    //         }
 
-            // currNode is assigned minColor, then updates the sat degree of all its
-            // neighbors by adding the minColor to the set of colors neighboring the
-            // neighbor
-            coloring[currNode] = minColor;
-            for (int neighbor : instance.getAdjacent(currNode)) {
-                satDegree[neighbor].add(minColor);
-            }
-        }
+    //         // currNode is assigned minColor, then updates the sat degree of all its
+    //         // neighbors by adding the minColor to the set of colors neighboring the
+    //         // neighbor
+    //         coloring[currNode] = minColor;
+    //         maxColor = Math.max(minColor, maxColor);
+    //         for (int neighbor : instance.getAdjacent(currNode)) {
+    //             satDegree[neighbor].add(minColor);
+    //         }
+    //     }
 
-        // randomly colors any nodes that couldn't be colored without penalty
-        // (aka where this.coloring[i] == -1)
-        for (int i = 1; i < coloring.length; i++) {
-            if (coloring[i] == -1) {
-                coloring[i] = this.random(this.k) + 1;
-            }
-        }
-        Garlinier1999Solution solution = new Garlinier1999Solution(this, coloring, this.k);
-        solution.localSearch(1000, 5, 4, 3);
-        solution.calcObjective();
-        return solution;
-    }
+    //     // randomly colors any nodes that couldn't be colored without penalty
+    //     // (aka where this.coloring[i] == -1)
+    //     for (int i = 0; i < coloring.length; i++) {
+    //         if (coloring[i] == -1) {
+    //             coloring[i] = this.random(this.k) + 1;
+    //             maxColor = Math.max(coloring[i], maxColor);
+    //         }
+    //     }
+    //     Garlinier1999Solution solution = new Garlinier1999Solution(this, coloring, this.k);
+    //     solution.localSearch(1000, 5, 4, 3);
+    //     solution.calcObjective();
+    //     return solution;
+    // }
 
     public class Garlinier1999Solution extends SolutionConflictCounts {
         private int nb_cfl;
@@ -168,7 +167,80 @@ public class Garlinier1999Heuristic extends Heuristic {
         // would instantiate either with a greedy or a crossover, like factory
         public Garlinier1999Solution(Heuristic heuristic, int[] coloring, int colors) {
             super(heuristic, coloring, colors);
+            localSearch(1000, 5, 4, 3);
+        }
 
+        protected static int[] greedyConstruction(Instance instance, int k, Heuristic heuristic) {
+            // Initialization
+            HashSet<Integer>[] satDegree = new HashSet[instance.getNumNodes()];
+            int[] coloring = new int[instance.getNumNodes()];
+
+            for (int i = 0; i < instance.getNumNodes(); i++) {
+                satDegree[i] = new HashSet<Integer>();
+            }
+
+            for (int i = 0; i < instance.getNumNodes(); i++) {
+                int minAllowed = Integer.MAX_VALUE;
+                int currNode = -1;
+                boolean[] usedColors = new boolean[k + 1];
+
+                // loops through all nodes and searchs for the node with the minimum colors
+                // allowed without giving penalty
+                for (int node = 0; node < instance.getNumNodes(); node++) {
+                    if (coloring[node] == 0) { // Note: 0 means unvisited
+                        int allowed = k - satDegree[node].size();
+                        // -1 will notate that there is no allowed color
+                        // these nodes will be randomly colored later
+                        if (allowed == 0) {
+                            coloring[node] = -1;
+                        } else if (allowed < minAllowed) {
+                            minAllowed = allowed;
+                            currNode = node;
+                        }
+                    }
+                }
+
+                // if no new node is able to be colored without penalty, break
+                if (currNode == -1) {
+                    break;
+                }
+
+                // fills up an array denoted which colors are used by the current nodes
+                // neighbors
+                for (int neighbor : instance.getAdjacent(currNode)) {
+                    if (coloring[neighbor] > 0) {
+                        usedColors[coloring[neighbor]] = true;
+                    }
+                }
+
+                // finds the smallest color class that is not used by the current nodes
+                // neighbors
+                int minColor = -1;
+                for (int j = 1; j < usedColors.length; j++) {
+                    if (!usedColors[j]) {
+                        minColor = j;
+                        break;
+                    }
+                }
+
+                // currNode is assigned minColor, then updates the sat degree of all its
+                // neighbors by adding the minColor to the set of colors neighboring the
+                // neighbor
+                coloring[currNode] = minColor;
+                for (int neighbor : instance.getAdjacent(currNode)) {
+                    satDegree[neighbor].add(minColor);
+                }
+
+            }
+
+            // randomly colors any nodes that couldn't be colored without penalty
+            // (aka where this.coloring[i] == -1)
+            for (int i = 0; i < instance.getNumNodes(); i++) {
+                if (coloring[i] == -1) {
+                    coloring[i] = Heuristic.random(k) + 1;
+                }
+            }
+            return coloring;
         }
 
         public class GarlinierTabuSearch extends TabuSearch {
@@ -186,8 +258,8 @@ public class Garlinier1999Heuristic extends Heuristic {
                 }
             }
 
-            public void updateTenure() {
-                tenure = heuristic.random(a) + alpha * nb_cfl;
+            public int getTenure() {
+                return Heuristic.random(a) + alpha * nb_cfl;
             }
         }
 
@@ -197,7 +269,7 @@ public class Garlinier1999Heuristic extends Heuristic {
         public void calcObjective() {
             int obj = 0;
             conflictCount = new int[instance.getNumNodes() + 1];
-            for (int i = 1; i < coloring.length; i++) {
+            for (int i = 0; i < coloring.length; i++) {
                 HashSet<Integer> adj = this.instance.getAdjacent(i);
                 boolean conflictedNode = false;
                 for (int adjv : adj) {
@@ -229,8 +301,7 @@ public class Garlinier1999Heuristic extends Heuristic {
             while (objective > 0 && iteration < iterations && heuristic.report()) {
                 Move neighbor = ts.generateBestRepNeighbor(rep, iteration);
                 Move tabuMove = new Move(neighbor.node, this.coloring[neighbor.node], this);
-                ts.updateTenure();
-                ts.tabuMap.put(tabuMove, iteration + ts.tenure); // a move is still tabu as long as the iteration is <=
+                ts.tabuMap.put(tabuMove, iteration + ts.getTenure()); // a move is still tabu as long as the iteration is <=
                                                                  // curr iteration + tabuTenure
                 iteration++;
             }
@@ -241,9 +312,8 @@ public class Garlinier1999Heuristic extends Heuristic {
             int[] counts = new int[this.k + 1];
             int maxCardinality = -1;
             int maxCardinalityClass = 0;
-            for (int i = 1; i < coloring.length; i++) {
+            for (int i = 0; i < coloring.length; i++) {
                 if (this.coloring[i] > 0) {
-                    // System.out.println("here: " + this.coloring[i]);
                     counts[this.coloring[i]]++;
                     if (counts[this.coloring[i]] > maxCardinality) {
                         maxCardinality = counts[this.coloring[i]];

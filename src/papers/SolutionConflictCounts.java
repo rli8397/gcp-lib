@@ -1,23 +1,20 @@
 package papers;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 
 import general.Heuristic;
-import general.Instance;
 
 public class SolutionConflictCounts extends SolutionConflictObjective {
     protected int[] conflictCount;
 
     public SolutionConflictCounts(Heuristic heuristic, int [] coloring, int colors) {
         super(heuristic, coloring, colors);
-        conflictCount = new int[instance.getNumNodes() + 1];
     }
 
     public void calcObjective() {
         int obj = 0;
-        conflictCount = new int[instance.getNumNodes() + 1];
+        conflictCount = new int[instance.getNumNodes()];
 
         for (int i = 0; i < coloring.length; i++) {
             // Placeholder
@@ -46,7 +43,7 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
                 indicies.add(i);
             }
         }
-        
+
         int random_node = this.heuristic.random(indicies.size());
 
         return indicies.get(random_node);
@@ -67,13 +64,13 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
 
     public String toString() {
         String str = "";
-        for (int i = 1; i < coloring.length; i++) {
+        for (int i = 0; i < coloring.length; i++) {
             str += "Node " + i + ": Color " + coloring[i] + "\n";
         }
 
         str += "\nObjective: " + getObjective() + "\nConflict List: ";
 
-        for (int i = 1; i < conflictCount.length; i++) {
+        for (int i = 0; i < conflictCount.length; i++) {
             str += conflictCount[i] + " ";
         }
 

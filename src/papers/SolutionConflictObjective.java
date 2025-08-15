@@ -1,15 +1,9 @@
 package papers;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Random;
 
 import general.Heuristic;
-import general.Instance;
-import papers.Move;
 
 // maybe allow to be instantiated for testing purposes
 public class SolutionConflictObjective extends Solution {
@@ -114,33 +108,33 @@ public class SolutionConflictObjective extends Solution {
         if (count == 0) {
             return -1;
         }
-        return conflictedNodes[heuristic.random(count)];
+        return conflictedNodes[Heuristic.random(count)];
     }
 
     public Move randConflictedMove() {
         int node = randConflictedNode();
         int newColor = 0;
         do {
-            newColor = heuristic.random(k) + 1;
+            newColor = Heuristic.random(k) + 1;
         } while (newColor == coloring[node]);
 
         return new Move(node, newColor, this);
     }
 
     public Move randMove() {
-        int node = heuristic.random(coloring.length);
+        int node = Heuristic.random(coloring.length);
         int newColor = 0;
         do {
-            newColor = heuristic.random(k) + 1;
+            newColor = Heuristic.random(k) + 1;
         } while (newColor == coloring[node] && k > 1);
 
         return new Move(node, newColor, this);
     }
 
     public void reduceK() {
-        for (int i = 1; i < coloring.length; i++) {
+        for (int i = 0; i < coloring.length; i++) {
             if (this.coloring[i] == k) {
-                this.coloring[i] = heuristic.random(k - 1) + 1; // reassigns the color to a random color from 1 to k-1
+                this.coloring[i] = Heuristic.random(k - 1) + 1; // reassigns the color to a random color from 1 to k-1
             }
         }
         k--;

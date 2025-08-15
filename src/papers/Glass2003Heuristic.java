@@ -1,9 +1,10 @@
 package papers;
 
-import java.util.*;
-
 import general.Heuristic;
 import general.Instance;
+
+import java.util.HashSet;
+import java.util.*;
 
 public class Glass2003Heuristic extends Heuristic {
     private Glass2003Solution[] population;
@@ -19,10 +20,10 @@ public class Glass2003Heuristic extends Heuristic {
         System.out.println("Population Initialized");
         int[] coloringprint;
 
-        for (int i = 0; i < population.length; i++){
-            coloringprint  = population[i].coloring;
+        for (int i = 0; i < population.length; i++) {
+            coloringprint = population[i].coloring;
             System.out.print("Coloring " + i + ": ");
-            for (int u = 0; u < coloringprint.length; u++){
+            for (int u = 0; u < coloringprint.length; u++) {
                 System.out.print(coloringprint[u]);
             }
             System.out.println("");
@@ -30,11 +31,11 @@ public class Glass2003Heuristic extends Heuristic {
 
         do {
             // chooses 2 random parents
-            int s1 = this.random(population.length);
-            int s2 = this.random(population.length);
+            int s1 = random(population.length);
+            int s2 = random(population.length);
 
             while (s2 == s1) {
-                s2 = this.random(population.length);
+                s2 = random(population.length);
             }
 
             solution = new Glass2003Solution(this, crossOver(population[s1], population[s2]), this.k);
@@ -64,20 +65,20 @@ public class Glass2003Heuristic extends Heuristic {
         this.population = new Glass2003Solution[popSize];
         for (int i = 0; i < popSize; i++) {
 
-            if (report()){
-                population[i] = new Glass2003Solution(this, Glass2003Solution.greedyConstruction(getInstance(), this.k, this), k);
-            }
+            if (report()) {
+                population[i] = new Glass2003Solution(this,
+                        Glass2003Solution.greedyConstruction(getInstance(), this.k, this), k);
+            } // else break?
         }
     }
-    
-    public int[] crossOver(Glass2003Solution s1, Glass2003Solution s2){
+
+    public int[] crossOver(Glass2003Solution s1, Glass2003Solution s2) {
 
         int[] combined = new int[instance.getNumNodes()];
 
         for (int l = 1; l <= k; l++) {
             if (l % 2 == 1) {
-                s1.calcMaxCardinalityClass();
-                int color = s1.maxCardinalityClass;
+                int color = s1.getMaxCardinalityClass();
                 for (int i = 0; i < instance.getNumNodes(); i++) {
                     if (s1.coloring[i] == color) {
                         s1.coloring[i] = -1;
@@ -86,8 +87,7 @@ public class Glass2003Heuristic extends Heuristic {
                     }
                 }
             } else {
-                s2.calcMaxCardinalityClass();
-                int color = s2.maxCardinalityClass;
+                int color = s2.getMaxCardinalityClass();
                 for (int i = 0; i < instance.getNumNodes(); i++) {
                     if (s2.coloring[i] == color) {
                         s1.coloring[i] = -1;
@@ -102,30 +102,29 @@ public class Glass2003Heuristic extends Heuristic {
         for (int i = 0; i < instance.getNumNodes(); i++) {
             if (combined[i] <= 0) {
 
-                //Changed this to this.random(k) + 1
-                combined[i] = this.random(k)+1;
+                // Changed this to this.random(k) + 1
+                combined[i] = random(k) + 1;
             }
         }
 
         return combined;
     }
 
-    public class Glass2003Solution extends SolutionConflictCounts{
-
-        private int maxCardinalityClass = -1;
+    public class Glass2003Solution extends SolutionConflictCounts {
 
         public Glass2003Solution(Heuristic heuristic, int[] coloring, int colors) {
             super(heuristic, coloring, colors);
-            calcObjective();
+            calcObjective(); // the SolutionConflcit Objective calls this so its redundant here I think
 
-            //CHANGE VERTEX DESCENT SO THAT IT DOESN'T CALL CALCOBJECTIVE AND JUST ALTERS THE OBJECTIVE ALREADY THERE
+            // CHANGE VERTEX DESCENT SO THAT IT DOESN'T CALL CALCOBJECTIVE AND JUST ALTERS
+            // THE OBJECTIVE ALREADY THERE
             vertexDescent();
         }
 
         private static int[] greedyConstruction(Instance instance, int k, Heuristic heuristic) {
             // Initialization
             HashSet<Integer>[] satDegree = new HashSet[instance.getNumNodes()];
-            int[] coloring  = new int[instance.getNumNodes()];
+            int[] coloring = new int[instance.getNumNodes()];
 
             for (int i = 0; i < instance.getNumNodes(); i++) {
                 satDegree[i] = new HashSet<Integer>();
@@ -183,14 +182,13 @@ public class Glass2003Heuristic extends Heuristic {
                     satDegree[neighbor].add(minColor);
                 }
 
-
             }
 
             // randomly colors any nodes that couldn't be colored without penalty
             // (aka where this.coloring[i] == -1)
             for (int i = 0; i < instance.getNumNodes(); i++) {
                 if (coloring[i] == -1) {
-                    coloring[i] = heuristic.random(k) + 1;
+                    coloring[i] = Heuristic.random(k) + 1;
                 }
             }
 
@@ -203,7 +201,7 @@ public class Glass2003Heuristic extends Heuristic {
             int numNodes = instance.getNumNodes();
             int[][] costMatrix = new int[numNodes][k];
 
-            //Best color List Structure for each vertex
+            // Best color List Structure for each vertex
             ArrayList<Integer>[] bestColorList = new ArrayList[numNodes];
 
             int minConflict = Integer.MAX_VALUE;
@@ -211,17 +209,16 @@ public class Glass2003Heuristic extends Heuristic {
             // Initialize cost matrix and best color list
             for (int i = 0; i < numNodes; i++) {
                 bestColorList[i] = new ArrayList<Integer>();
-                
-                //Compute Cost of each Vertex if Moved to different color
-                for (int c = 1; c <= k; c++) {
-                    costMatrix[i][c-1] = computeCost(i, c);
 
-                    if (costMatrix[i][c-1] < minConflict){
+                // Compute Cost of each Vertex if Moved to different color
+                for (int c = 1; c <= k; c++) {
+                    costMatrix[i][c - 1] = computeCost(i, c);
+
+                    if (costMatrix[i][c - 1] < minConflict) {
                         bestColorList[i].clear();
                         bestColorList[i].add(c);
-                        minConflict =  costMatrix[i][c-1];
-                    }
-                    else if (costMatrix[i][c-1] == minConflict){
+                        minConflict = costMatrix[i][c - 1];
+                    } else if (costMatrix[i][c - 1] == minConflict) {
                         bestColorList[i].add(c);
                     }
                 }
@@ -230,7 +227,7 @@ public class Glass2003Heuristic extends Heuristic {
 
             boolean changed = true;
 
-            //Cycles until no changes can be made
+            // Cycles until no changes can be made
             while (changed && heuristic.report()) {
 
                 changed = false;
@@ -239,41 +236,44 @@ public class Glass2003Heuristic extends Heuristic {
                     minConflict = Integer.MAX_VALUE;
 
                     if (bestColorList[i].size() > 0 && !bestColorList[i].contains(currentColor)) {
-                        int newColor = bestColorList[i].get(heuristic.random(bestColorList[i].size()));
+                        int newColor = bestColorList[i].get(Heuristic.random(bestColorList[i].size()));
                         coloring[i] = newColor;
                         changed = true;
 
                         // Update cost matrix and bestColorList for neighbors
                         for (int neighbor : instance.getAdjacent(i)) {
+                            // might want to try separating this out into a separate function just for
+                            // organization
+                            // i think i remember if you pass costMatrix and bestColorList it will modify
+                            // the original ones because it makes
+                            // a copy of the reference not the actual array
+                            // you could name it like updateNodeCost or something
                             for (int c = 1; c <= k; c++) {
-                                costMatrix[neighbor][c-1] = computeCost(neighbor, c);
+                                costMatrix[neighbor][c - 1] = computeCost(neighbor, c);
 
-                                if (costMatrix[neighbor][c-1] < minConflict){
+                                if (costMatrix[neighbor][c - 1] < minConflict) {
                                     bestColorList[neighbor].clear();
                                     bestColorList[neighbor].add(c);
-                                    minConflict =  costMatrix[neighbor][c-1];
+                                    minConflict = costMatrix[neighbor][c - 1];
 
-                                }
-                                else if (costMatrix[neighbor][c-1] == minConflict){
+                                } else if (costMatrix[neighbor][c - 1] == minConflict) {
                                     bestColorList[neighbor].add(c);
-                                }   
+                                }
                             }
                         }
 
-                        
                         // Update own row too
                         for (int c = 1; c <= k; c++) {
-                            costMatrix[i][c-1] = computeCost(i, c);
+                            costMatrix[i][c - 1] = computeCost(i, c);
 
-                            if (costMatrix[i][c-1] < minConflict){
-                                    bestColorList[i].clear();
-                                    bestColorList[i].add(c);
-                                    minConflict =  costMatrix[i][c-1];
-
-                                }
-                            else if (costMatrix[i][c-1] == minConflict){
+                            if (costMatrix[i][c - 1] < minConflict) {
+                                bestColorList[i].clear();
                                 bestColorList[i].add(c);
-                            }   
+                                minConflict = costMatrix[i][c - 1];
+
+                            } else if (costMatrix[i][c - 1] == minConflict) {
+                                bestColorList[i].add(c);
+                            }
                         }
                     }
                 }
@@ -281,9 +281,25 @@ public class Glass2003Heuristic extends Heuristic {
 
             // Finally update the objective and conflict counters
             calcObjective();
-        } 
+        }
 
-        //Computes Cost of each move
+        private void updateNodeCost(int node, int[][] costMatrix, ArrayList<Integer>[] bestColorList) {
+            // Compute Cost of each Vertex if Moved to different color
+            int minConflict = Integer.MAX_VALUE;
+            for (int c = 1; c <= k; c++) {
+                costMatrix[node][c - 1] = computeCost(node, c);
+
+                if (costMatrix[node][c - 1] < minConflict) {
+                    bestColorList[node].clear();
+                    bestColorList[node].add(c);
+                    minConflict = costMatrix[node][c - 1];
+                } else if (costMatrix[node][c - 1] == minConflict) {
+                    bestColorList[node].add(c);
+                }
+            }
+        }
+ 
+        // Computes Cost of each move
         private int computeCost(int vertex, int color) {
             int cost = 0;
             for (int neighbor : instance.getAdjacent(vertex)) {
@@ -294,22 +310,22 @@ public class Glass2003Heuristic extends Heuristic {
             return cost;
         }
 
-
-        public void calcMaxCardinalityClass() {
+        public int getMaxCardinalityClass() {
             int[] counts = new int[this.k];
             int maxCardinality = -1;
+            int maxCardinalityClass = -1;
             for (int i = 0; i < instance.getNumNodes(); i++) {
                 if (this.coloring[i] > 0) {
-                    counts[this.coloring[i]-1]++;
-                    if (counts[this.coloring[i]-1] > maxCardinality) {
-                        maxCardinality = counts[this.coloring[i]-1];
+                    counts[this.coloring[i] - 1]++;
+                    if (counts[this.coloring[i] - 1] > maxCardinality) {
+                        maxCardinality = counts[this.coloring[i] - 1];
                         maxCardinalityClass = this.coloring[i];
                     }
                 }
             }
+            return maxCardinalityClass;
         }
 
     }
-
 
 }

@@ -1,6 +1,7 @@
 package general;
-import papers.Solution;
 import java.util.*;
+
+import papers.Solution;
 
 public class Heuristic {
     protected Instance instance;
@@ -8,11 +9,11 @@ public class Heuristic {
     protected long start_time;
     protected Stack<Entry> log;
     protected int best;
-    protected Random rand = new Random(1);
+    protected static Random rand = new Random(1);
     
     // we should maintain a "answer" best non-conflicted solution with lowest k
 
-    public class Entry{
+    public class Entry {
         protected int[] coloring;
         protected double time;
         protected int k;
@@ -53,11 +54,6 @@ public class Heuristic {
     // This method can be used to report the current state of the heuristic
     // returns true if the heuristic time is less than runtime limit
     public boolean report(Solution solution) {
-        System.out.println("Condtions Print: \n Log Empty: " + log.isEmpty() + "\nsolution.isValidSolution(): " + solution.isValidSolution());
-
-        if (!log.isEmpty()){
-            System.out.println("K improved: " + (log.peek().k > solution.getK()));
-        }
         if (solution.isValidSolution() && (log.isEmpty() || log.peek().k > solution.getK())) {
             log.push(new Entry(solution.getColoring(), getCurrRunTime(), solution.getK()));
             System.out.println(log.peek());
@@ -69,12 +65,12 @@ public class Heuristic {
         return getCurrRunTime() < runtime_limit;
     }
     // generates a number from 0 - n exclusive of n
-    public int random(int n) {
+    public static int random(int n) {
         return rand.nextInt(n);
     }
 
     // returns the Random object
-    public Random getRandom() {
+    public static Random getRandom() {
         return rand;
     }
 

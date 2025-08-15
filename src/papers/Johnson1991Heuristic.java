@@ -32,7 +32,7 @@ public class Johnson1991Heuristic extends Heuristic {
         public class Johnson1991Solution extends SolutionConflictCounts {
 
             public Johnson1991Solution(Heuristic h, Instance g, int k) {
-                super(h, Solution.randomColoring(g.getNumNodes(), g.getMaxChromatic() ,h.getRandom()),k);
+                super(h, Solution.randomColoring(g.getNumNodes(), g.getMaxChromatic() ,Heuristic.getRandom()),k);
             }
 
             public void Johnson1991FixedK() {

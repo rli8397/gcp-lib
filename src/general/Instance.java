@@ -30,7 +30,7 @@ public class Instance {
             int numNodes = scanner.nextInt();
             
             this.numNodes = numNodes;
-            adjacencySet = new HashSet[numNodes + 1];
+            adjacencySet = new HashSet[numNodes];
             for (int i = 0; i < adjacencySet.length; i++) {
                 adjacencySet[i] = new HashSet<Integer>();
             }
