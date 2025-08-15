@@ -12,6 +12,7 @@ public class Glass2003Heuristic extends Heuristic {
     public Glass2003Heuristic(Instance instance, double runtime, int popSize) {
         super(instance, runtime);
         k = instance.getMaxChromatic();
+        System.out.println("Max Chromatic : " + k);
 
         Glass2003Solution solution;
         System.out.println("Population About to be Initialized");
@@ -45,8 +46,10 @@ public class Glass2003Heuristic extends Heuristic {
             // if a valid solution is found, we will restart the algorithm looking for k - 1
             // colors
             if (solution.objective == 0) {
-                System.out.println(k);
-                this.k--;
+                //Check the achieved k **THIS IS SO THAT IF HEURISTIC OUTPERFORMS K LIMIT GIVEN, WE CAN SKIP K COLORINGS
+                int newK = calcK(solution);
+                this.k = newK-1;
+                solution.k = newK;
                 InitPopulation(popSize);
             } else {
                 // updatePopulation
@@ -108,6 +111,22 @@ public class Glass2003Heuristic extends Heuristic {
         }
 
         return combined;
+    }
+
+    public int calcK(Glass2003Solution sol){
+        boolean[] visited = new boolean [this.k+1];
+
+        int count = 0;
+        for (int c : sol.coloring){
+            //Unique Color
+            if (!visited[c]){
+                visited[c] = true;
+                count++;
+            }
+        }
+
+        return count;
+
     }
 
     public class Glass2003Solution extends SolutionConflictCounts{
@@ -308,6 +327,8 @@ public class Glass2003Heuristic extends Heuristic {
                 }
             }
         }
+
+       
 
     }
 
