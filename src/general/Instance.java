@@ -2,6 +2,7 @@ package general;
 import java.util.HashSet;
 import java.io.File; 
 import java.util.Scanner; 
+import java.util.*;
 
 public class Instance {
     private HashSet<Integer>[] adjacencySet; // adjacency matrix is boolean because it is non-directed and unweighted
@@ -34,11 +35,24 @@ public class Instance {
             for (int i = 0; i < adjacencySet.length; i++) {
                 adjacencySet[i] = new HashSet<Integer>();
             }
-            while (scanner.hasNextInt()) {
-                int edge1 = scanner.nextInt()-1;
-                int edge2 = scanner.nextInt()-1;
-                addEdge(edge1, edge2);
+
+            //Checks if e is there or not
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine().trim();
+                if (line.isEmpty()) continue;
+                String[] parts = line.split("\\s+");
+
+                if (parts[0].equalsIgnoreCase("e")) {
+                    int edge1 = Integer.parseInt(parts[1]) - 1;
+                    int edge2 = Integer.parseInt(parts[2]) - 1;
+                    addEdge(edge1, edge2);
+                } else if (parts.length == 2) {
+                    int edge1 = Integer.parseInt(parts[0]) - 1;
+                    int edge2 = Integer.parseInt(parts[1]) - 1;
+                    addEdge(edge1, edge2);
+                }
             }
+
             scanner.close();
 
             //Calculate the maxchromatic number for the instance (maxdegree + 1)

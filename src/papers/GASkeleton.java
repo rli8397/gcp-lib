@@ -3,6 +3,7 @@ package papers;
 import general.Heuristic;
 import general.Instance;
 import papers.Garlinier1999Heuristic.Garlinier1999Solution;
+import papers.Glass2003Heuristic.Glass2003Solution;
 
 public class GASkeleton extends Heuristic {
     private GASkeletonSolution[] population;
@@ -27,7 +28,9 @@ public class GASkeleton extends Heuristic {
             // if a valid solution is found, we will restart the algorithm looking for k - 1
             // colors
             if (solution.objective == 0) {
-                this.k--;
+                int newK = calcK(solution);
+                this.k = newK - 1;
+                solution.k = newK;
                 InitPopulation(popSize);
             } else {
                 // updatePopulation
@@ -43,7 +46,7 @@ public class GASkeleton extends Heuristic {
     public void InitPopulation(int popSize) {
         this.population = new GASkeletonSolution[popSize];
         for (int i = 0; i < popSize; i++) {
-            population[i] = new GASkeletonSolution(this, GASkeletonSolution.greedyConstruction(this.instance, this.k, this), this.k);
+            population[i] = new GASkeletonSolution(this, Solution.greedyConstruction(this.instance, this.k, this), this.k);
         }
     }
 
@@ -70,7 +73,7 @@ public class GASkeleton extends Heuristic {
                 }
             }
         }
-
+        
         // if there are leftover nodes, just randomly assign them
         for (int i = 0; i < coloring.length; i++) {
             if (coloring[i] <= 0) {
@@ -81,12 +84,29 @@ public class GASkeleton extends Heuristic {
         return coloring;
     }
 
+    // calculates how many colors are used ina  solution, this is used if a solution is found with
+    // a lower k than the target k
+    public int calcK(GASkeletonSolution sol){
+        boolean[] visited = new boolean [this.k+1];
+
+        int count = 0;
+        for (int c : sol.coloring){
+            //Unique Color
+            if (!visited[c]){
+                visited[c] = true;
+                count++;
+            }
+        }
+
+        return count;
+    }
+
     public class GASkeletonSolution extends SolutionConflictObjective {
         public GASkeletonSolution(Heuristic heuristic, int[] coloring, int colors) {
             super(heuristic, coloring, colors);
         }
 
-        // maybe just have this return the cardinality class instead of class variable
+        // returns the color partition with the most nodes 
         public int getMaxCardinalityClass() {
             int[] counts = new int[this.k + 1];
             int maxCardinality = -1;
@@ -102,6 +122,5 @@ public class GASkeleton extends Heuristic {
             }
             return maxCardinalityClass;
         }
-
     }
 }

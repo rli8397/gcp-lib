@@ -44,7 +44,7 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
             }
         }
 
-        int random_node = this.heuristic.random(indicies.size());
+        int random_node = Heuristic.random(indicies.size());
 
         return indicies.get(random_node);
     }
@@ -56,7 +56,7 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
         int node = randConflictedNode();
         int newColor = 0;
         do {
-            newColor = heuristic.random(this.k) + 1;
+            newColor = Heuristic.random(this.k) + 1;
         } while (newColor == coloring[node]);
 
         return new Move(node, newColor, this);
