@@ -2,6 +2,8 @@ package papers;
 
 import java.util.*;
 
+import javax.print.attribute.HashPrintRequestAttributeSet;
+
 import general.Instance;
 import papers.Glass2003Heuristic.Glass2003Solution;
 import general.Heuristic;
@@ -15,18 +17,20 @@ public abstract class Solution {
   protected Instance instance;
 
   // generates a random coloring array and returns it 
-  protected static int[] randomColoring(int numNodes, int k, Random rand) {
-    int[] coloring = new int[numNodes];
+  protected static int[] randomColoring(Heuristic heuristic, int k) {
+    Instance instance = heuristic.getInstance();
+    int[] coloring = new int[instance.getNumNodes()];
 
     for (int i = 0; i < coloring.length; i++) {
-      coloring[i] = rand.nextInt(k) + 1; // colors start from 1 to k
+      coloring[i] = Heuristic.random(k) + 1; // colors start from 1 to k
     }
 
     return coloring;
   }
 
-  protected static int[] greedyConstruction(Instance instance, int k, Heuristic heuristic) {
+  protected static int[] greedyConstruction(Heuristic heuristic, int k) {
       // Initialization
+      Instance instance = heuristic.getInstance();
       HashSet<Integer>[] satDegree = new HashSet[instance.getNumNodes()];
       int[] coloring  = new int[instance.getNumNodes()];
 
@@ -114,9 +118,35 @@ public abstract class Solution {
     return Heuristic.random(instance.getNumNodes());
   }
 
-  // this function decrements k then redisrupts the color that was previously the
-  // kth color
-  public abstract void reduceK();
+  // this function receives the current k and redistrubutes any nodes in color classes
+  // that are larger than newK
+  public void redistributeColors(int newK) {
+    for (int i = 0; i < coloring.length; i++) {
+      if (coloring[i] > newK) {
+        int newColor = Heuristic.random(newK) + 1; 
+        coloring[i] = newColor;
+      }
+    }
+    k = newK;
+  }
+
+  public abstract void calcObjective();
+  
+  public abstract void calcNeighborObjective(Move move);
+
+  public abstract Move randConflictedMove();
+
+  public abstract void makeMove(Move move);
+
+  public Move randMove() {
+    int node = Heuristic.random(coloring.length);
+    int newColor = 0;
+    do {
+      newColor = Heuristic.random(k) + 1;
+    } while (newColor == coloring[node] && k > 1);
+
+    return new Move(node, newColor, this);
+  }
 
   public int[] getColoring() {
     return this.coloring;
@@ -148,18 +178,18 @@ public abstract class Solution {
   }
 
   public int calcK(){
-        boolean[] visited = new boolean [this.k+1];
+    boolean[] visited = new boolean [this.k+1];
 
-        int count = 0;
-        for (int c : coloring){
-            //Unique Color
-            if (!visited[c]){
-                visited[c] = true;
-                count++;
-            }
+    int count = 0;
+    for (int c : coloring){
+        //Unique Color
+        if (!visited[c]){
+            visited[c] = true;
+            count++;
         }
+    }
 
-        return count;
+    return count;
 
   }
 }

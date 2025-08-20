@@ -41,7 +41,7 @@ public class SolutionConflictObjective extends Solution {
     // this calculates the objective function for a neigboring solution
     // O(n) - you must iterate through all adjacent nodes, which can be at most n
     // nodes
-    public int calcNeighborObjective(Move move) {
+    public void calcNeighborObjective(Move move) {
         int obj = objective;
         for (int adj : this.instance.getAdjacent(move.node)) {
             if (coloring[adj] == coloring[move.node]) {
@@ -51,45 +51,13 @@ public class SolutionConflictObjective extends Solution {
             }
         }
 
-        return obj;
+        move.setObjective(obj);
     }
 
     public void makeMove(Move move) {
         coloring[move.node] = move.color;
         objective = move.getObjective();
         validSolution = objective == 0;
-    }
-
-    // this generates a random move from the current instance to a neighbor, doesn't
-    // modify the current instance yet
-    public Move generateRandomMove() {
-        Random rand = new Random();
-        int node = rand.nextInt(this.instance.getNumNodes()) + 1;
-        int color = rand.nextInt(k) + 1; // add 1 since colors start from 1 to k
-
-        // Note: this might not be the most random, it gives more probability to the
-        // color greater than the curr color
-        if (coloring[node] == color) { // makes sure that the coloring is not the same color
-            color += 1;
-            if (color > k) {
-                color = 1;
-            }
-        }
-
-        return new Move(node, color, this);
-    }
-
-    public int getObjective() {
-        return objective;
-    }
-
-    // prints the current k the solution is checking and the best objective and
-    // solution found so far
-    // for debugging purposes
-    public void printStatus() {
-        System.out.println("k: " + k);
-        System.out.println("f: " + objective);
-        System.out.println(this);
     }
 
     public int randConflictedNode() {
@@ -121,16 +89,6 @@ public class SolutionConflictObjective extends Solution {
         return new Move(node, newColor, this);
     }
 
-    public Move randMove() {
-        int node = Heuristic.random(coloring.length);
-        int newColor = 0;
-        do {
-            newColor = Heuristic.random(k) + 1;
-        } while (newColor == coloring[node] && k > 1);
-
-        return new Move(node, newColor, this);
-    }
-
     public void reduceK() {
         for (int i = 0; i < coloring.length; i++) {
             if (this.coloring[i] == k) {
@@ -139,5 +97,18 @@ public class SolutionConflictObjective extends Solution {
         }
         k--;
         calcObjective();
+    }
+
+        public int getObjective() {
+        return objective;
+    }
+
+    // prints the current k the solution is checking and the best objective and
+    // solution found so far
+    // for debugging purposes
+    public void printStatus() {
+        System.out.println("k: " + k);
+        System.out.println("f: " + objective);
+        System.out.println(this);
     }
 }

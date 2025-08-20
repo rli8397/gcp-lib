@@ -70,7 +70,7 @@ public class Glass2003Heuristic extends Heuristic {
 
             if (report()) {
                 population[i] = new Glass2003Solution(this,
-                        Glass2003Solution.greedyConstruction(getInstance(), this.k, this), k);
+                        Glass2003Solution.greedyConstruction(this, k), k);
             } // else break?
         }
     }

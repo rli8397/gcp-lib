@@ -46,7 +46,7 @@ public class GASkeleton extends Heuristic {
     public void InitPopulation(int popSize) {
         this.population = new GASkeletonSolution[popSize];
         for (int i = 0; i < popSize; i++) {
-            population[i] = new GASkeletonSolution(this, Solution.greedyConstruction(this.instance, this.k, this), this.k);
+            population[i] = new GASkeletonSolution(this, Solution.greedyConstruction(this, this.k), this.k);
         }
     }
 

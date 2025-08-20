@@ -139,8 +139,8 @@ public class Blochilger2008Heuristic extends Heuristic {
             objective = this.uncolored.size();
         }
         
-        public int calcNeighborObjective(Move move) {
-            return this.objective - 1 + this.countsMatrix[move.node][move.color];
+        public void calcNeighborObjective(Move move) {
+            move.setObjective(this.objective - 1 + this.countsMatrix[move.node][move.color]);
         }
 
         public void makeMove(Move move, ArrayList<Move> removed) {

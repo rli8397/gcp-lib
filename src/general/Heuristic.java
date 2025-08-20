@@ -8,9 +8,9 @@ public class Heuristic {
     protected double runtime_limit;
     protected long start_time;
     protected Stack<Entry> log;
-    protected int best;
     protected static Random rand = new Random(1);
-    
+    protected int k;
+
     // we should maintain a "answer" best non-conflicted solution with lowest k
 
     public class Entry {
@@ -34,7 +34,6 @@ public class Heuristic {
     public Heuristic(Instance instance, double runtime_limit) {
         this.instance = instance;
         this.runtime_limit = runtime_limit;
-        this.best = Integer.MAX_VALUE; // Goal of GCP is to minimize the objective function, so best is set to a max value
         this.start_time = System.currentTimeMillis();
         log  = new Stack<Entry>();
     }

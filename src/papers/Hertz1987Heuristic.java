@@ -6,13 +6,23 @@ import java.util.*;
 // heuristic super class implement keeping track of the solution history
 // Make the outer class the Hertz1987Heuristic to reduce overhead
 public class Hertz1987Heuristic extends Heuristic {
-    public Hertz1987Heuristic(Instance graph, double runtime, int tabuTenure, int rep) {
-        super(graph, runtime);
+    private int k;
+
+    public Hertz1987Heuristic(Instance instance, double runtime, int tabuTenure, int rep) {
+        super(instance, runtime);
         System.out.println("Heuristic Running");
-        Hertz1987Solution solution = new Hertz1987Solution(this, graph);
-        while (this.report(solution)) { // report maybe receives a solution
-            solution.reduceK();
+        this.k = instance.getMaxChromatic();
+        Hertz1987Solution solution = new Hertz1987Solution(this, instance, instance.getMaxChromatic());
+        
+        while (true) {
             solution.tabuSearch(tabuTenure, rep);
+
+            if (!this.report(solution)) {
+                break;
+            }
+
+            k--; 
+            solution.redistributeColors(k);
         }
 
         System.out.println("runtime: " + this.getCurrRunTime());
@@ -20,11 +30,9 @@ public class Hertz1987Heuristic extends Heuristic {
     }
 
     public class Hertz1987Solution extends SolutionConflictCounts {
-        // constructor
-        public Hertz1987Solution(Heuristic heuristic, Instance instance) {
-            super(heuristic, Solution.randomColoring(instance.getNumNodes(), instance.getMaxChromatic(),
-                    Heuristic.getRandom()), instance.getMaxChromatic());
-            this.conflictCount = new int[instance.getNumNodes() + 1];
+
+        public Hertz1987Solution(Heuristic heuristic, Instance instance, int k) {
+            super(heuristic, Solution.randomColoring(heuristic, k), k);
         }
 
         public class HertzTabuSearch extends TabuSearch {
@@ -38,6 +46,7 @@ public class Hertz1987Heuristic extends Heuristic {
                 }
             }
 
+            // keeping a simple static tenure
             public void updateTenure() {
 
             }

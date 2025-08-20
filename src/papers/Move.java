@@ -6,9 +6,9 @@ public class Move {
     protected int node;
     protected int color;
     protected int objective = -1;
-    protected SolutionConflictObjective solution;
+    protected Solution solution;
 
-    public Move(int node, int color, SolutionConflictObjective solution) {
+    public Move(int node, int color, Solution solution) {
         this.node = node;
         this.color = color;
         this.solution = solution;
@@ -29,9 +29,13 @@ public class Move {
 
     public int getObjective() {
         if (objective == -1) {
-            objective = solution.calcNeighborObjective(this);
+            solution.calcNeighborObjective(this);
         }
         return objective;
+    }
+
+    public void setObjective(int objective) {
+        this.objective = objective;
     }
 
     public String toString() {
