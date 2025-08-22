@@ -5,8 +5,8 @@ import general.Instance;
 
 public class Chams1987Heuristic extends Heuristic {
     public Chams1987Heuristic(Instance instance, int runtime_limit) {
-        super(instance, runtime_limit);
-        Chams1987Solution solution = new Chams1987Solution(this, instance);
+        super(instance, runtime_limit, instance.getMaxChromatic());
+        Chams1987Solution solution = new Chams1987Solution(this, this.instance, this.k);
         while(this.report(solution)) {
             solution.reduceK();
             solution.Chams1987();
@@ -16,8 +16,8 @@ public class Chams1987Heuristic extends Heuristic {
     }
 
     public class Chams1987Solution extends SolutionConflictObjective {
-        public Chams1987Solution(Heuristic heuristic, Instance instance) {
-            super(heuristic, Solution.randomColoring(instance.getNumNodes(), instance.getMaxChromatic(), Heuristic.getRandom()), instance.getMaxChromatic());
+        public Chams1987Solution(Heuristic heuristic, Instance instance, int k) {
+            super(heuristic, Solution.randomColoring(heuristic, k), instance.getMaxChromatic());
         }
 
         public void Chams1987() {
@@ -29,8 +29,8 @@ public class Chams1987Heuristic extends Heuristic {
                     change = false;
                     int rep = (int) Math.exp(2 / t);
                     for (int i = 0; i < rep; i++) {
-                        Move move = generateRandomMove();
-                        double delta = calcNeighborObjective(move) - this.getObjective();
+                        Move move = randMove();
+                        double delta = move.getObjective() - this.getObjective();
                         if (delta < 0) {
                             coloring[move.node] = move.color;
                             this.objective += delta;

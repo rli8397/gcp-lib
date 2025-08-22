@@ -6,12 +6,8 @@ import general.Instance;
 //No new solution classes made, simple small changes, can keep it within solution 
 
 public class Johnson1991Heuristic extends Heuristic {
-    protected int k;
-
     public Johnson1991Heuristic(Instance i, double r) {
-        super(i, r);
-
-        this.k = i.getMaxChromatic();
+        super(i, r, i.getMaxChromatic());
 
         // according to paper, start k above max chromatic, which would be max degree +
         // 1 + some arbitrary number
@@ -88,7 +84,7 @@ public class Johnson1991Heuristic extends Heuristic {
                         break;
                     } else {
 
-                        double r = Heuristic.random(1); // the paper says that 1 should be inclusive, does this matter?
+                        double r = Math.random(); // the paper says that 1 should be inclusive, does this matter?
                         double p = Math.exp(-delta / t);
 
                         if (r <= p) {

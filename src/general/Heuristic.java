@@ -22,7 +22,6 @@ public class Heuristic {
             this.coloring = coloring.clone();
             this.time  = time;
             this.k = k;
-            
         }
 
         public String toString(){
@@ -31,10 +30,11 @@ public class Heuristic {
     }
 
     // constructor for the heuristic class
-    public Heuristic(Instance instance, double runtime_limit) {
+    public Heuristic(Instance instance, double runtime_limit, int k) {
         this.instance = instance;
         this.runtime_limit = runtime_limit;
         this.start_time = System.currentTimeMillis();
+        this.k = k;
         log  = new Stack<Entry>();
     }
 

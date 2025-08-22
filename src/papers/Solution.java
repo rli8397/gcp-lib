@@ -2,12 +2,8 @@ package papers;
 
 import java.util.*;
 
-import javax.print.attribute.HashPrintRequestAttributeSet;
-
 import general.Instance;
-import papers.Glass2003Heuristic.Glass2003Solution;
 import general.Heuristic;
-import general.Instance;
 
 public abstract class Solution {
   protected int k;
@@ -118,23 +114,23 @@ public abstract class Solution {
     return Heuristic.random(instance.getNumNodes());
   }
 
-  // this function receives the current k and redistrubutes any nodes in color classes
-  // that are larger than newK
-  public void redistributeColors(int newK) {
-    for (int i = 0; i < coloring.length; i++) {
-      if (coloring[i] > newK) {
-        int newColor = Heuristic.random(newK) + 1; 
-        coloring[i] = newColor;
-      }
+  // this function redistrubutes any nodes in the kth color class
+  // to a random color from 1 to k - 1
+    public void reduceK() {
+        for (int i = 0; i < coloring.length; i++) {
+            if (this.coloring[i] == k) {
+                this.coloring[i] = Heuristic.random(k - 1) + 1; // reassigns the color to a random color from 1 to k-1
+            }
+        }
+        k--;
+        calcObjective();
     }
-    k = newK;
-  }
 
   public abstract void calcObjective();
   
   public abstract void calcNeighborObjective(Move move);
 
-  public abstract Move randConflictedMove();
+  // public abstract Move randConflictedMove();
 
   public abstract void makeMove(Move move);
 

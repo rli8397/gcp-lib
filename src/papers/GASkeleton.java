@@ -7,13 +7,11 @@ import papers.Glass2003Heuristic.Glass2003Solution;
 
 public class GASkeleton extends Heuristic {
     private GASkeletonSolution[] population;
-    private int k;
 
     public GASkeleton(Instance instance, double runtime, int popSize) {
-        super(instance, runtime);
+        super(instance, runtime, instance.getMaxChromatic());
         System.out.println("Running heuristic");
         GASkeletonSolution solution;
-        k = instance.getMaxChromatic();
         InitPopulation(popSize);
         do {
             // chooses 2 random parents

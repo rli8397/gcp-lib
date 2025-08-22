@@ -8,10 +8,9 @@ import java.util.*;
 
 public class Glass2003Heuristic extends Heuristic {
     private Glass2003Solution[] population;
-    private int k;
 
     public Glass2003Heuristic(Instance instance, double runtime, int popSize) {
-        super(instance, runtime);
+        super(instance, runtime, instance.getMaxChromatic());
         k = instance.getMaxChromatic();
         System.out.println("Max Chromatic : " + k);
 

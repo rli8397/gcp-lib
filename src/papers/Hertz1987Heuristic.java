@@ -6,12 +6,9 @@ import java.util.*;
 // heuristic super class implement keeping track of the solution history
 // Make the outer class the Hertz1987Heuristic to reduce overhead
 public class Hertz1987Heuristic extends Heuristic {
-    private int k;
-
     public Hertz1987Heuristic(Instance instance, double runtime, int tabuTenure, int rep) {
-        super(instance, runtime);
+        super(instance, runtime, instance.getMaxChromatic());
         System.out.println("Heuristic Running");
-        this.k = instance.getMaxChromatic();
         Hertz1987Solution solution = new Hertz1987Solution(this, instance, instance.getMaxChromatic());
         
         while (true) {
@@ -22,7 +19,7 @@ public class Hertz1987Heuristic extends Heuristic {
             }
 
             k--; 
-            solution.redistributeColors(k);
+            solution.reduceK();
         }
 
         System.out.println("runtime: " + this.getCurrRunTime());

@@ -2,7 +2,6 @@ package general;
 import java.util.HashSet;
 import java.io.File; 
 import java.util.Scanner; 
-import java.util.*;
 
 public class Instance {
     private HashSet<Integer>[] adjacencySet; // adjacency matrix is boolean because it is non-directed and unweighted

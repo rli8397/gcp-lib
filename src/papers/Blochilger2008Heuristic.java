@@ -10,17 +10,16 @@ import general.Instance;
 
 public class Blochilger2008Heuristic extends Heuristic {
     public Blochilger2008Heuristic(Instance instance, int runtime_limit) {
-        super(instance, runtime_limit);
+        super(instance, runtime_limit, instance.getMaxChromatic());
         Blochilger2008Solution solution = new Blochilger2008Solution(this, Blochilger2008Solution.partialColoring(this.instance, this.instance.getMaxChromatic(), this.rand), this.instance.getMaxChromatic());
         while (this.report(solution)) {
+            this.k--;
             solution.reduceK();
             solution.tabuSearch();
-            solution.printStatus();
         }
-        solution.printStatus();
     }
 
-    public class Blochilger2008Solution extends SolutionConflictObjective {
+    public class Blochilger2008Solution extends PartialColoring {
         protected HashSet<Integer> uncolored;
         protected int[][] countsMatrix;
 
@@ -44,43 +43,6 @@ public class Blochilger2008Heuristic extends Heuristic {
             }
         }
         
-        protected static int[] partialColoring(Instance instance, int k, Random rand) {
-            int n = instance.getNumNodes();
-            int[] coloring = new int[n];
-
-            // convert adjancey set to bitset form
-            List<BitSet> adjacencyList = new ArrayList<>();
-            for (int i = 0; i < n; i++) {
-                BitSet bs = new BitSet(n);
-                for (int neighbor : instance.getAdjacent(i)) {
-                    bs.set(neighbor);
-                }
-                adjacencyList.add(bs);
-            }
-
-            BitSet[] classes = new BitSet[k];
-            for (int i = 0; i < k; i++) {
-                classes[i] = new BitSet(n);
-            }
-
-            List<Integer> vertices = Solution.randTraversalOrder(instance);
-            for (int v : vertices) {
-                boolean placed = false;
-                for (int c = 1; c <= k; c++) {
-                    if (!adjacencyList.get(v).intersects(classes[c])) {
-                        coloring[v] = c; 
-                        classes[c].set(v);
-                        placed = true;
-                        break;
-                    }
-                }
-
-                if (!placed) {
-                    coloring[v] = 0;
-                }
-            }
-            return coloring;
-        }
 
         public class BlochilgerTabuSearch extends TabuSearch {
             protected int currMaxObjective;
@@ -110,14 +72,15 @@ public class Blochilger2008Heuristic extends Heuristic {
                 if (this.currMaxObjective - this.currMinObjective <= this.threshold) {
                     this.tenure += this.increment;
                 } else {
-                    this.tenure = Math.max(0, tenure - 1);
+                    this.tenure = Math.max(0, tenure - 1); // ensure not negative
                 }
             }
 
             public void dynTenure() {
-                this.tenure = (int)(0.6 * uncolored.size() + heuristic.random(10));
+                this.tenure = (int)(0.6 * uncolored.size() + Heuristic.random(10));
             }
-            public Move generateBestNeighbor(int iteration, SolutionConflictObjective solution) {
+
+            public Move generateBestNeighbor(int iteration, Solution solution) {
                 Move bestMove = null;
                 
                 for (int node : uncolored) {
@@ -166,9 +129,6 @@ public class Blochilger2008Heuristic extends Heuristic {
             int iteration = 0;
             while (objective > 0 && heuristic.report()) {
                 Move move = ts.generateBestNeighbor(iteration, this);
-                if (move == null) {
-                    // reduce tabu tenure or something like that???
-                }
                 ArrayList<Move> removed = new ArrayList<>();
                 makeMove(move, removed);
                 ts.updateTenure();
@@ -176,6 +136,7 @@ public class Blochilger2008Heuristic extends Heuristic {
                 for (Move m : removed) {
                     ts.tabuMap.put(m, iteration + ts.tenure);
                 }
+
                 iteration++;
             }
         }
