@@ -1,37 +1,37 @@
 package papers;
 
-import general.Heuristic;
 import general.Instance;
+import general.Move;
+import general.HeuristicClasses.*;
+import general.SolutionClasses.Solution;
+import general.SolutionClasses.SolutionConflictCounts;
 
 //No new solution classes made, simple small changes, can keep it within solution 
 
-public class Johnson1991Heuristic extends Heuristic {
-    public Johnson1991Heuristic(Instance i, double r) {
-        super(i, r, i.getMaxChromatic());
+public class Johnson1991Heuristic extends GCPWrapper<Johnson1991Heuristic.Johnson1991KCPHeuristic> {
 
-        // according to paper, start k above max chromatic, which would be max degree +
-        // 1 + some arbitrary number
-        Johnson1991Solution sol = new Johnson1991Solution(this, instance, k);
-
-        while (true) {
-            sol.Johnson1991FixedK();
-
-            if (!report(sol)) {
-                break;
-            }
-
-            if (sol.isValidSolution()) {
-                this.k--;
-                sol.reduceK();
-            }
-
-        }
-
+    public Johnson1991Heuristic(Instance instance, double runtime_limit) {
+        super(
+            instance, 
+            runtime_limit, 
+            Johnson1991KCPHeuristic.class, 
+            Solution.randomColoring(instance, instance.getMaxChromatic())
+        );
     }
 
+    
+    public class Johnson1991KCPHeuristic extends KCPHeuristic<Johnson1991Solution> {
+        public Johnson1991KCPHeuristic (Johnson1991Heuristic wrapper, int k) {
+            super(wrapper, k, Johnson1991Solution.class);
+            Johnson1991Solution solution = new Johnson1991Solution(wrapper, wrapper.getColoring(), k);
+            solution.Johnson1991FixedK();
+            wrapper.report(solution, k);
+        }
+    }
+    
     public class Johnson1991Solution extends SolutionConflictCounts {
-        public Johnson1991Solution(Heuristic h, Instance g, int k) {
-            super(h, Solution.randomColoring(h, k), k);
+        public Johnson1991Solution(GCPHeuristic heuristic, int[] coloring, int k) {
+            super(heuristic, coloring, k);
         }
 
         public void Johnson1991FixedK() {

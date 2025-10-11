@@ -1,23 +1,32 @@
 package papers;
 
-import general.Heuristic;
 import general.Instance;
+import general.Move;
+import general.HeuristicClasses.*;
+import general.SolutionClasses.Solution;
+import general.SolutionClasses.SolutionConflictObjective;
 
-public class Chams1987Heuristic extends Heuristic {
-    public Chams1987Heuristic(Instance instance, int runtime_limit) {
-        super(instance, runtime_limit, instance.getMaxChromatic());
-        Chams1987Solution solution = new Chams1987Solution(this, this.instance, this.k);
-        while(this.report(solution)) {
-            solution.reduceK();
-            solution.Chams1987();
-            solution.printStatus();
+public class Chams1987Heuristic extends GCPWrapper<Chams1987Heuristic.Chams1987KCPHeuristic> {
+    public Chams1987Heuristic(Instance instance, double runtime_limit) {
+        super (
+            instance, 
+            runtime_limit,
+            Chams1987KCPHeuristic.class,
+            Solution.randomColoring(instance, instance.getMaxChromatic())
+        );
+    }
+
+    public class Chams1987KCPHeuristic extends KCPHeuristic<Chams1987Solution> {
+        public Chams1987KCPHeuristic(Chams1987Heuristic wrapper, int k) {
+            super(wrapper, k, Chams1987Solution.class);
+            Chams1987Solution solution = new Chams1987Solution(wrapper, wrapper.getColoring(), k);
+            wrapper.report(solution, k);
         }
-        solution.printStatus();
     }
 
     public class Chams1987Solution extends SolutionConflictObjective {
-        public Chams1987Solution(Heuristic heuristic, Instance instance, int k) {
-            super(heuristic, Solution.randomColoring(heuristic, k), instance.getMaxChromatic());
+        public Chams1987Solution(GCPHeuristic heuristic, int[] coloring, int k) {
+            super(heuristic, coloring , k);
         }
 
         public void Chams1987() {
@@ -32,7 +41,7 @@ public class Chams1987Heuristic extends Heuristic {
                         Move move = randMove();
                         double delta = move.getObjective() - this.getObjective();
                         if (delta < 0) {
-                            coloring[move.node] = move.color;
+                            coloring[move.getNode()] = move.getColor();
                             this.objective += delta;
                             change = true;
                             break;
@@ -41,7 +50,7 @@ public class Chams1987Heuristic extends Heuristic {
                             double p = Math.exp(-delta / t);
                             double x = Math.random();
                             if (x < p) {
-                                coloring[move.node] = move.color;
+                                coloring[move.getNode()] = move.getColor();
                                 this.objective += delta;
                                 if (delta != 0) {
                                     change = true;

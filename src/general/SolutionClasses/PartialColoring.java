@@ -1,24 +1,24 @@
-package papers;
+package general.SolutionClasses;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 
-import general.Heuristic;
 import general.Instance;
+import general.Move;
+import general.HeuristicClasses.*;
 
 public class PartialColoring extends Solution {
     protected int objective; // objective is the number of uncolored nodes
-
-    public PartialColoring(Heuristic heuristic, int[] coloring, int k) {
-        this.heuristic = heuristic;
-        this.instance = heuristic.getInstance();
-        this.coloring = coloring;
-        this.k = k;
+    protected HashSet<Integer> uncolored;
+    
+    public PartialColoring(GCPHeuristic heuristic, int[] coloring, int k) {
+        initSolution(heuristic, coloring, k);
     }
 
-    protected static int[] partialColoring(Instance instance, int k, Random rand) {
+    public static int[] partialColoring(GCPHeuristic heuristic, int k) {
+        Instance instance = heuristic.getInstance();
         int n = instance.getNumNodes();
         int[] coloring = new int[n];
 
@@ -56,43 +56,50 @@ public class PartialColoring extends Solution {
         return coloring;
     }
 
-    public void calcObjective() {
-        int obj = 0;
-        for (int i = 0; i < coloring.length; i++) { 
+    public void calcInitialState() {
+        int obj = 0;        
+        uncolored = new HashSet<Integer>();
+
+        for (int i = 0; i < coloring.length; i++) {
             if (coloring[i] == 0) {
                 obj++;
+                uncolored.add(i);
             }
         }
+        
         objective = obj;
     }
 
     public void calcNeighborObjective(Move move) {
         int obj = objective;
-        if (coloring[move.node] == 0 && move.color != 0) {
+        if (coloring[move.getNode()] == 0 && move.getColor() != 0) {
             obj--;
-            for (int adj : this.instance.getAdjacent(move.node)) {
-                if (coloring[adj] == move.color) {
+            for (int adj : this.instance.getAdjacent(move.getNode())) {
+                if (coloring[adj] == move.getColor()) {
                     obj++;
                 }
             }
-        } else if (move.color == 0 && coloring[move.node] != 0) {
+        } else if (move.getColor() == 0 && coloring[move.getNode()] != 0) {
             obj++;
-        } 
+        }
 
         move.setObjective(obj);
     }
 
-    public void makeMove(Move move){
-        coloring[move.node] = move.color;
-        if (move.color != 0) {
-            for (int adj : this.instance.getAdjacent(move.node)) {
-                if (coloring[adj] == move.color) {
-                    coloring[adj] = 0; 
+    public void makeMove(Move move) {
+        coloring[move.getNode()] = move.getColor();
+        if (move.getColor() != 0) {
+            for (int adj : this.instance.getAdjacent(move.getNode())) {
+                if (coloring[adj] == move.getColor()) {
+                    coloring[adj] = 0;
                 }
             }
         }
         objective = move.getObjective();
-        validSolution = objective == 0;
     }
+
+    public boolean isValidSolution() {
+        return objective == 0;
+    }   
 
 }

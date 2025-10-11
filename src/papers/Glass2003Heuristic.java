@@ -1,136 +1,20 @@
 package papers;
 
-import general.Heuristic;
 import general.Instance;
+import general.HeuristicClasses.GCPHeuristic;
+import general.SolutionClasses.SolutionConflictCounts;
 
-import java.util.HashSet;
 import java.util.*;
 
-public class Glass2003Heuristic extends Heuristic {
-    private Glass2003Solution[] population;
+public class Glass2003Heuristic extends GASkeleton {
 
     public Glass2003Heuristic(Instance instance, double runtime, int popSize) {
-        super(instance, runtime, instance.getMaxChromatic());
-        k = instance.getMaxChromatic();
-        System.out.println("Max Chromatic : " + k);
-
-        Glass2003Solution solution;
-        System.out.println("Population About to be Initialized");
-        InitPopulation(popSize);
-        System.out.println("Population Initialized");
-        int[] coloringprint;
-
-        for (int i = 0; i < population.length; i++) {
-            coloringprint = population[i].coloring;
-            System.out.print("Coloring " + i + ": ");
-            for (int u = 0; u < coloringprint.length; u++) {
-                System.out.print(coloringprint[u]);
-            }
-            System.out.println("");
-        }
-
-        do {
-            // chooses 2 random parents
-            int s1 = random(population.length);
-            int s2 = random(population.length);
-
-            while (s2 == s1) {
-                s2 = random(population.length);
-            }
-
-            solution = new Glass2003Solution(this, crossOver(population[s1], population[s2]), this.k);
-            /*
-             * Creating a solution object calls calc objective and vertex desent on it
-             */
-
-            // if a valid solution is found, we will restart the algorithm looking for k - 1
-            // colors
-            if (solution.objective == 0) {
-                //Check the achieved k **THIS IS SO THAT IF HEURISTIC OUTPERFORMS K LIMIT GIVEN, WE CAN SKIP K COLORINGS
-                int newK = calcK(solution);
-                this.k = newK-1;
-                solution.k = newK;
-                InitPopulation(popSize);
-            } else {
-                // updatePopulation
-                int toReplace = s1;
-                if (population[s1].getObjective() < population[s2].getObjective()) {
-                    toReplace = s2;
-                }
-                population[toReplace] = solution;
-            }
-
-        } while (report(solution));
-    }
-
-    public void InitPopulation(int popSize) {
-        this.population = new Glass2003Solution[popSize];
-        for (int i = 0; i < popSize; i++) {
-
-            if (report()) {
-                population[i] = new Glass2003Solution(this,
-                        Glass2003Solution.greedyConstruction(this, k), k);
-            } // else break?
-        }
-    }
-
-    public int[] crossOver(Glass2003Solution s1, Glass2003Solution s2) {
-
-        int[] combined = new int[instance.getNumNodes()];
-
-        for (int l = 1; l <= k; l++) {
-            if (l % 2 == 1) {
-                int color = s1.getMaxCardinalityClass();
-                for (int i = 0; i < instance.getNumNodes(); i++) {
-                    if (s1.coloring[i] == color) {
-                        s1.coloring[i] = -1;
-                        s2.coloring[i] = -1;
-                        combined[i] = l;
-                    }
-                }
-            } else {
-                int color = s2.getMaxCardinalityClass();
-                for (int i = 0; i < instance.getNumNodes(); i++) {
-                    if (s2.coloring[i] == color) {
-                        s1.coloring[i] = -1;
-                        s2.coloring[i] = -1;
-                        combined[i] = l;
-                    }
-                }
-            }
-        }
-
-        // if there are leftover nodes, just randomly assign them
-        for (int i = 0; i < instance.getNumNodes(); i++) {
-            if (combined[i] <= 0) {
-
-                // Changed this to this.random(k) + 1
-                combined[i] = random(k) + 1;
-            }
-        }
-
-        return combined;
-    }
-
-    public int calcK(Glass2003Solution sol){
-        boolean[] visited = new boolean [this.k+1];
-
-        int count = 0;
-        for (int c : sol.coloring){
-            //Unique Color
-            if (!visited[c]){
-                visited[c] = true;
-                count++;
-            }
-        }
-
-        return count;
-
+        super(instance, runtime, popSize);
     }
 
     public class Glass2003Solution extends SolutionConflictCounts{
 
-        public Glass2003Solution(Heuristic heuristic, int[] coloring, int colors) {
+        public Glass2003Solution(GCPHeuristic heuristic, int[] coloring, int colors) {
             super(heuristic, coloring, colors);
             calcObjective(); // the SolutionConflcit Objective calls this so its redundant here I think
 
@@ -179,7 +63,7 @@ public class Glass2003Heuristic extends Heuristic {
                     minConflict = Integer.MAX_VALUE;
 
                     if (bestColorList[i].size() > 0 && !bestColorList[i].contains(currentColor)) {
-                        int newColor = bestColorList[i].get(Heuristic.random(bestColorList[i].size()));
+                        int newColor = bestColorList[i].get(GCPHeuristic.random(bestColorList[i].size()));
                         coloring[i] = newColor;
                         changed = true;
 
