@@ -6,8 +6,9 @@ import general.*;
 import general.HeuristicClasses.GCPHeuristic;
 
 public class SolutionConflictCounts extends SolutionConflictObjective {
-    // key is the node that is conflicted, and its value is the number of nodes that it conflicts with
-    protected HashMap<Integer, Integer> conflictCount; 
+    // key is the node that is conflicted, and its value is the number of nodes that
+    // it conflicts with
+    protected HashMap<Integer, Integer> conflictCount;
 
     public SolutionConflictCounts(Instance instance, int[] coloring, int colors) {
         super(instance, coloring, colors);
@@ -23,12 +24,10 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
 
             for (int adjv : adj) {
                 // If i < adjv, that edge hasn't been checked yet
-                if (i < adjv) {
-                    if (this.coloring[i] == this.coloring[adjv]) {
-                        obj += 1;
-                        this.conflictCount.put(i, conflictCount.getOrDefault(i, 0) + 1);
-                        this.conflictCount.put(adjv, conflictCount.getOrDefault(adjv, 0) + 1);
-                    }
+                if (i < adjv && this.coloring[i] == this.coloring[adjv]) {
+                    obj += 1;
+                    this.conflictCount.put(i, conflictCount.getOrDefault(i, 0) + 1);
+                    this.conflictCount.put(adjv, conflictCount.getOrDefault(adjv, 0) + 1);
                 }
             }
         }
@@ -36,38 +35,32 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
     }
 
     public void makeMove(Move move) {
-        int newConflicts = 0;
-        int oldConflicts = 0;
+        int count = this.conflictCount.getOrDefault(move.getNode(), 0);
+        int newColor = move.getColor();
+        int oldColor = this.coloring[move.getNode()];
         for (int neighbor : instance.getAdjacent(move.getNode())) {
-            if (this.coloring[neighbor] == move.getColor()) {
-                newConflicts++;
+            if (this.coloring[neighbor] == newColor) {
+                count++;
                 this.conflictCount.put(neighbor, conflictCount.getOrDefault(neighbor, 0) + 1);
-            } else if (this.coloring[neighbor] == this.coloring[move.getNode()]) {
-                oldConflicts++;
+            } else if (this.coloring[neighbor] == oldColor) {
+                count--;
                 int neighborConflicts = this.conflictCount.get(neighbor);
-
                 if (neighborConflicts <= 1) {
                     this.conflictCount.remove(neighbor);
                 } else {
                     this.conflictCount.put(neighbor, neighborConflicts - 1);
                 }
+                
 
             }
         }
+
+        this.conflictCount.put(move.getNode(), count);
+        if (count <= 0) {
+            this.conflictCount.remove(move.getNode());
+        }
         coloring[move.getNode()] = move.getColor();
-        nb_cfl += newConflicts - oldConflicts;
-
-        // if there are no oldConflicts, then this node was previously unconflicted
-        // meaning that you need to account for this node being newly conflicted
-        if (oldConflicts == 0) {
-            nb_cfl++;
-        }
-
-        // if there are no new conflicts, then this node is newly unconflicted
-        if (newConflicts == 0) {
-            nb_cfl--;
-        }
-
+        nb_cfl = conflictCount.size();
         objective = move.getObjective();
     }
 
@@ -78,7 +71,7 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
         }
         ArrayList<Integer> indicies = new ArrayList<Integer>(conflictCount.keySet());
         // for (int node : conflictCount.keySet()) {
-        //     indicies.add(node);
+        // indicies.add(node);
         // }
 
         int random_node = GCPHeuristic.random(indicies.size());

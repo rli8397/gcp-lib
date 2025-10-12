@@ -94,7 +94,6 @@ public class Hertz1987Heuristic extends GCPWrapper<Hertz1987Heuristic.Hertz1987K
                     loopCount++;
 
                 }
-
                 return bestMove;
             }
 
@@ -109,6 +108,9 @@ public class Hertz1987Heuristic extends GCPWrapper<Hertz1987Heuristic.Hertz1987K
                 tabuMap.put(tabuMove, iteration + getTenure());
             }
 
+            public void makeMove(Move move) {
+                solution.makeMove(move);
+            }
         }
 
         public int centralConflictNode() {
@@ -205,7 +207,7 @@ public class Hertz1987Heuristic extends GCPWrapper<Hertz1987Heuristic.Hertz1987K
         public void tabuSearch() {
             // parameters
             int rep = 250;
-            int tabuTenure = 7;
+            int tabuTenure = 4;
             int nbmax = 1000;
 
             HertzTabuSearch ts = new HertzTabuSearch(tabuTenure, rep, nbmax, this);

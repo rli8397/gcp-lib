@@ -41,11 +41,10 @@ public abstract class GCPWrapper<T extends KCPHeuristic<?>> extends GCPHeuristic
         boolean res = super.report(solution, k);
         if (res && solution.isValidSolution()) {
             // reduce k strategy
-            System.out.println("run");
             this.k--;
             switch (reduceKStrategy) {
                 case "random_restart":
-                    this.coloring = randomRestart(k);
+                    this.coloring = randomRestart(k - 1);
                     break;
                 default:
                     throw new RuntimeException("Unknown k reducing strategy: " + reduceKStrategy);

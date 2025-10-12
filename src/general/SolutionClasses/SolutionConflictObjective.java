@@ -10,6 +10,10 @@ public class SolutionConflictObjective extends Solution {
     protected int objective;
     protected int nb_cfl;
 
+    public int get_nb_cfl() {
+        return nb_cfl;
+    }
+
     public SolutionConflictObjective(Instance instance, int[] coloring, int colors) {
         super(instance, coloring, colors);
     }
@@ -56,35 +60,75 @@ public class SolutionConflictObjective extends Solution {
     }
 
     public void makeMove(Move move) {
-        int newConflicts = 0;
-        int oldConflicts = 0;
-        for (int neighbor : instance.getAdjacent(move.getNode())) {
-            if (this.coloring[neighbor] == move.getColor()) {
-                newConflicts++;
-            } else if (this.coloring[neighbor] == this.coloring[move.getNode()]) {
-                oldConflicts++;
+        int node = move.getNode();
+        int oldColor = this.coloring[node];
+        int newColor = move.getColor();
+
+        // Check if the moved node was previously conflicted
+        boolean wasNodeConflicted = false;
+        for (int neighbor : instance.getAdjacent(node)) {
+            if (this.coloring[neighbor] == oldColor) {
+                wasNodeConflicted = true;
+                break;
             }
         }
-        
-        nb_cfl += newConflicts - oldConflicts;
 
-        // if there are no oldConflicts, then this node was previously unconflicted
-        // meaning that you need to account for this node being newly conflicted
-        if (oldConflicts == 0) {
-            nb_cfl++;
+        int newConflicts = 0;
+        int oldConflicts = 0;
+        int delta = 0; // Track neighbor conflicted status changes
+
+        for (int neighbor : instance.getAdjacent(node)) {
+            if (this.coloring[neighbor] == newColor) {
+                // Will create a new conflict
+                newConflicts++;
+
+                // Check if this neighbor was previously unconflicted
+                boolean wasNeighborConflicted = false;
+                for (int n : instance.getAdjacent(neighbor)) {
+                    if (n != node && this.coloring[n] == this.coloring[neighbor]) {
+                        wasNeighborConflicted = true;
+                        break;
+                    }
+                }
+                if (!wasNeighborConflicted) {
+                    delta++; // Neighbor became conflicted
+                }
+
+            } else if (this.coloring[neighbor] == oldColor) {
+                // Removing an old conflict
+                oldConflicts++;
+
+                // Check if this neighbor will become unconflicted
+                boolean willNeighborBeConflicted = false;
+                for (int nn : instance.getAdjacent(neighbor)) {
+                    if (nn != node && this.coloring[nn] == this.coloring[neighbor]) {
+                        willNeighborBeConflicted = true;
+                        break;
+                    }
+                }
+                if (!willNeighborBeConflicted) {
+                    delta--; // Neighbor became unconflicted
+                }
+            }
         }
 
-        // if there are no new conflicts, then this node is newly unconflicted
-        if (newConflicts == 0) {
-            nb_cfl--;
+        // Update nb_cfl based on neighbor status changes
+        nb_cfl += delta;
+
+        // Account for the moved node itself
+        boolean isNodeConflicted = (newConflicts > 0);
+        if (wasNodeConflicted && !isNodeConflicted) {
+            nb_cfl--; // Node became unconflicted
+        } else if (!wasNodeConflicted && isNodeConflicted) {
+            nb_cfl++; // Node became conflicted
         }
 
         objective = move.getObjective();
-        coloring[move.getNode()] = move.getColor();
-
+        coloring[node] = newColor;
     }
 
-    // returns a random node that is adjacent to at least one node with the same color
+    // returns a random node that is adjacent to at least one node with the same
+    // color
     // if there are no node conflicts, returns -1
     public int randConflictedNode() {
         ArrayList<Integer> conflictedNodes = new ArrayList<Integer>();

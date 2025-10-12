@@ -2,7 +2,7 @@ package papers;
 
 import java.util.HashMap;
 
-import general.HeuristicClasses.GCPHeuristic;
+import general.HeuristicClasses.Heuristic;
 import general.SolutionClasses.Solution;
 
 public abstract class TabuSearch<T> {
@@ -10,7 +10,7 @@ public abstract class TabuSearch<T> {
     protected HashMap<T, Integer> tabuMap;
     protected int[] A;
     protected Solution solution;
-    protected GCPHeuristic heuristic;
+    protected Heuristic heuristic;
 
     public TabuSearch(Solution solution) {
         this.solution = solution;
@@ -31,10 +31,11 @@ public abstract class TabuSearch<T> {
         return tenure;
     }
 
-    // not sure what to do with this
     public abstract T generateBestNeighbor(int iteration);
 
     public abstract void tabuAppend(T move, int iteration);
+
+    public abstract void makeMove(T move);
 
     public boolean stopCondition(int iteration) {
         return !heuristic.report();
@@ -50,7 +51,7 @@ public abstract class TabuSearch<T> {
             }
 
             tabuAppend(neighbor, iteration);
-
+            makeMove(neighbor);
             iteration++;
         }
     }
