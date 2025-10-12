@@ -13,8 +13,8 @@ public class PartialColoring extends Solution {
     protected int objective; // objective is the number of uncolored nodes
     protected HashSet<Integer> uncolored;
     
-    public PartialColoring(GCPHeuristic heuristic, int[] coloring, int k) {
-        initSolution(heuristic, coloring, k);
+    public PartialColoring(Instance instance, int[] coloring, int k) {
+        super(instance, coloring, k);
     }
 
     public static int[] partialColoring(GCPHeuristic heuristic, int k) {
@@ -56,7 +56,7 @@ public class PartialColoring extends Solution {
         return coloring;
     }
 
-    public void calcInitialState() {
+    public void init() {
         int obj = 0;        
         uncolored = new HashSet<Integer>();
 

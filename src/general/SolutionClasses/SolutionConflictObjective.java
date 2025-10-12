@@ -3,20 +3,21 @@ package general.SolutionClasses;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import general.Move;
+import general.*;
 import general.HeuristicClasses.GCPHeuristic;
+
 public class SolutionConflictObjective extends Solution {
     protected int objective;
     protected int nb_cfl;
 
-    public SolutionConflictObjective(GCPHeuristic heuristic, int[] coloring, int colors) {
-        initSolution(heuristic, coloring, colors);
+    public SolutionConflictObjective(Instance instance, int[] coloring, int colors) {
+        super(instance, coloring, colors);
     }
 
     // Counts number of conflicting edges and updates objective
     // O(n^2) - outside loop iterates through coloring which is len n inside loop
     // iterates through all adj nodes which is max n nodes
-    public void calcInitialState() {
+    public void init() {
         int obj = 0;
         for (int i = 0; i < coloring.length; i++) {
             HashSet<Integer> adj = this.instance.getAdjacent(i);
@@ -117,16 +118,6 @@ public class SolutionConflictObjective extends Solution {
         } while (newColor == coloring[node]);
 
         return new Move(node, newColor, this);
-    }
-
-    public void reduceK() {
-        for (int i = 0; i < coloring.length; i++) {
-            if (this.coloring[i] == k) {
-                this.coloring[i] = GCPHeuristic.random(k - 1) + 1; // reassigns the color to a random color from 1 to k-1
-            }
-        }
-        k--;
-        calcInitialState();
     }
 
     public boolean isValidSolution() {

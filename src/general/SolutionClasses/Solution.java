@@ -10,14 +10,12 @@ public abstract class Solution {
   protected int k;
   protected int[] coloring;
   protected Instance instance;
-  protected GCPHeuristic heuristic;
 
-  public void initSolution(GCPHeuristic heuristic, int[] coloring, int k) {
-    this.heuristic = heuristic;
-    this.instance = heuristic.getInstance();
+  public Solution(Instance instance, int[] coloring, int k) {
+    this.instance = instance;
     this.coloring = coloring;
     this.k = k;
-    calcInitialState();
+    init();
   }
 
   // generates a random coloring array and returns it
@@ -45,19 +43,7 @@ public abstract class Solution {
     return GCPHeuristic.random(instance.getNumNodes());
   }
 
-  // this function redistrubutes any nodes in the kth color class
-  // to a random color from 1 to k - 1
-  public void reduceK() {
-    for (int i = 0; i < coloring.length; i++) {
-      if (this.coloring[i] == k) {
-        this.coloring[i] = GCPHeuristic.random(k - 1) + 1; // reassigns the color to a random color from 1 to k-1
-      }
-    }
-    k--;
-    calcInitialState();
-  }
-
-  public abstract void calcInitialState();
+  public abstract void init();
 
   public abstract void calcNeighborObjective(Move move);
   

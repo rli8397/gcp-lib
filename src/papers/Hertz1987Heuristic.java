@@ -12,24 +12,30 @@ public class Hertz1987Heuristic extends GCPWrapper<Hertz1987Heuristic.Hertz1987K
         super(
             instance, 
             runtime, 
-            Hertz1987KCPHeuristic.class,
-            Solution.randomColoring(instance, instance.getMaxChromatic())
+            Solution.randomColoring(instance, instance.getMaxChromatic()),
+            "random_restart"
             );
+        run();
+    }
+
+    public Hertz1987KCPHeuristic createKCPHeuristic(int[] coloring ,int k) {
+        return new Hertz1987KCPHeuristic(instance, runtime_limit, coloring, k);
     }
 
     public class Hertz1987KCPHeuristic extends KCPHeuristic<Hertz1987Solution> {
-        public Hertz1987KCPHeuristic(Hertz1987Heuristic wrapper, int k) {
-            super(wrapper, k, Hertz1987Solution.class);
-            System.out.println("Heuristic Running for k = " + k);
-            Hertz1987Solution solution = new Hertz1987Solution(wrapper, k);
-            wrapper.report(solution, k);
+        public Hertz1987KCPHeuristic(Instance instance, double runtime_limit, int[] coloring, int k) {
+            super(instance, runtime_limit, k);
+            this.solution = new Hertz1987Solution(this, coloring);
+        }
+
+        public void run() {
+            ((Hertz1987Solution) solution).tabuSearch();
         }
     }
 
     public class Hertz1987Solution extends SolutionConflictCounts {
-        public Hertz1987Solution(GCPHeuristic heuristic, int k) {
-            super(heuristic, Solution.randomColoring(heuristic.getInstance(), k), k);
-            tabuSearch();
+        public Hertz1987Solution(Hertz1987KCPHeuristic heuristic, int[] coloring) {
+            super(heuristic.getInstance(), coloring, heuristic.getK());
         }
 
         public class HertzTabuSearch extends TabuSearch<Move> {
@@ -37,7 +43,7 @@ public class Hertz1987Heuristic extends GCPWrapper<Hertz1987Heuristic.Hertz1987K
             private int nbmax;
 
             public HertzTabuSearch(int tenure, int rep, int nbmax, SolutionConflictCounts solution) {
-                initTabu(solution);
+                super(solution);
                 this.tenure = tenure;
                 this.rep = rep;
                 this.nbmax = nbmax;
@@ -93,7 +99,7 @@ public class Hertz1987Heuristic extends GCPWrapper<Hertz1987Heuristic.Hertz1987K
             }
 
             public boolean stopCondition(int iteration) {
-                return solution.isValidSolution() || !heuristic.report() || iteration >= nbmax;
+                return solution.isValidSolution() || !report() || iteration >= nbmax;
             }
 
             public void tabuAppend(Move move, int iteration) {

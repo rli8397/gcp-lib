@@ -12,18 +12,20 @@ public class Glass2003Heuristic extends GASkeleton {
         super(instance, runtime, popSize);
     }
 
-    public class Glass2003Solution extends SolutionConflictCounts{
+    public GASkeletonSolution instantiateSolution(Instance instance, int[] coloring, int colors) {
+        return new Glass2003Solution(instance, coloring, colors);
+    }
+    
+    public class Glass2003Solution extends GASkeleton.GASkeletonSolution {
 
-        public Glass2003Solution(GCPHeuristic heuristic, int[] coloring, int colors) {
-            super(heuristic, coloring, colors);
-            calcObjective(); // the SolutionConflcit Objective calls this so its redundant here I think
-
+        public Glass2003Solution(Instance instance, int[] coloring, int colors) {
+            super(instance, coloring, colors);
             // CHANGE VERTEX DESCENT SO THAT IT DOESN'T CALL CALCOBJECTIVE AND JUST ALTERS
             // THE OBJECTIVE ALREADY THERE
-            vertexDescent();
+            localSearch();
         }
 
-        public void vertexDescent() {
+        public void localSearch() {
 
             int numNodes = instance.getNumNodes();
             int[][] costMatrix = new int[numNodes][k];
@@ -55,7 +57,7 @@ public class Glass2003Heuristic extends GASkeleton {
             boolean changed = true;
 
             // Cycles until no changes can be made
-            while (changed && heuristic.report()) {
+            while (changed && report()) {
 
                 changed = false;
                 for (int i = 0; i < numNodes; i++) {
@@ -107,7 +109,7 @@ public class Glass2003Heuristic extends GASkeleton {
             }
 
             // Finally update the objective and conflict counters
-            calcObjective();
+            // calcObjective();
         }
 
         private void updateNodeCost(int node, int[][] costMatrix, ArrayList<Integer>[] bestColorList) {

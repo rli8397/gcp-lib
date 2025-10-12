@@ -9,11 +9,15 @@ public class Garlinier1999Heuristic extends GASkeleton {
         super(instance, runtime, popSize);
     }
 
+    public GASkeletonSolution instantiateSolution(Instance instance, int[] coloring, int k) {
+        return new Garlinier1999Solution(instance, coloring, k);
+    }
+
     public class Garlinier1999Solution extends GASkeleton.GASkeletonSolution {
         // instantiation will leave solution floating
         // would instantiate either with a greedy or a crossover, like factory
-        public Garlinier1999Solution(GCPHeuristic heuristic, int[] coloring, int colors) {
-            super(heuristic, coloring, colors);
+        public Garlinier1999Solution(Instance instance, int[] coloring, int k) {
+            super(instance, coloring, k);
         }
 
         public class GarlinierTabuSearch extends TabuSearch<Move> {
@@ -23,7 +27,7 @@ public class Garlinier1999Heuristic extends GASkeleton {
             private int iterations;
 
             public GarlinierTabuSearch(int a, double alpha, int rep, int iterations, Garlinier1999Solution solution) {
-                initTabu(solution);
+                super(solution);
                 this.a = a;
                 this.alpha = alpha;
             }
@@ -110,6 +114,8 @@ public class Garlinier1999Heuristic extends GASkeleton {
             //     // curr iteration + tabuTenure
             //     iteration++;
             // }
+
+
         }
 
     }

@@ -12,17 +12,7 @@ public abstract class TabuSearch<T> {
     protected Solution solution;
     protected GCPHeuristic heuristic;
 
-    // public TabuSearch(Solution solution) {
-    //     this.solution = solution;
-    //     this.A = new int[solution.instance.getNumEdges() + 1];
-    //     for (int i = 0; i < A.length; i++) {
-    //         this.A[i] = i - 1;
-    //     }
-    //     tabuMap = new HashMap<>();
-
-    // }
-
-    public void initTabu(Solution solution) {
+    public TabuSearch(Solution solution) {
         this.solution = solution;
         this.A = new int[solution.getInstance().getNumEdges() + 1];
         for (int i = 0; i < A.length; i++) {

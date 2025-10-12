@@ -1,18 +1,19 @@
 package general.SolutionClasses;
 
 import java.util.*;
-import general.Move;
+
+import general.*;
 import general.HeuristicClasses.GCPHeuristic;
 
 public class SolutionConflictCounts extends SolutionConflictObjective {
     // key is the node that is conflicted, and its value is the number of nodes that it conflicts with
     protected HashMap<Integer, Integer> conflictCount; 
 
-    public SolutionConflictCounts(GCPHeuristic heuristic, int[] coloring, int colors) {
-        super(heuristic, coloring, colors);
+    public SolutionConflictCounts(Instance instance, int[] coloring, int colors) {
+        super(instance, coloring, colors);
     }
 
-    public void calcObjective() {
+    public void init() {
         int obj = 0;
         conflictCount = new HashMap<Integer, Integer>();
 

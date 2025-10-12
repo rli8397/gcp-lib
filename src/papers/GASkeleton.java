@@ -21,15 +21,14 @@ public class GASkeleton extends GCPHeuristic {
                 int s1 = GCPHeuristic.random(population.length);
                 int s2 = GCPHeuristic.randomNotEqual(population.length, s1);
 
-                solution = new GASkeletonSolution(this, crossOver(population[s1], population[s2]), this.k);
+                solution = instantiateSolution(instance, crossOver(population[s1], population[s2]), this.k);
 
                 // if a valid solution is found, we will restart the algorithm looking for k - 1
                 // colors
                 if (solution.isValidSolution()) {
-                    System.out.println(k);
-                    this.report(solution, k);
-                    int newK = calcK(solution);
-                    this.k = newK - 1;
+                    int lowestKFound = calcK(solution);
+                    this.report(solution, lowestKFound);
+                    this.k = lowestKFound - 1;
                     InitPopulation(population.length);
                 } else {
                     // updatePopulation
@@ -46,7 +45,7 @@ public class GASkeleton extends GCPHeuristic {
     public void InitPopulation(int popSize) {
         int[] deterministicColoring = greedyConstructionNonConflicted(this, this.k);
         for (int i = 0; i < popSize; i++) {
-            population[i] = new GASkeletonSolution(this,
+            population[i] = instantiateSolution(instance,
                     fillConflicts(this, deterministicColoring, this.k), this.k);
         }
     }
@@ -128,13 +127,19 @@ public class GASkeleton extends GCPHeuristic {
         return maxCardinalityClass;
     }
 
+    // this method is meant to be overriden, so that subclass heuristics will have their own subclass solution class constructors called
+    public GASkeletonSolution instantiateSolution(Instance instance, int[] coloring, int colors) {
+        return new GASkeletonSolution(instance, coloring, colors);
+    }
+
     public class GASkeletonSolution extends SolutionConflictObjective {
-        public GASkeletonSolution(GCPHeuristic heuristic, int[] coloring, int colors) {
-            super(heuristic, coloring, colors);
+        public GASkeletonSolution(Instance instance, int[] coloring, int colors) {
+            super(instance, coloring, colors);
             localSearch();
         }
 
-        public void localSearch() {
+        public void localSearch() throws UnsupportedOperationException {
+            throw new UnsupportedOperationException("Local Search not implemented or not called");
         }
     }
 

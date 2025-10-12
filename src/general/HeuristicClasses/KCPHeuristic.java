@@ -1,22 +1,29 @@
 package general.HeuristicClasses;
 import general.SolutionClasses.Solution;
-
-public class KCPHeuristic<T extends Solution> {
+import general.*;
+/*
+ * A KCPHeuristic stands for a k-Coloring Problem Heuristic, meaning
+ * it solves to see if a graph can be colored with k colors. 
+ * This is different from GCPHeuristic because once it finds a valid k-coloring
+ * it stops. Instead of a log of solutions, it maintains a single solution, which is
+ * either a valid k-coloring (if found) or the best coloring found so far (minimizes objective function)
+ */
+public abstract class KCPHeuristic<T extends Solution> extends Heuristic{
     protected int k;
-    protected GCPWrapper<?> wrapper; 
+    protected Solution solution;
 
-    // should have a reference to GCP wrapper 
-    // when reporting a solution, call gcp heuristic's report
-    public KCPHeuristic (GCPWrapper<?> wrapper, int k, Class<T> solutionClass) {
-        this.wrapper = wrapper;
+    public KCPHeuristic (Instance instance, double runtime_limit, int k) {
+        super(instance, runtime_limit);
         this.k = k;
-        
-        try {
-            // Solution solution = solutionClass.getDeclaredConstructor(GCPWrapper.class, int.class).newInstance(gcpWrapper, k);
-            // solution.run(); ??
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to instantiate solution: " + e.getMessage());
-        }
+    }
 
+    public abstract void run();
+    
+    public int getK() {
+        return k;
+    }
+
+    public Solution getSolution() {
+        return solution;
     }
 }

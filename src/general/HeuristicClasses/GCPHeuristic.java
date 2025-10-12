@@ -3,18 +3,17 @@ import java.util.*;
 import general.*;
 import general.SolutionClasses.*;
 
-public class GCPHeuristic {
-    protected Instance instance;
-    protected double runtime_limit;
-    protected long start_time;
+/*
+ * A GCPHeuristic stands for a Graph Coloring Problem Heuristic,
+ * indiciating a heuristic that solves for the chromatic number of a graph.
+ * A GCPHeuristic maintains a log of all valid solutions found.
+ */
+public class GCPHeuristic extends Heuristic {
     protected Stack<Entry> log;
-    protected static Random rand = new Random(1);
 
     // constructor for the heuristic class
     public GCPHeuristic(Instance instance, double runtime_limit) {
-        this.instance = instance;
-        this.runtime_limit = runtime_limit;
-        this.start_time = System.currentTimeMillis();
+        super(instance, runtime_limit);
         log  = new Stack<Entry>();
     }
 
@@ -35,18 +34,7 @@ public class GCPHeuristic {
         }
     }
 
-    // gets the current run time of the heuristic in seconds
-    public double getCurrRunTime() {
-        return (System.currentTimeMillis() - start_time) / 1000.0; 
-    }
-    
-    public double getRuntimeLimit() {
-        return runtime_limit;
-    }
 
-    public Instance getInstance() {
-        return instance;
-    }
     // This method can be used to report the current state of the heuristic
     // returns true if the heuristic time is less than runtime limit
     public boolean report(Solution solution, int k) {
@@ -56,33 +44,6 @@ public class GCPHeuristic {
         } 
         return report();
     }
-    
-    public boolean report() {
-        return getCurrRunTime() < runtime_limit;
-    }
-    // generates a number from 0 - n exclusive of n
-    public static int random(int n){
-        return rand.nextInt(n);
-    }
-
-    
-    public static int randomNotEqual(int n, int not) {
-        int r = rand.nextInt(n - 1);
-        if (r == not) {
-            if (r >= n - 1) {
-                r--;
-            } else {
-                r++;
-            }
-        }
-        return r;
-    }
-
-    // returns the Random object
-    public static Random getRandom() {
-        return rand;
-    }
-
 
     public void printLog() {
         System.out.println("Results: ");

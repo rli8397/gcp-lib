@@ -11,26 +11,35 @@ public class Chams1987Heuristic extends GCPWrapper<Chams1987Heuristic.Chams1987K
         super (
             instance, 
             runtime_limit,
-            Chams1987KCPHeuristic.class,
-            Solution.randomColoring(instance, instance.getMaxChromatic())
+            Solution.randomColoring(instance, instance.getMaxChromatic()),
+            "random_restart"
         );
+        run();
+    }
+
+    public Chams1987KCPHeuristic createKCPHeuristic(int[] coloring, int k) {
+        return new Chams1987KCPHeuristic(instance, runtime_limit, coloring, k);
     }
 
     public class Chams1987KCPHeuristic extends KCPHeuristic<Chams1987Solution> {
-        public Chams1987KCPHeuristic(Chams1987Heuristic wrapper, int k) {
-            super(wrapper, k, Chams1987Solution.class);
-            Chams1987Solution solution = new Chams1987Solution(wrapper, wrapper.getColoring(), k);
-            wrapper.report(solution, k);
+        public Chams1987KCPHeuristic(Instance instance, double runtime_limit, int[] coloring, int k) {
+            super(instance, runtime_limit, k);
+            this.solution = new Chams1987Solution(instance, coloring, k);
         }
+
+        public void run() {
+            ((Chams1987Solution) solution).Chams1987();
+        }
+
     }
 
     public class Chams1987Solution extends SolutionConflictObjective {
-        public Chams1987Solution(GCPHeuristic heuristic, int[] coloring, int k) {
-            super(heuristic, coloring , k);
+        public Chams1987Solution(Instance instance, int[] coloring, int k) {
+            super(instance, coloring, k);
         }
 
         public void Chams1987() {
-            while (objective > 0 && heuristic.report()) {
+            while (objective > 0 && report()) {
                 double t = Math.sqrt(this.instance.getNumNodes());
                 double a = 0.93;
                 boolean change = true;
