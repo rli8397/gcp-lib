@@ -36,6 +36,10 @@ public class Garlinier1999Heuristic extends GASkeleton {
                 return (int) (GCPHeuristic.random(a) + alpha * nb_cfl);
             }
 
+            public void makeMove(Move move) {
+                solution.makeMove(move);
+            }
+
             public Move generateBestNeighbor(int iteration) {
                 int bestObj = Integer.MAX_VALUE;
                 Move bestMove = null;

@@ -50,7 +50,6 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
                 } else {
                     this.conflictCount.put(neighbor, neighborConflicts - 1);
                 }
-                
 
             }
         }
@@ -59,9 +58,9 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
         if (count <= 0) {
             this.conflictCount.remove(move.getNode());
         }
-        coloring[move.getNode()] = move.getColor();
-        nb_cfl = conflictCount.size();
         objective = move.getObjective();
+        nb_cfl = conflictCount.size();
+        coloring[move.getNode()] = move.getColor();
     }
 
     // Picks a random node with conflicts, deviation from picking ANY random node
@@ -70,9 +69,6 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
             return -1;
         }
         ArrayList<Integer> indicies = new ArrayList<Integer>(conflictCount.keySet());
-        // for (int node : conflictCount.keySet()) {
-        // indicies.add(node);
-        // }
 
         int random_node = GCPHeuristic.random(indicies.size());
 

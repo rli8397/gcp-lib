@@ -34,7 +34,7 @@ public class SolutionConflictObjective extends Solution {
                         obj += 1;
                     }
                     if (!conflictedNode) {
-                        nb_cfl++; // maybe consider making conflict count solution count the conflict vertices
+                        nb_cfl++; 
                         conflictedNode = true;
                     }
                 }
@@ -128,9 +128,13 @@ public class SolutionConflictObjective extends Solution {
     }
 
     // returns a random node that is adjacent to at least one node with the same
-    // color
-    // if there are no node conflicts, returns -1
+    // color. If there are no conflicted nodes, return -1
+    // this can be used to determine functionality else where
     public int randConflictedNode() {
+        if (objective == 0) {
+            return -1;
+        }
+
         ArrayList<Integer> conflictedNodes = new ArrayList<Integer>();
         for (int i = 0; i < coloring.length; i++) {
             for (int neighbor : this.instance.getAdjacent(i)) {
@@ -141,10 +145,6 @@ public class SolutionConflictObjective extends Solution {
             }
         }
 
-        if (conflictedNodes.size() == 0) {
-            return -1;
-        }
-
         return conflictedNodes.get(GCPHeuristic.random(conflictedNodes.size()));
     }
 
@@ -152,6 +152,7 @@ public class SolutionConflictObjective extends Solution {
     // returns null if there are no conflicted nodes
     public Move randConflictedMove() {
         int node = randConflictedNode();
+
         if (node == -1) {
             return null;
         }
