@@ -5,10 +5,17 @@ import java.util.HashMap;
 
 import general.Heuristic;
 import general.Instance;
+import general.Options;
+
 
 public class Garlinier1999Heuristic extends GASkeleton {
-    public Garlinier1999Heuristic(Instance instance, double runtime, int popSize) {
-        super(instance, runtime, popSize);
+    public Garlinier1999Heuristic(Options params, int popSize) {
+        super(params, popSize);
+    }
+
+    //Overrides GASkeleton Create solution, Instantiates a GarlinierSolution
+    public Garlinier1999Solution createSolution(Heuristic heuristic, int[] coloring, int colors){
+        return new Garlinier1999Solution (heuristic, coloring, colors);
     }
 
     public class Garlinier1999Solution extends GASkeleton.GASkeletonSolution {
@@ -66,6 +73,7 @@ public class Garlinier1999Heuristic extends GASkeleton {
             objective = obj;
             validSolution = objective == 0;
         }
+ 
 
         public void TabuSearch(int iterations, int rep, int A, int alpha) {
             // read more about tabu tenure and rep count

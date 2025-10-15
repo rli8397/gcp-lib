@@ -7,7 +7,8 @@ import javax.print.attribute.HashPrintRequestAttributeSet;
 import general.Instance;
 import papers.Glass2003Heuristic.Glass2003Solution;
 import general.Heuristic;
-import general.Instance;
+import general.Options;
+
 
 public abstract class Solution {
   protected int k;
@@ -41,7 +42,7 @@ public abstract class Solution {
       for (int i = 0; i < instance.getNumNodes(); i++) {
           int minAllowed = Integer.MAX_VALUE;
           int currNode = -1;
-          boolean[] usedColors = new boolean[k + 1];
+          //boolean[] usedColors = new boolean[k + 1];
 
           // loops through all nodes and searchs for the node with the minimum colors
           // allowed without giving penalty
@@ -63,7 +64,8 @@ public abstract class Solution {
           if (currNode == -1) {
               break;
           }
-
+          
+          /* 
           // fills up an array denoted which colors are used by the current nodes
           // neighbors
           for (int neighbor : instance.getAdjacent(currNode)) {
@@ -71,7 +73,17 @@ public abstract class Solution {
                   usedColors[coloring[neighbor]] = true;
               }
           }
+          */
 
+          int minColor = -1;
+          for (int j = 1; j <= k; j++){
+              if (!satDegree[i].contains(j)){
+                  minColor = j;
+                  break;
+              }
+          }
+
+          /* 
           // finds the smallest color class that is not used by the current nodes
           // neighbors
           int minColor = -1;
@@ -81,6 +93,7 @@ public abstract class Solution {
                   break;
               }
           }
+           */
 
           // currNode is assigned minColor, then updates the sat degree of all its
           // neighbors by adding the minColor to the set of colors neighboring the

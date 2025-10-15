@@ -1,16 +1,20 @@
 package papers;
 
+import java.util.HashSet;
+
 import general.Heuristic;
 import general.Instance;
 import papers.Garlinier1999Heuristic.Garlinier1999Solution;
 import papers.Glass2003Heuristic.Glass2003Solution;
+import general.Options;
+
 
 public class GASkeleton extends Heuristic {
     private GASkeletonSolution[] population;
     private int k;
 
-    public GASkeleton(Instance instance, double runtime, int popSize) {
-        super(instance, runtime);
+    public GASkeleton(Options params, int popSize) {
+        super(params);
         System.out.println("Running heuristic");
         GASkeletonSolution solution;
         k = instance.getMaxChromatic();
@@ -23,7 +27,8 @@ public class GASkeleton extends Heuristic {
                 s2 = random(population.length);
             }
 
-            solution = new GASkeletonSolution(this, crossOver(population[s1], population[s2]), this.k);
+            //Instantiates the appropriate Solution type
+            solution  = createSolution(this, crossOver(population[s1], population[s2]), this.k);
 
             // if a valid solution is found, we will restart the algorithm looking for k - 1
             // colors
@@ -44,9 +49,12 @@ public class GASkeleton extends Heuristic {
     }
 
     public void InitPopulation(int popSize) {
+        GAGreedyConstructor dsatur = new GAGreedyConstructor(this, this.k);
+
         this.population = new GASkeletonSolution[popSize];
         for (int i = 0; i < popSize; i++) {
-            population[i] = new GASkeletonSolution(this, Solution.greedyConstruction(this, this.k), this.k);
+            population[i] = new GASkeletonSolution(this, dsatur.newGreedy(), this.k);
+            population[i] = createSolution (this, dsatur.newGreedy(), this.k);
         }
     }
 
@@ -99,6 +107,116 @@ public class GASkeleton extends Heuristic {
         }
 
         return count;
+    }
+
+    //Placeholder
+    public GASkeletonSolution createSolution(Heuristic h, int[] coloring, int colors){
+        return null;
+    }
+
+    public class GAGreedyConstructor{
+        int[] template;
+        int k;
+        Heuristic heuristic;
+        
+        //Constructs the deterministic fragment of DSATUR once for a given K
+        public GAGreedyConstructor(Heuristic heuristic, int k){
+            this.k = k;
+            this.heuristic = heuristic;
+
+            //Initialization
+            Instance instance = heuristic.getInstance();
+            HashSet<Integer>[] satDegree = new HashSet[instance.getNumNodes()];
+            int[] coloring  = new int[instance.getNumNodes()];
+
+            for (int i = 0; i < instance.getNumNodes(); i++) {
+                satDegree[i] = new HashSet<Integer>();
+            }
+
+            for (int i = 0; i < instance.getNumNodes(); i++) {
+                int minAllowed = Integer.MAX_VALUE;
+                int currNode = -1;
+                //boolean[] usedColors = new boolean[k + 1];
+
+                // loops through all nodes and searchs for the node with the minimum colors
+                // allowed without giving penalty
+                for (int node = 0; node < instance.getNumNodes(); node++) {
+                    if (coloring[node] == 0) { // Note: 0 means unvisited
+                        int allowed = k - satDegree[node].size();
+                        // -1 will notate that there is no allowed color
+                        // these nodes will be randomly colored later
+                        if (allowed == 0) {
+                            coloring[node] = -1;
+                        } else if (allowed < minAllowed) {
+                            minAllowed = allowed;
+                            currNode = node;
+                        }
+                    }
+                }
+
+                // if no new node is able to be colored without penalty, break
+                if (currNode == -1) {
+                    break;
+                }
+                
+                /* 
+                // fills up an array denoted which colors are used by the current nodes
+                // neighbors
+                for (int neighbor : instance.getAdjacent(currNode)) {
+                    if (coloring[neighbor] > 0) {
+                        usedColors[coloring[neighbor]] = true;
+                    }
+                }
+                */
+
+                int minColor = -1;
+                for (int j = 1; j <= k; j++){
+                    if (!satDegree[i].contains(j)){
+                        minColor = j;
+                        break;
+                    }
+                }
+
+                /* 
+                // finds the smallest color class that is not used by the current nodes
+                // neighbors
+                int minColor = -1;
+                for (int j = 1; j < usedColors.length; j++) {
+                    if (!usedColors[j]) {
+                        minColor = j;
+                        break;
+                    }
+                }
+                */
+
+                // currNode is assigned minColor, then updates the sat degree of all its
+                // neighbors by adding the minColor to the set of colors neighboring the
+                // neighbor
+                coloring[currNode] = minColor;
+                for (int neighbor : instance.getAdjacent(currNode)) {
+                    satDegree[neighbor].add(minColor);
+                }
+
+
+            }
+        }
+
+        public int[] newGreedy(){
+            int[] coloring  = new int[template.length];
+            
+
+            //Completes the stochastic process
+            for (int i = 0; i < template.length; i++){
+                if (template[i] == -1){
+                    coloring[i] = heuristic.random(k) + 1;
+                }
+                else{
+                    coloring[i] = template[i];
+                }
+            }
+
+            return coloring;
+        }
     }
 
     public class GASkeletonSolution extends SolutionConflictObjective {

@@ -9,6 +9,7 @@ public class Instance {
     private int numNodes;
     private int maxChromatic;
     private int numEdges;
+    private String fileName;
     @SuppressWarnings("unchecked")
 
     /* 
@@ -29,6 +30,7 @@ public class Instance {
         try {
             Scanner scanner = new Scanner(file);
             int numNodes = scanner.nextInt();
+            fileName = file.getName();
             
             this.numNodes = numNodes;
             adjacencySet = new HashSet[numNodes];
@@ -66,6 +68,7 @@ public class Instance {
             maxChromatic = maxDegree + 1;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("Error reading instance file: " + file.getName());
         }
     }
 
@@ -106,6 +109,16 @@ public class Instance {
             }
             System.out.println();
         }
+    }
+
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("Instance: ").append(fileName).append("\n");
+        sb.append("Number of nodes: ").append(numNodes).append("\n");
+        sb.append("Number of edges: ").append(numEdges).append("\n");
+        sb.append("Max Chromatic: ").append(maxChromatic).append("\n");
+
+        return sb.toString();
     }
     
 }

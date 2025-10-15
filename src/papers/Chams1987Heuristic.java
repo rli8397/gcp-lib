@@ -2,11 +2,13 @@ package papers;
 
 import general.Heuristic;
 import general.Instance;
+import general.Options;
+
 
 public class Chams1987Heuristic extends Heuristic {
-    public Chams1987Heuristic(Instance instance, int runtime_limit) {
-        super(instance, runtime_limit);
-        Chams1987Solution solution = new Chams1987Solution(this, instance);
+    public Chams1987Heuristic(Options params) {
+        super(params);
+        Chams1987Solution solution = new Chams1987Solution(this, Solution.randomColoring(this, Heuristic.getRandom().nextInt()), instance.getMaxChromatic());
         while(this.report(solution)) {
             solution.reduceK();
             solution.Chams1987();
@@ -16,8 +18,8 @@ public class Chams1987Heuristic extends Heuristic {
     }
 
     public class Chams1987Solution extends SolutionConflictObjective {
-        public Chams1987Solution(Heuristic heuristic, Instance instance) {
-            super(heuristic, Solution.randomColoring(instance.getNumNodes(), instance.getMaxChromatic(), Heuristic.getRandom()), instance.getMaxChromatic());
+        public Chams1987Solution(Heuristic heuristic, int[] coloring,int colors) {
+            super(heuristic, coloring, colors);
         }
 
         public void Chams1987() {

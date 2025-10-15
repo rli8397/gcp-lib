@@ -2,20 +2,23 @@ package papers;
 
 import general.Heuristic;
 import general.Instance;
+import general.Options;
+
 
 //No new solution classes made, simple small changes, can keep it within solution 
 
 public class Johnson1991Heuristic extends Heuristic {
     protected int k;
 
-    public Johnson1991Heuristic(Instance i, double r) {
-        super(i, r);
+    public Johnson1991Heuristic(Options params) {
+        super(params);
 
-        this.k = i.getMaxChromatic();
+        this.k = params.instance.getMaxChromatic();
 
         // according to paper, start k above max chromatic, which would be max degree +
         // 1 + some arbitrary number
-        Johnson1991Solution sol = new Johnson1991Solution(this, instance, k);
+
+        Johnson1991Solution sol = new Johnson1991Solution(this, Solution.randomColoring (this,k), k);
 
         while (true) {
             sol.Johnson1991FixedK();
@@ -23,7 +26,6 @@ public class Johnson1991Heuristic extends Heuristic {
             if (!report(sol)) {
                 break;
             }
-
             if (sol.isValidSolution()) {
                 this.k--;
                 sol.reduceK();
@@ -34,8 +36,8 @@ public class Johnson1991Heuristic extends Heuristic {
     }
 
     public class Johnson1991Solution extends SolutionConflictCounts {
-        public Johnson1991Solution(Heuristic h, Instance g, int k) {
-            super(h, Solution.randomColoring(h, k), k);
+        public Johnson1991Solution(Heuristic h, int[] coloring, int k) {
+            super(h, coloring, k);
         }
 
         public void Johnson1991FixedK() {
@@ -61,6 +63,10 @@ public class Johnson1991Heuristic extends Heuristic {
 
             // report checker
             int iter = 0;
+            
+            //Storing the current 
+            int[] s_star  = new int[coloring.length];
+            int best_obj = getObjective();
 
             while (objective > 0 && freezecount < freeze_lim) {
                 change = 0;

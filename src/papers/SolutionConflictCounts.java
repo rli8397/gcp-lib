@@ -2,7 +2,7 @@ package papers;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-
+import general.Options;
 import general.Heuristic;
 
 public class SolutionConflictCounts extends SolutionConflictObjective {
@@ -33,6 +33,29 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
         }
         objective = obj;
         this.validSolution = objective == 0;
+    }
+
+    
+    public void makeMove(Move move) { 
+        conflictCount[move.node] = 0;
+        HashSet<Integer> adj = this.instance.getAdjacent(move.node);
+
+        for (int adjv : adj) {
+                if (this.coloring[move.node] == this.coloring[adjv]) {
+                    this.conflictCount[adjv] -= 1;
+                }
+                else if (move.color == this.coloring[adjv]){
+                    this.
+                }
+            }
+        }
+
+        coloring[move.node] = move.color;
+        //Calculates the new objective 
+        int new_objective = move.getObjective();
+        
+
+        validSolution = objective == 0;
     }
 
     // Picks a random node with conflicts, deviation from picking ANY random node

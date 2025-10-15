@@ -8,8 +8,10 @@ public class Heuristic {
     protected double runtime_limit;
     protected long start_time;
     protected Stack<Entry> log;
-    protected static Random rand = new Random(1);
+    protected static Random rand;
     protected int k;
+    
+    public int verbosity;
 
     // we should maintain a "answer" best non-conflicted solution with lowest k
 
@@ -31,9 +33,13 @@ public class Heuristic {
     }
 
     // constructor for the heuristic class
-    public Heuristic(Instance instance, double runtime_limit) {
-        this.instance = instance;
-        this.runtime_limit = runtime_limit;
+    public Heuristic(Options options) {
+        this.instance = options.instance;
+        this.runtime_limit = options.runtime;
+        rand = new Random(options.seed);
+        this.verbosity = options.verbosity;
+
+        //Start timer 
         this.start_time = System.currentTimeMillis();
         log  = new Stack<Entry>();
     }
@@ -55,8 +61,8 @@ public class Heuristic {
     public boolean report(Solution solution) {
         if (solution.isValidSolution() && (log.isEmpty() || log.peek().k > solution.getK())) {
             log.push(new Entry(solution.getColoring(), getCurrRunTime(), solution.getK()));
-            System.out.println(log.peek());
         } 
+
         return report();
     }
     
@@ -74,7 +80,9 @@ public class Heuristic {
     }
 
     public void printLog() {
+        
         System.out.println("Results: ");
+
         for (Entry entry : log) {
             System.out.println(entry);
         }

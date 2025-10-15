@@ -1,5 +1,6 @@
 package papers;
 
+import java.io.ObjectStreamConstants;
 import java.util.*;
 import java.util.BitSet;
 import java.util.ArrayList;
@@ -7,11 +8,13 @@ import java.util.HashSet;
 
 import general.Heuristic;
 import general.Instance;
+import general.Options;
 
 public class Blochilger2008Heuristic extends Heuristic {
-    public Blochilger2008Heuristic(Instance instance, int runtime_limit) {
-        super(instance, runtime_limit);
+    public Blochilger2008Heuristic(Options params) {
+        super(params);
         Blochilger2008Solution solution = new Blochilger2008Solution(this, Blochilger2008Solution.partialColoring(this.instance, this.instance.getMaxChromatic(), this.rand), this.instance.getMaxChromatic());
+        
         while (this.report(solution)) {
             solution.reduceK();
             solution.tabuSearch();
