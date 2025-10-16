@@ -1,6 +1,8 @@
-package papers;
+package general;
 
 import java.util.Objects;
+
+import general.SolutionClasses.Solution;
 
 public class Move {
     protected int node;
@@ -36,6 +38,14 @@ public class Move {
 
     public void setObjective(int objective) {
         this.objective = objective;
+    }
+
+    public int getNode() {
+        return node;
+    }
+
+    public int getColor() {
+        return color;
     }
 
     public String toString() {

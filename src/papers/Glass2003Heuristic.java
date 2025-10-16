@@ -1,32 +1,32 @@
 package papers;
 
+import general.Instance;
+import general.HeuristicClasses.GCPHeuristic;
+import general.SolutionClasses.SolutionConflictCounts;
+import general.*;
+
 import java.util.*;
 
-import general.Heuristic;
-import general.Instance;
-import general.Options;
-
-
 public class Glass2003Heuristic extends GASkeleton {
-   
-    public Glass2003Heuristic(Options params, int popSize) {
-        super(params, popSize);
+
+    public Glass2003Heuristic(Options options) {
+        super(options);
     }
 
-    public Glass2003Solution createSolution(Heuristic h, int[] coloring, int colors){
-        return new Glass2003Solution(h, coloring, colors);
+    public GASkeletonSolution instantiateSolution(Instance instance, int[] coloring, int colors) {
+        return new Glass2003Solution(instance, coloring, colors);
     }
+    
+    public class Glass2003Solution extends GASkeleton.GASkeletonSolution {
 
-    public class Glass2003Solution extends GASkeleton.GASkeletonSolution{
-
-
-        public Glass2003Solution(Heuristic heuristic, int[] coloring, int colors) {
-            super(heuristic, coloring, colors);
-            //CHANGE VERTEX DESCENT SO THAT IT DOESN'T CALL CALCOBJECTIVE AND JUST ALTERS THE OBJECTIVE ALREADY THERE
-            vertexDescent();
+        public Glass2003Solution(Instance instance, int[] coloring, int colors) {
+            super(instance, coloring, colors);
+            // CHANGE VERTEX DESCENT SO THAT IT DOESN'T CALL CALCOBJECTIVE AND JUST ALTERS
+            // THE OBJECTIVE ALREADY THERE
+            localSearch();
         }
 
-        public void vertexDescent() {
+        public void localSearch() {
 
             int numNodes = instance.getNumNodes();
             int[][] costMatrix = new int[numNodes][k];
@@ -58,8 +58,8 @@ public class Glass2003Heuristic extends GASkeleton {
 
             boolean changed = true;
 
-            //Cycles until no changes can be made
-            while (changed && heuristic.report()) {
+            // Cycles until no changes can be made
+            while (changed && report()) {
 
                 changed = false;
                 for (int i = 0; i < numNodes; i++) {
@@ -67,7 +67,7 @@ public class Glass2003Heuristic extends GASkeleton {
                     minConflict = Integer.MAX_VALUE;
 
                     if (bestColorList[i].size() > 0 && !bestColorList[i].contains(currentColor)) {
-                        int newColor = bestColorList[i].get(heuristic.random(bestColorList[i].size()));
+                        int newColor = bestColorList[i].get(GCPHeuristic.random(bestColorList[i].size()));
                         coloring[i] = newColor;
                         changed = true;
 
@@ -108,8 +108,8 @@ public class Glass2003Heuristic extends GASkeleton {
             }
 
             // Finally update the objective and conflict counters
-            calcObjective();
-        } 
+            // calcObjective();
+        }
 
         //Computes Cost of each move
         private int computeCost(int vertex, int color) {

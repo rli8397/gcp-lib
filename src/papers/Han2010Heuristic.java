@@ -1,11 +1,10 @@
+/* 
 package papers;
 import java.util.*;
 
 import general.Heuristic;
 import general.Instance;
 import general.Options;
-
-
 
 public class Han2010Heuristic extends Heuristic{
     private Han2010Solution[] population;
@@ -14,11 +13,11 @@ public class Han2010Heuristic extends Heuristic{
     private double pm = 0.2; // mutation probability
     private Random rand = new Random();
 
-    public Han2010Heuristic(Options params, int popSize) {
-        super(params);
-        k = instance.getMaxChromatic();
+    public Han2010Heuristic(Options options) {
+        super(options);
+        k = options.instance.getMaxChromatic();
 
-        InitPopulation(popSize);
+        InitPopulation(Integer.parseInt(options.extras.get(0).trim()));
 
         Han2010Solution best = population[0];
         do {
@@ -78,9 +77,9 @@ public class Han2010Heuristic extends Heuristic{
         }
     }
 
-    /**
-     * Largest-set-first relabeling heuristic
-     */
+    
+     //Largest-set-first relabeling heuristic
+    
     private void relabelByLargestSet(Han2010Solution sol) {
         // count sizes of color classes
         Map<Integer, Integer> counts = new HashMap<>();
@@ -101,9 +100,7 @@ public class Han2010Heuristic extends Heuristic{
         }
     }
 
-    /**
-     * Conflict-aware crossover (paper's method)
-     */
+   
     private int[][] crossOver(Han2010Solution s1, Han2010Solution s2) {
         Han2010Solution p1 = s1.copy(this);
         Han2010Solution p2 = s2.copy(this);
@@ -135,18 +132,18 @@ public class Han2010Heuristic extends Heuristic{
         return new int[][]{child1, child2};
     }
 
-    /**
-     * Mutation: random reassignment of colors
-     */
+    
+     //Mutation: random reassignment of colors
+     
     private void mutate(Han2010Solution sol) {
         for (int i = 0; i < sol.coloring.length; i++) {
             sol.coloring[i] = random(k) + 1;
         }
     }
 
-    /**
-     * Pareto selection
-     */
+    
+      //Pareto selection
+     
     private Han2010Solution[] paretoSelection(Han2010Solution[] pop, Han2010Solution[] off1,
                                           Han2010Solution[] off2, int popSize) {
         List<Han2010Solution> combined = new ArrayList<>();
@@ -200,3 +197,4 @@ public class Han2010Heuristic extends Heuristic{
         
     }
 }
+ */

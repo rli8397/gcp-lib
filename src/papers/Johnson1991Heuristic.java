@@ -1,43 +1,41 @@
 package papers;
 
-import general.Heuristic;
-import general.Instance;
-import general.Options;
+import general.HeuristicClasses.*;
+import general.SolutionClasses.Solution;
+import general.SolutionClasses.SolutionConflictCounts;
+import papers.Chams1987Heuristic.Chams1987KCPHeuristic;
+import general.*;
 
-
+/* 
 //No new solution classes made, simple small changes, can keep it within solution 
 
-public class Johnson1991Heuristic extends Heuristic {
-    protected int k;
+public class Johnson1991Heuristic extends GCPWrapper<Johnson1991Heuristic.Johnson1991KCPHeuristic> {
 
-    public Johnson1991Heuristic(Options params) {
-        super(params);
-
-        this.k = params.instance.getMaxChromatic();
-
-        // according to paper, start k above max chromatic, which would be max degree +
-        // 1 + some arbitrary number
-
-        Johnson1991Solution sol = new Johnson1991Solution(this, Solution.randomColoring (this,k), k);
-
-        while (true) {
-            sol.Johnson1991FixedK();
-
-            if (!report(sol)) {
-                break;
-            }
-            if (sol.isValidSolution()) {
-                this.k--;
-                sol.reduceK();
-            }
-
-        }
-
+    public Johnson1991Heuristic(Options options) {
+        super(
+            options, 
+            Solution.randomColoring(options.instance, options.instance.getMaxChromatic()),
+            "random_restart"
+        );
     }
 
+    public Chams1987KCPHeuristic createKCPHeuristic(int[] coloring, int k) {
+        return new Chams1987KCPHeuristic(instance, runtime_limit, coloring, k);
+    }
+
+
+    public class Johnson1991KCPHeuristic extends KCPHeuristic<Johnson1991Solution> {
+        public Johnson1991KCPHeuristic (Johnson1991Heuristic wrapper, int k) {
+            super(wrapper, k, Johnson1991Solution.class);
+            Johnson1991Solution solution = new Johnson1991Solution(wrapper, wrapper.getColoring(), k);
+            solution.Johnson1991FixedK();
+            wrapper.report(solution, k);
+        }
+    }
+    
     public class Johnson1991Solution extends SolutionConflictCounts {
-        public Johnson1991Solution(Heuristic h, int[] coloring, int k) {
-            super(h, coloring, k);
+        public Johnson1991Solution(GCPHeuristic heuristic, int[] coloring, int k) {
+            super(heuristic, coloring, k);
         }
 
         public void Johnson1991FixedK() {
@@ -94,7 +92,7 @@ public class Johnson1991Heuristic extends Heuristic {
                         break;
                     } else {
 
-                        double r = Heuristic.random(1); // the paper says that 1 should be inclusive, does this matter?
+                        double r = Math.random(); // the paper says that 1 should be inclusive, does this matter?
                         double p = Math.exp(-delta / t);
 
                         if (r <= p) {
@@ -120,3 +118,4 @@ public class Johnson1991Heuristic extends Heuristic {
     }
 
 }
+*/

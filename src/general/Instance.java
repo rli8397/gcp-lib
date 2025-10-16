@@ -2,7 +2,6 @@ package general;
 import java.util.HashSet;
 import java.io.File; 
 import java.util.Scanner; 
-import java.util.*;
 
 public class Instance {
     private HashSet<Integer>[] adjacencySet; // adjacency matrix is boolean because it is non-directed and unweighted
@@ -10,7 +9,7 @@ public class Instance {
     private int maxChromatic;
     private int numEdges;
     private String fileName;
-    @SuppressWarnings("unchecked")
+
 
     /* 
      * Constructor for an Intance that reads from a file
@@ -26,7 +25,7 @@ public class Instance {
      * ... 
      * 
      */
-    public Instance (File file) {
+    public Instance (File file) throws IllegalArgumentException {
         try {
             Scanner scanner = new Scanner(file);
             int numNodes = scanner.nextInt();
@@ -47,10 +46,16 @@ public class Instance {
                 if (parts[0].equalsIgnoreCase("e")) {
                     int edge1 = Integer.parseInt(parts[1]) - 1;
                     int edge2 = Integer.parseInt(parts[2]) - 1;
+                    if (edge1 < 0 || edge1 >= numNodes || edge2 < 0 || edge2 >= numNodes) {
+                        throw new IllegalArgumentException("Edge values cannot be less than 1 or greater than " + numNodes);
+                    }
                     addEdge(edge1, edge2);
                 } else if (parts.length == 2) {
                     int edge1 = Integer.parseInt(parts[0]) - 1;
-                    int edge2 = Integer.parseInt(parts[1]) - 1;
+                    int edge2 = Integer.parseInt(parts[1]) - 1;     
+                    if (edge1 < 0 || edge1 >= numNodes || edge2 < 0 || edge2 >= numNodes) {
+                        throw new IllegalArgumentException("Edge values cannot be less than 1 or greater than " + numNodes);
+                    }
                     addEdge(edge1, edge2);
                 }
             }
@@ -80,7 +85,7 @@ public class Instance {
         adjacencySet[edge2].add(edge1); // since the graph is undirected, we add both directions
     }
 
-    // returns a set of size n + 1, the first element in the array is number of neighbors, followed by the neighbors themselves
+    // returns a set of all the nodes adjacent to the given node
     public HashSet<Integer> getAdjacent(int node) {
         return adjacencySet[node];
     }
@@ -101,6 +106,10 @@ public class Instance {
         return numEdges;
     }
 
+    public int getDegree(int node) {
+        return adjacencySet[node].size();
+    }
+    
     public void printInstance() {
         for (int i = 0; i < adjacencySet.length; i++) {
             System.out.print("Node " + i + ": ");

@@ -1,73 +1,97 @@
-import general.Heuristic;
 import general.Instance;
 import general.Options;
+import general.HeuristicClasses.Heuristic;
 
 import java.util.*;
 import papers.*;
-
+import general.SolutionClasses.*;
 import java.io.*;
 
-public class main {
 
+public class main {
     public static void main(String[] args) {
 
+        File paramFile = new File(args[0]);
+        
+        if (!paramFile.exists()) {
+            System.err.println("Parameter file not found: " + paramFile.getAbsolutePath());
+            return;
+        }
+        
+        //Params + Extended
         Options opts = new Options();
-
         String heuristicName = null;
-            
-        //Parsing arguments 
-        for (int i = 0; i < args.length; i++) {
-            switch (args[i]) {
-                case "-h":
-                case "--heuristic":
-                    heuristicName = args[++i];
-                    break;
+        
+        try (BufferedReader reader = new BufferedReader(new FileReader(paramFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                // skip comments and blank lines
+                if (line.isEmpty() || line.startsWith("#")) continue;
 
-                case "-i":
-                case "--instance":
-                    opts.instance = new Instance(new File(args[++i]));
-                    break;
+                // expected format: key = value
+                String[] parts = line.split("=", 2);
+                if (parts.length < 2) continue;
 
-                //optional arg
-                case "-s":
-                case "--seed":
-                    opts.seed = Long.parseLong(args[++i]);
-                    break;
+                String key = parts[0].trim();
+                String value = parts[1].trim();
 
-                case "-r":
-                case "--runtime":
-                    opts.runtime = Double.parseDouble(args[++i]);
-                    break;
+                //Process known kets or add to extras
+                switch (key.toLowerCase()) {
+                    case "heuristic":
+                        heuristicName = value;
+                        break;
 
-                case "-v":
-                case "--verbosity":
-                    opts.verbosity = Integer.parseInt(args[++i]);
-                    break;
+                    case "instance":
+                        opts.instance = new Instance(new File(value));
+                        break;
 
-                default:
-                    System.out.println("Unknown option: " + args[i]);
-                    return;
+                    case "seed":
+                        opts.seed = Long.parseLong(value);
+                        break;
+
+                    case "runtime":
+                        opts.runtime = Double.parseDouble(value);
+                        break;
+
+                    case "verbosity":
+                        opts.verbosity = Integer.parseInt(value);
+                        break;
+
+                    // If key is not recognized, add to extras
+                    default:
+                        opts.extras.add(value);  // ASSUME THAT THE EXTENDED PARAMETERS ARE IN THE SAME ORDER
+                        break;
+                }
             }
+        } catch (IOException e) {
+            System.err.println("Error reading parameter file: " + e.getMessage());
+            return;
         }
 
         //Makes sure heurstic and instance are correctly loaded in
         if (opts.instance == null || heuristicName == null) {
-            System.err.println("Usage: java -cp bin Main -i <filePath> -h <heuristicName> -t runtime [-s seed]  [-sol true/false] [-met true/false]");
+            System.err.println("Missing instance and/or heuristic");
             return;
         }
-
-        //Refection of heuristic onto class
 
         try {
             Class<?> heuristicClass = Class.forName("papers." + heuristicName);
-            //
-            Heuristic heuristic = (Heuristic) heuristicClass.getConstructor(Options.class).newInstance(opts);
+
+            // Try constructor with Options and extras list
+            Heuristic heuristic = (Heuristic) heuristicClass
+                    .getConstructor(Options.class)
+                    .newInstance(opts);
+
+            // Run heuristic or do whatever your framework does here
+            System.out.println("Heuristic " + heuristicName + " initialized successfully.");
+
+        } catch (NoSuchMethodException e) {
+            System.err.println("Heuristic class must have a constructor taking (Options).");
         } catch (Exception e) {
             System.err.println("Error loading heuristic: " + e.getMessage());
             e.printStackTrace();
-            return;
         }
-
     }
 }
 
