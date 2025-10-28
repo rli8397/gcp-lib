@@ -36,7 +36,7 @@ public class main {
                 String key = parts[0].trim();
                 String value = parts[1].trim();
 
-                //Process known kets or add to extras
+                //Process known keys or add to extras
                 switch (key.toLowerCase()) {
                     case "heuristic":
                         heuristicName = value;

@@ -86,7 +86,7 @@ public class PartialColoring extends Solution {
         move.setObjective(obj);
     }
 
-    public void makeMove(Move move) {
+    public void doMakeMove(Move move) {
         coloring[move.getNode()] = move.getColor();
         if (move.getColor() != 0) {
             for (int adj : this.instance.getAdjacent(move.getNode())) {
