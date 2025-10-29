@@ -10,17 +10,20 @@ public class Chams1987Heuristic extends GCPWrapper<Chams1987Heuristic.Chams1987K
             Solution.randomColoring(options.instance, options.instance.getMaxChromatic()),
             "random_restart"
         );
-        run();
     }
 
-    public Chams1987KCPHeuristic createKCPHeuristic(int[] coloring, int k) {
-        return new Chams1987KCPHeuristic(instance, runtime_limit, coloring, k);
+    public void run() {
+
+    }
+
+    public Chams1987KCPHeuristic createKCPHeuristic(GCPHeuristic gcp, int k) {
+        return new Chams1987KCPHeuristic(gcp, k);
     }
 
     public class Chams1987KCPHeuristic extends KCPHeuristic<Chams1987Solution> {
-        public Chams1987KCPHeuristic(Instance instance, double runtime_limit, int[] coloring, int k) {
-            super(instance, runtime_limit, k);
-            this.solution = new Chams1987Solution(instance, coloring, k);
+        public Chams1987KCPHeuristic(GCPHeuristic gcp, int k) {
+            super(gcp, k);
+            this.solution = new Chams1987Solution(this, gcp.getColoring());
         }
 
         public void run() {
@@ -30,8 +33,8 @@ public class Chams1987Heuristic extends GCPWrapper<Chams1987Heuristic.Chams1987K
     }
 
     public class Chams1987Solution extends SolutionConflictObjective {
-        public Chams1987Solution(Instance instance, int[] coloring, int k) {
-            super(instance, coloring, k);
+        public Chams1987Solution(Chams1987KCPHeuristic heuristic, int[] coloring) {
+            super(heuristic.getInstance(), coloring, heuristic.getK());
         }
 
         public void Chams1987() {

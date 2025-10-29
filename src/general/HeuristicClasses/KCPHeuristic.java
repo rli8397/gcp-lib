@@ -11,16 +11,16 @@ import general.*;
 public abstract class KCPHeuristic<T extends Solution> extends Heuristic {
     protected int k;
     protected Solution solution;
-    protected GCPHeuristic heuristic;
+    protected GCPHeuristic gcp = null;
 
     public KCPHeuristic (Options options, int k) {
         super(options);
         this.k = k; 
     }
 
-
-    public KCPHeuristic (Instance instance, double runtime, int k) {
-        super(instance, runtime);
+    public KCPHeuristic (GCPHeuristic gcp, int k) {
+        super(gcp);
+        this.gcp = gcp;
         this.k = k;
     }
 

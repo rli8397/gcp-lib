@@ -8,7 +8,7 @@ import general.SolutionClasses.*;
  * indiciating a heuristic that solves for the chromatic number of a graph.
  * A GCPHeuristic maintains a log of all valid solutions found.
  */
-public class GCPHeuristic extends Heuristic {
+public abstract class GCPHeuristic extends Heuristic {
     protected Stack<Entry> log;
     protected int verbosity;
 
@@ -16,9 +16,10 @@ public class GCPHeuristic extends Heuristic {
     public GCPHeuristic(Options options) {
         super(options);
         verbosity = options.verbosity;
-
         log  = new Stack<Entry>();
     }
+    
+    public abstract void run();
 
     // we should maintain a "answer" best non-conflicted solution with lowest k
     public class Entry {
@@ -86,6 +87,12 @@ public class GCPHeuristic extends Heuristic {
         return report();
     }
 
+    public int[] getColoring() {
+        if (log.isEmpty()) {
+            return null;
+        }
+        return log.peek().coloring;
+    }
 
     public void printLog() {
         System.out.println("Results: ");

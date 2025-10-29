@@ -16,21 +16,28 @@ public class Hertz1987Heuristic extends GCPWrapper<Hertz1987Heuristic.Hertz1987K
             Solution.randomColoring(options.instance, options.instance.getMaxChromatic()),
             "random_restart"
             );
-        run();
     }
 
-    public Hertz1987KCPHeuristic createKCPHeuristic(int[] coloring ,int k) {
-        return new Hertz1987KCPHeuristic(instance, runtime_limit, coloring, k);
+    public Hertz1987KCPHeuristic createKCPHeuristic(GCPHeuristic gcp,int k) {
+        return new Hertz1987KCPHeuristic(gcp, k);
     }
 
     public class Hertz1987KCPHeuristic extends KCPHeuristic<Hertz1987Solution> {
-        public Hertz1987KCPHeuristic(Instance instance, double runtime_limit, int[] coloring, int k) {
-            super(instance, runtime_limit, k);
-            this.solution = new Hertz1987Solution(this, coloring);
+        public Hertz1987KCPHeuristic(GCPHeuristic gcp, int k) {
+            super(gcp, k);
+            this.solution = new Hertz1987Solution(this, gcp.getColoring());
+        }
+
+        public Hertz1987KCPHeuristic(Options options, int k) {
+            super(options, k);
+            this.solution = new Hertz1987Solution(this, Solution.randomColoring(instance, k));
         }
 
         public void run() {
-            ((Hertz1987Solution) solution).tabuSearch();
+            ((Hertz1987Solution) this.solution).tabuSearch();
+            if (gcp != null) {
+                gcp.report(this.solution, k);
+            }
         }
     }
 

@@ -25,6 +25,12 @@ public class Heuristic {
         this.start_time = System.currentTimeMillis();
     }
     
+    public Heuristic (Heuristic other) {
+        this.instance = other.instance;
+        this.runtime_limit = other.runtime_limit;
+        this.start_time = System.currentTimeMillis();
+    }
+    
     public Heuristic(Instance instance, double runtime) {
         this.instance = instance;
         this.runtime_limit = runtime;
