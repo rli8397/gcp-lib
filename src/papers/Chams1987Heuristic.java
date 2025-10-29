@@ -12,10 +12,6 @@ public class Chams1987Heuristic extends GCPWrapper<Chams1987Heuristic.Chams1987K
         );
     }
 
-    public void run() {
-
-    }
-
     public Chams1987KCPHeuristic createKCPHeuristic(GCPHeuristic gcp, int k) {
         return new Chams1987KCPHeuristic(gcp, k);
     }
