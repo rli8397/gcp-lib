@@ -1,5 +1,6 @@
 import general.Instance;
 import general.Options;
+import general.HeuristicClasses.GCPHeuristic;
 import general.HeuristicClasses.Heuristic;
 
 import java.util.*;
@@ -10,7 +11,6 @@ import java.io.*;
 
 public class main {
     public static void main(String[] args) {
-
         File paramFile = new File(args[0]);
         
         if (!paramFile.exists()) {
@@ -36,7 +36,7 @@ public class main {
                 String key = parts[0].trim();
                 String value = parts[1].trim();
 
-                //Process known kets or add to extras
+                //Process known keys or add to extras
                 switch (key.toLowerCase()) {
                     case "heuristic":
                         heuristicName = value;
@@ -79,12 +79,12 @@ public class main {
             Class<?> heuristicClass = Class.forName("papers." + heuristicName);
 
             // Try constructor with Options and extras list
-            Heuristic heuristic = (Heuristic) heuristicClass
+            GCPHeuristic heuristic = (GCPHeuristic) heuristicClass
                     .getConstructor(Options.class)
                     .newInstance(opts);
-
+            heuristic.run();
             // Run heuristic or do whatever your framework does here
-            System.out.println("Heuristic " + heuristicName + " initialized successfully.");
+            System.out.println("Heuristic " + heuristicName + " ran successfully.");
 
         } catch (NoSuchMethodException e) {
             System.err.println("Heuristic class must have a constructor taking (Options).");

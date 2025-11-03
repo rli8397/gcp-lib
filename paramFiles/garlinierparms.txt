@@ -1,0 +1,6 @@
+heuristic = Garlinier1999Heuristic
+instance = testInstances\fpsol2.i.1.col
+seed = 1
+runtime = 20.0
+verbosity = 2
+popsize = 10

@@ -10,10 +10,6 @@ public class SolutionConflictObjective extends Solution {
     protected int objective;
     protected int nb_cfl;
 
-    public int get_nb_cfl() {
-        return nb_cfl;
-    }
-
     public SolutionConflictObjective(Instance instance, int[] coloring, int colors) {
         super(instance, coloring, colors);
     }
@@ -59,7 +55,7 @@ public class SolutionConflictObjective extends Solution {
         move.setObjective(obj);
     }
 
-    public void makeMove(Move move) {
+    public void doMakeMove(Move move) {
         int node = move.getNode();
         int oldColor = this.coloring[node];
         int newColor = move.getColor();

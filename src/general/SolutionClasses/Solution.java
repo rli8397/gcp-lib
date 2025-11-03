@@ -51,7 +51,27 @@ public abstract class Solution {
 
   // public abstract Move randConflictedMove();
 
-  public abstract void makeMove(Move move);
+  /*
+    * This makes the given move to the current coloring. 
+    * A move is considered as changing the color of a node to a new color
+    * After updating the coloring, it also updates the objective function
+    * 
+    * Subclasses implement doMakeMove for specifiy their own functionalities
+    * 
+    * Break case:
+    *  If a useless move is passed in (changing a node's color to the same color), 
+    *  the function returns immediately
+    */
+
+  public void makeMove(Move move) {
+    if (this.coloring[move.getNode()] == move.getColor()) {
+      return; 
+    }
+
+    doMakeMove(move);
+  }
+
+  public abstract void doMakeMove(Move move);
 
   public Move randMove() {
     int node = GCPHeuristic.random(coloring.length);

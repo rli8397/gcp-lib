@@ -1,4 +1,4 @@
-/* 
+
 package papers;
 import java.util.*;
 
@@ -197,4 +197,4 @@ public class Han2010Heuristic extends Heuristic{
         
     }
 }
- */
+ 

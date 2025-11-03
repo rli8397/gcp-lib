@@ -8,12 +8,19 @@ import general.*;
  * it stops. Instead of a log of solutions, it maintains a single solution, which is
  * either a valid k-coloring (if found) or the best coloring found so far (minimizes objective function)
  */
-public abstract class KCPHeuristic<T extends Solution> extends Heuristic{
+public abstract class KCPHeuristic<T extends Solution> extends Heuristic {
     protected int k;
     protected Solution solution;
+    protected GCPHeuristic gcp = null;
 
-    public KCPHeuristic (Instance instance, double runtime, int k) {
-        super(instance, runtime);
+    public KCPHeuristic (Options options, int k) {
+        super(options);
+        this.k = k; 
+    }
+
+    public KCPHeuristic (GCPHeuristic gcp, int k) {
+        super(gcp);
+        this.gcp = gcp;
         this.k = k;
     }
 

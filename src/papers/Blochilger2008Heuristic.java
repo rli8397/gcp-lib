@@ -1,9 +1,7 @@
-
+/* 
 package papers;
-
 import java.io.ObjectStreamConstants;
 import java.util.*;
-
 import general.Instance;
 import general.Move;
 import general.HeuristicClasses.*;
@@ -221,3 +219,6 @@ public class Blochilger2008Heuristic extends Heuristic {
         }
     }
 }
+
+
+*/

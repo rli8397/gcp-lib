@@ -34,7 +34,7 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
         objective = obj;
     }
 
-    public void makeMove(Move move) {
+    public void doMakeMove(Move move) {
         int count = this.conflictCount.getOrDefault(move.getNode(), 0);
         int newColor = move.getColor();
         int oldColor = this.coloring[move.getNode()];

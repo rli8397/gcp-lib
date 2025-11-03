@@ -26,7 +26,7 @@ public abstract class GCPWrapper<T extends KCPHeuristic<?>> extends GCPHeuristic
         do {
             try {
                 // creates a new instance of a KCPHeuristic
-                this.heuristic = createKCPHeuristic(coloring, k);
+                this.heuristic = createKCPHeuristic(this, k);
                 heuristic.run();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -35,7 +35,7 @@ public abstract class GCPWrapper<T extends KCPHeuristic<?>> extends GCPHeuristic
         } while (report(heuristic.getSolution(), k) && k > 1);
     }
 
-    protected abstract T createKCPHeuristic(int[] coloring, int k);
+    protected abstract T createKCPHeuristic(GCPHeuristic gcpHeuristic, int k);
 
     public boolean report(Solution solution, int k) {
         //Handles logging

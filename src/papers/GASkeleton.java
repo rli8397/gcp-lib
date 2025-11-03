@@ -12,38 +12,41 @@ public class GASkeleton extends GCPHeuristic {
     private int k;
 
     public GASkeleton(Options options) {
-            super(options);
-            //First and only extra parameter is population size, parse 
-            int popSize  = Integer.parseInt(options.extras.get(0).trim());
-            GASkeletonSolution solution;
-            this.k = instance.getMaxChromatic();
-            this.population = new GASkeletonSolution[popSize];
-            InitPopulation(population.length);
-            do {
-                // chooses 2 random parents
-                int s1 = GCPHeuristic.random(population.length);
-                int s2 = GCPHeuristic.randomNotEqual(population.length, s1);
+        super(options);
+        // First and only extra parameter is population size, parse
+        int popSize = Integer.parseInt(options.extras.get(0).trim());
+        this.k = instance.getMaxChromatic();
+        this.population = new GASkeletonSolution[popSize];
+    }
 
-                solution = instantiateSolution(instance, crossOver(population[s1], population[s2]), this.k);
+    public void run() {
+        GASkeletonSolution solution;
+        InitPopulation(population.length);
+        do {
+            // chooses 2 random parents
+            int s1 = GCPHeuristic.random(population.length);
+            int s2 = GCPHeuristic.randomNotEqual(population.length, s1);
 
-                // if a valid solution is found, we will restart the algorithm looking for k - 1
-                // colors
-                if (solution.isValidSolution()) {
-                    int lowestKFound = calcK(solution);
-                    this.report(solution, lowestKFound);
-                    this.k = lowestKFound - 1;
-                    InitPopulation(population.length);
-                } else {
-                    // updatePopulation
-                    int toReplace = s1;
-                    if (population[s1].getObjective() < population[s2].getObjective()) {
-                        toReplace = s2;
-                    }
-                    population[toReplace] = solution;
+            solution = instantiateSolution(instance, crossOver(population[s1], population[s2]), this.k);
+
+            // if a valid solution is found, we will restart the algorithm looking for k - 1
+            // colors
+            if (solution.isValidSolution()) {
+                int lowestKFound = calcK(solution);
+                this.report(solution, lowestKFound);
+                this.k = lowestKFound - 1;
+                InitPopulation(population.length);
+            } else {
+                // updatePopulation
+                int toReplace = s1;
+                if (population[s1].getObjective() < population[s2].getObjective()) {
+                    toReplace = s2;
                 }
+                population[toReplace] = solution;
+            }
 
-            } while (this.report());
-        }
+        } while (this.report());
+    }
 
     public void InitPopulation(int popSize) {
         int[] deterministicColoring = greedyConstructionNonConflicted(this, this.k);
@@ -130,7 +133,8 @@ public class GASkeleton extends GCPHeuristic {
         return maxCardinalityClass;
     }
 
-    // this method is meant to be overriden, so that subclass heuristics will have their own subclass solution class constructors called
+    // this method is meant to be overriden, so that subclass heuristics will have
+    // their own subclass solution class constructors called
     public GASkeletonSolution instantiateSolution(Instance instance, int[] coloring, int colors) {
         return new GASkeletonSolution(instance, coloring, colors);
     }
