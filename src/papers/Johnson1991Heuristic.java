@@ -6,7 +6,7 @@ import general.SolutionClasses.SolutionConflictCounts;
 import papers.Chams1987Heuristic.Chams1987KCPHeuristic;
 import general.*;
 
-/* 
+
 //No new solution classes made, simple small changes, can keep it within solution 
 
 public class Johnson1991Heuristic extends GCPWrapper<Johnson1991Heuristic.Johnson1991KCPHeuristic> {
@@ -118,4 +118,3 @@ public class Johnson1991Heuristic extends GCPWrapper<Johnson1991Heuristic.Johnso
     }
 
 }
-*/

@@ -7,7 +7,7 @@ import general.HeuristicClasses.*;
 import general.SolutionClasses.PartialColoring;
 import general.*;
 
-/* 
+
 public class Morgenstern1996Heuristic extends Heuristic {
     public Morgenstern1996Heuristic(Instance instance, double runtime, int popSize) {
         super(instance, runtime, instance.getMaxChromatic());
@@ -34,4 +34,3 @@ public class Morgenstern1996Heuristic extends Heuristic {
     }
     
 }
-*/

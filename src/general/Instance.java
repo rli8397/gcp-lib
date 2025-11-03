@@ -10,7 +10,6 @@ public class Instance {
     private int numEdges;
     private String fileName;
 
-
     /* 
      * Constructor for an Intance that reads from a file
      * Format:
