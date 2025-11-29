@@ -95,6 +95,10 @@ public abstract class Solution {
     return this.k;
   }
 
+  public void setK(int k) {
+    this.k = k;
+  }
+
   public Instance getInstance() {
     return this.instance;
   }

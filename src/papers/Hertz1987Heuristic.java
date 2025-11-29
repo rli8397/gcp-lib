@@ -219,7 +219,7 @@ public class Hertz1987Heuristic extends GCPWrapper<Hertz1987Heuristic.Hertz1987K
             int nbmax = 1000;
 
             HertzTabuSearch ts = new HertzTabuSearch(tabuTenure, rep, nbmax, this);
-            ts.tabuSearch();
+            ts.hertzTabuSearch();
         }
     }
 

@@ -8,7 +8,6 @@ import general.HeuristicClasses.GCPHeuristic;
 
 public class SolutionConflictObjective extends Solution {
     protected int objective;
-    protected int nb_cfl;
 
     public SolutionConflictObjective(Instance instance, int[] coloring, int colors) {
         super(instance, coloring, colors);
@@ -21,18 +20,11 @@ public class SolutionConflictObjective extends Solution {
         int obj = 0;
         for (int i = 0; i < coloring.length; i++) {
             HashSet<Integer> adj = this.instance.getAdjacent(i);
-            boolean conflictedNode = false;
             for (int adjv : adj) {
                 // If i < adjv, that edge hasn't been checked yet, this prevents from double
                 // counting
-                if (coloring[i] == coloring[adjv]) {
-                    if (i < adjv) {
-                        obj += 1;
-                    }
-                    if (!conflictedNode) {
-                        nb_cfl++; 
-                        conflictedNode = true;
-                    }
+                if (coloring[i] == coloring[adjv] && i < adjv) {
+                    obj += 1;
                 }
             }
         }
@@ -56,71 +48,8 @@ public class SolutionConflictObjective extends Solution {
     }
 
     public void doMakeMove(Move move) {
-        int node = move.getNode();
-        int oldColor = this.coloring[node];
-        int newColor = move.getColor();
-
-        // Check if the moved node was previously conflicted
-        boolean wasNodeConflicted = false;
-        for (int neighbor : instance.getAdjacent(node)) {
-            if (this.coloring[neighbor] == oldColor) {
-                wasNodeConflicted = true;
-                break;
-            }
-        }
-
-        int newConflicts = 0;
-        int oldConflicts = 0;
-        int delta = 0; // Track neighbor conflicted status changes
-
-        for (int neighbor : instance.getAdjacent(node)) {
-            if (this.coloring[neighbor] == newColor) {
-                // Will create a new conflict
-                newConflicts++;
-
-                // Check if this neighbor was previously unconflicted
-                boolean wasNeighborConflicted = false;
-                for (int n : instance.getAdjacent(neighbor)) {
-                    if (n != node && this.coloring[n] == this.coloring[neighbor]) {
-                        wasNeighborConflicted = true;
-                        break;
-                    }
-                }
-                if (!wasNeighborConflicted) {
-                    delta++; // Neighbor became conflicted
-                }
-
-            } else if (this.coloring[neighbor] == oldColor) {
-                // Removing an old conflict
-                oldConflicts++;
-
-                // Check if this neighbor will become unconflicted
-                boolean willNeighborBeConflicted = false;
-                for (int nn : instance.getAdjacent(neighbor)) {
-                    if (nn != node && this.coloring[nn] == this.coloring[neighbor]) {
-                        willNeighborBeConflicted = true;
-                        break;
-                    }
-                }
-                if (!willNeighborBeConflicted) {
-                    delta--; // Neighbor became unconflicted
-                }
-            }
-        }
-
-        // Update nb_cfl based on neighbor status changes
-        nb_cfl += delta;
-
-        // Account for the moved node itself
-        boolean isNodeConflicted = (newConflicts > 0);
-        if (wasNodeConflicted && !isNodeConflicted) {
-            nb_cfl--; // Node became unconflicted
-        } else if (!wasNodeConflicted && isNodeConflicted) {
-            nb_cfl++; // Node became conflicted
-        }
-
         objective = move.getObjective();
-        coloring[node] = newColor;
+        coloring[move.getNode()] = move.getColor();
     }
 
     // returns a random node that is adjacent to at least one node with the same
@@ -167,10 +96,6 @@ public class SolutionConflictObjective extends Solution {
 
     public int getObjective() {
         return objective;
-    }
-
-    public int getNumConflictedNodes() {
-        return nb_cfl;
     }
 
     // prints the current k the solution is checking and the best objective and

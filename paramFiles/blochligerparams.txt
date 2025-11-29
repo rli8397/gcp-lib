@@ -1,0 +1,5 @@
+heuristic = Blochilger2008Heuristic
+instance = C:\Users\Ryan Li\gcp-lib\testInstances\test.txt
+seed = 1
+runtime = 20.0
+verbosity = 3
