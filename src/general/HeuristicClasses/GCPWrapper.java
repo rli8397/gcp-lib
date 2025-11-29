@@ -38,18 +38,18 @@ public abstract class GCPWrapper<T extends KCPHeuristic<?>> extends GCPHeuristic
     protected abstract T createKCPHeuristic(GCPHeuristic gcpHeuristic, int k);
 
     public boolean report(Solution solution, int k) {
-        //Handles logging
+        // Handles logging
         boolean res = super.report(solution, k);
         if (res && solution.isValidSolution()) {
             // reduce k strategy
             this.k--;
-            switch (reduceKStrategy) {
-                case "random_restart":
-                    this.coloring = randomRestart(k - 1);
-                    break;
-                default:
-                    throw new RuntimeException("Unknown k reducing strategy: " + reduceKStrategy);
-            }
+        }
+        switch (reduceKStrategy) {
+            case "random_restart":
+                this.coloring = randomRestart(Math.max(this.k, 1));
+                break;
+            default:
+                throw new RuntimeException("Unknown k reducing strategy: " + reduceKStrategy);
         }
         return res;
     }

@@ -21,7 +21,6 @@ public abstract class Solution {
   // generates a random coloring array and returns it
   public static int[] randomColoring(Instance instance, int k) {
     int[] coloring = new int[instance.getNumNodes()];
-
     for (int i = 0; i < coloring.length; i++) {
       coloring[i] = GCPHeuristic.random(k) + 1; // colors start from 1 to k
     }
