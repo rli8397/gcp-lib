@@ -109,17 +109,7 @@ public class Garlinier1999Heuristic extends GASkeleton {
             double alpha = 0.6;
             
             GarlinierTabuSearch ts = new GarlinierTabuSearch(A, alpha, rep, iterations, this);
-            ts.tabuSearch();
-
-            // while (objective > 0 && iteration < iterations && heuristic.report()) {
-            //     Move neighbor = ts.generateBestNeighbor(rep, iteration, this);
-            //     Move tabuMove = new Move(neighbor.node, this.coloring[neighbor.node], this);
-            //     ts.tabuMap.put(tabuMove, iteration + ts.getTenure()); // a move is still tabu as long as the iteration
-            //                                                           // is <=
-            //     // curr iteration + tabuTenure
-            //     iteration++;
-            // }
-
+            ts.hertzTabuSearch();
 
         }
 

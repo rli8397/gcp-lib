@@ -1,5 +1,0 @@
-heuristic = Blochilger2008Heuristic
-instance = testInstances\fpsol2.i.1.col
-seed = 1
-runtime = 20.0
-verbosity = 2

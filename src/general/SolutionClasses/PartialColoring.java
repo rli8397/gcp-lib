@@ -15,8 +15,10 @@ public class PartialColoring extends Solution {
     
     public PartialColoring(Instance instance, int[] coloring, int k) {
         super(instance, coloring, k);
+        init(); // sets objective and uncolored set
     }
 
+    // according to blochilger2008
     public static int[] partialColoring(GCPHeuristic heuristic, int k) {
         Instance instance = heuristic.getInstance();
         int n = instance.getNumNodes();
@@ -32,11 +34,13 @@ public class PartialColoring extends Solution {
             adjacencyList.add(bs);
         }
 
-        BitSet[] classes = new BitSet[k];
-        for (int i = 0; i < k; i++) {
+        BitSet[] classes = new BitSet[k + 1];
+        for (int i = 1; i <= k; i++) {
             classes[i] = new BitSet(n);
         }
 
+        // choose verticies in random order and assign the smallest color class possible 
+        // while maintaining stable sets (non-conflicted)
         List<Integer> vertices = Solution.randTraversalOrder(instance);
         for (int v : vertices) {
             boolean placed = false;

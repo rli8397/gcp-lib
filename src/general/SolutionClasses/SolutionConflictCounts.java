@@ -9,6 +9,7 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
     // key is the node that is conflicted, and its value is the number of nodes that
     // it conflicts with
     protected HashMap<Integer, Integer> conflictCount;
+    protected int nb_cfl;
 
     public SolutionConflictCounts(Instance instance, int[] coloring, int colors) {
         super(instance, coloring, colors);
@@ -32,6 +33,7 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
             }
         }
         objective = obj;
+        nb_cfl = conflictCount.size();
     }
 
     public void doMakeMove(Move move) {

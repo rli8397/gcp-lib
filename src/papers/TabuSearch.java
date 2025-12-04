@@ -41,7 +41,7 @@ public abstract class TabuSearch<T> {
         return !heuristic.report();
     }
 
-    public void tabuSearch() {
+    public void hertzTabuSearch() {
         int iteration = 0;
 
         while (!stopCondition(iteration)) {

@@ -5,7 +5,7 @@ import java.util.HashSet;
 import general.*;
 import general.Instance;
 import general.HeuristicClasses.*;
-import general.SolutionClasses.SolutionConflictObjective;
+import general.SolutionClasses.SolutionConflictCounts;
 
 public class GASkeleton extends GCPHeuristic {
     private GASkeletonSolution[] population;
@@ -139,7 +139,7 @@ public class GASkeleton extends GCPHeuristic {
         return new GASkeletonSolution(instance, coloring, colors);
     }
 
-    public class GASkeletonSolution extends SolutionConflictObjective {
+    public class GASkeletonSolution extends SolutionConflictCounts {
         public GASkeletonSolution(Instance instance, int[] coloring, int colors) {
             super(instance, coloring, colors);
             localSearch();
