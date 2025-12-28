@@ -41,36 +41,29 @@ public abstract class GCPHeuristic extends Heuristic {
 
     // This method can be used to report the current state of the heuristic
     // returns true if the heuristic time is less than runtime limit
-    public boolean report(Solution solution, int k) {
+    public boolean report(Solution solution) {
 
         boolean isBetter = solution.isValidSolution() && (log.isEmpty() || log.peek().k > solution.getK());
+        log.push(new Entry(solution.getColoring(), getCurrRunTime(), solution.getK()));
 
          // Level 0: Silent mode
-        if (verbosity == 0) {
-            if (isBetter) 
-                log.push(new Entry(solution.getColoring(), getCurrRunTime(), solution.getK()));
-            return report();
-        }
+        if (verbosity == 0) {}
 
          // Level 1: Only print when a new best is found
         if (verbosity == 1) {
             if (isBetter) {
-                log.push(new Entry(solution.getColoring(), getCurrRunTime(), solution.getK()));
                 System.out.println("[BEST] New best solution found: k = " + solution.getK()
                         + " | time = " + getCurrRunTime() + "s");
             }
-            return report();
         }
 
         // Level 2: Print all valid solutions (even if not improving)
         if (verbosity == 2) {
             //Valid but not better necessarily better
             if (solution.isValidSolution()) {
-                log.push(new Entry(solution.getColoring(), getCurrRunTime(), solution.getK()));
                 System.out.println("[SOLUTION] k = " + solution.getK()
                         + " | time = " + getCurrRunTime() + "s");
             }
-            return report();
         }
 
          // Level 3: Debug mode — print everything thats reported, and the coloring itself
@@ -80,10 +73,8 @@ public abstract class GCPHeuristic extends Heuristic {
                     + " | time = " + getCurrRunTime() + "s"
                     + " | valid = " + solution.isValidSolution());
             System.out.println("Coloring: " + Arrays.toString(solution.getColoring()));
-            return report();
         }
 
-        //Failsafe
         return report();
     }
 

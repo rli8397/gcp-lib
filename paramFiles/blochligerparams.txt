@@ -1,5 +1,5 @@
 heuristic = Blochilger2008Heuristic
-instance = C:\Users\Ryan Li\gcp-lib\testInstances\test.txt
+instance = testInstances\fpsol2.i.1.col
 seed = 1
 runtime = 20.0
-verbosity = 3
+verbosity = 2

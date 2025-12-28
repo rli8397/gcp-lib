@@ -17,24 +17,33 @@ public class Heuristic {
     protected Instance instance;
     protected double runtime_limit;
     protected long start_time;
+    protected HashMap<String, String> cmdline_params;
     protected static Random rand = new Random(1);
 
     public Heuristic(Options options) {
         this.instance = options.instance;
         this.runtime_limit = options.runtime;
         this.start_time = System.currentTimeMillis();
+        cmdline_params = options.extras;
+        setRandSeed(options.seed);
     }
     
     public Heuristic (Heuristic other) {
         this.instance = other.instance;
         this.runtime_limit = other.runtime_limit;
         this.start_time = System.currentTimeMillis();
+        this.cmdline_params = other.cmdline_params;
     }
     
+    // to be deleted
     public Heuristic(Instance instance, double runtime) {
         this.instance = instance;
         this.runtime_limit = runtime;
         this.start_time = System.currentTimeMillis();
+    }
+
+    public static synchronized void setRandSeed(long seed) {
+        rand.setSeed(seed);
     }
 
     public Instance getInstance() {
@@ -59,17 +68,27 @@ public class Heuristic {
     }
 
     public static int randomNotEqual(int n, int not) {
-        int r = rand.nextInt(n - 1);
+        // for an invalid n, just return random number
+        if (not < 0 || not >= n) {
+            System.out.println("Warning in randomNotEqual: not value out of range");
+            return random(n);
+        }
+
+        int r = rand.nextInt(n);
         if (r == not) {
-            if (r >= n - 1) {
-                r--;
+            if (not == n - 1) {
+                return random(n - 1);
             } else {
-                r++;
+                return n - 1;
             }
         }
         return r;
     }
 
+    public String get_cmdline_arg(String key) {
+        return cmdline_params.get(key);
+    } 
+    
     // returns the Random object
     public static Random getRandom() {
         return rand;

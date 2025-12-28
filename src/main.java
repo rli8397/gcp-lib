@@ -60,7 +60,7 @@ public class main {
 
                     // If key is not recognized, add to extras
                     default:
-                        opts.extras.add(value);  // ASSUME THAT THE EXTENDED PARAMETERS ARE IN THE SAME ORDER
+                        opts.extras.put(key.toLowerCase(), value);  
                         break;
                 }
             }
@@ -82,6 +82,7 @@ public class main {
             GCPHeuristic heuristic = (GCPHeuristic) heuristicClass
                     .getConstructor(Options.class)
                     .newInstance(opts);
+            System.out.println("Heuristic starting");
             heuristic.run();
             // Run heuristic or do whatever your framework does here
             System.out.println("Heuristic " + heuristicName + " ran successfully.");

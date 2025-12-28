@@ -8,49 +8,65 @@ import general.SolutionClasses.Solution;
  * continously calling a KCPHeuristics with decreasing k values. The strategy 
  * for decreasing k values will be given as a string flag to the constructor.
  */
-public abstract class GCPWrapper<T extends KCPHeuristic<?>> extends GCPHeuristic {
-    private KCPHeuristic<?> heuristic;
+public abstract class GCPWrapper extends GCPHeuristic {
+    private KCPHeuristic heuristic;
     private int k;
-    private int[] coloring;
     private String reduceKStrategy;
 
     // constructor takes flag for k reducing strategy
-    public GCPWrapper(Options options, int[] initialColoring, String reduceKStrategy) {
+    public GCPWrapper(Options options, String reduceKStrategy) {
         super(options);
         this.k = options.instance.getMaxChromatic();
+        if (
+            reduceKStrategy != "random_restart"
+            // && other strategies
+        ) {
+            throw new RuntimeException("Unknown k reducing strategy: " + reduceKStrategy);
+        }
+
         this.reduceKStrategy = reduceKStrategy;
-        this.coloring = initialColoring;
     }
 
     public void run() {
+        // initializing coloring as null allows KCP heuristic to handle it on its own
+        this.heuristic = createKCPHeuristic(this, this.k, null);
         do {
             try {
-                // creates a new instance of a KCPHeuristic
-                this.heuristic = createKCPHeuristic(this, k);
                 heuristic.run();
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new RuntimeException("Failed to instantiate heuristic: " + e.getMessage());
             }
-        } while (report(heuristic.getSolution(), k) && k > 1);
+        } while (report() && k > 1);
     }
 
-    protected abstract T createKCPHeuristic(GCPHeuristic gcpHeuristic, int k);
+    // must handle a possible null coloring
+    protected abstract KCPHeuristic createKCPHeuristic(GCPHeuristic gcpHeuristic, int k, int[] coloring);
 
-    public boolean report(Solution solution, int k) {
+    public boolean report(Solution solution) {
+        if (solution == null) {
+            throw new RuntimeException("Cannot report a null solution");
+        }
+
         // Handles logging
-        boolean res = super.report(solution, k);
+        boolean res = super.report(solution);
+
         if (res && solution.isValidSolution()) {
             // reduce k strategy
             this.k--;
+            switch (reduceKStrategy) {
+                case "random_restart":
+                    this.heuristic = createKCPHeuristic(this, this.k, randomRestart(this.k));
+                    break;
+                default:
+                    throw new RuntimeException("Unknown k reducing strategy: " + reduceKStrategy);
+            }
+
+        } else {
+            // what should we do if kcp heuristic ends and no valid solution is found?
+            this.heuristic = createKCPHeuristic(this, this.k, null);
         }
-        switch (reduceKStrategy) {
-            case "random_restart":
-                this.coloring = randomRestart(Math.max(this.k, 1));
-                break;
-            default:
-                throw new RuntimeException("Unknown k reducing strategy: " + reduceKStrategy);
-        }
+        
         return res;
     }
 
@@ -58,7 +74,4 @@ public abstract class GCPWrapper<T extends KCPHeuristic<?>> extends GCPHeuristic
         return Solution.randomColoring(instance, k);
     }
 
-    public int[] getColoring() {
-        return coloring;
-    }
 }
