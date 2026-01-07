@@ -74,13 +74,9 @@ public class Heuristic {
             return random(n);
         }
 
-        int r = rand.nextInt(n);
-        if (r == not) {
-            if (r == n - 1) {
-                r = rand.nextInt(n - 1);
-            } else {
-                r += 1;
-            }
+        int r = rand.nextInt(n - 1);
+        if (r >= not) {
+            r++;
         }
         return r;
     }
