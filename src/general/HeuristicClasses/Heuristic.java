@@ -2,7 +2,6 @@ package general.HeuristicClasses;
 
 import java.util.*;
 import general.*;
-import general.Instance;
 
 /*
  * This Heuristic class determines when to start and stop a heuristic
@@ -27,14 +26,14 @@ public class Heuristic {
         cmdline_params = options.extras;
         setRandSeed(options.seed);
     }
-    
-    public Heuristic (Heuristic other) {
+
+    public Heuristic(Heuristic other) {
         this.instance = other.instance;
         this.runtime_limit = other.runtime_limit;
         this.start_time = System.currentTimeMillis();
         this.cmdline_params = other.cmdline_params;
     }
-    
+
     // to be deleted
     public Heuristic(Instance instance, double runtime) {
         this.instance = instance;
@@ -67,8 +66,9 @@ public class Heuristic {
         return rand.nextInt(n);
     }
 
+    // generates a number from 0 - n exclusive of n, and not "not"
     public static int randomNotEqual(int n, int not) {
-        // for an invalid n, just return random number
+        // for an invalid not, just return random number
         if (not < 0 || not >= n) {
             System.out.println("Warning in randomNotEqual: not value out of range");
             return random(n);
@@ -76,10 +76,10 @@ public class Heuristic {
 
         int r = rand.nextInt(n);
         if (r == not) {
-            if (not == n - 1) {
-                return random(n - 1);
+            if (r == n - 1) {
+                r = rand.nextInt(n - 1);
             } else {
-                return n - 1;
+                r += 1;
             }
         }
         return r;
@@ -87,8 +87,8 @@ public class Heuristic {
 
     public String get_cmdline_arg(String key) {
         return cmdline_params.get(key);
-    } 
-    
+    }
+
     // returns the Random object
     public static Random getRandom() {
         return rand;

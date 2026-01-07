@@ -64,7 +64,7 @@ public abstract class GCPWrapper extends GCPHeuristic {
 
         } else {
             // what should we do if kcp heuristic ends and no valid solution is found?
-            this.heuristic = createKCPHeuristic(this, this.k, null);
+            this.heuristic = createKCPHeuristic(this, this.k, randomRestart(this.k));
         }
         
         return res;
