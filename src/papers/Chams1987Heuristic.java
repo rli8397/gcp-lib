@@ -3,23 +3,25 @@ import general.*;
 import general.SolutionClasses.*;
 import general.HeuristicClasses.*;
 
-public class Chams1987Heuristic extends GCPWrapper<Chams1987Heuristic.Chams1987KCPHeuristic> {
+public class Chams1987Heuristic extends GCPWrapper {
     public Chams1987Heuristic(Options options) {
         super (
             options,
-            Solution.randomColoring(options.instance, options.instance.getMaxChromatic()),
             "random_restart"
         );
     }
 
-    public Chams1987KCPHeuristic createKCPHeuristic(GCPHeuristic gcp, int k) {
-        return new Chams1987KCPHeuristic(gcp, k);
+    public Chams1987KCPHeuristic createKCPHeuristic(GCPHeuristic gcp, int k, int[] coloring) {
+        return new Chams1987KCPHeuristic(gcp, k, coloring);
     }
 
-    public class Chams1987KCPHeuristic extends KCPHeuristic<Chams1987Solution> {
-        public Chams1987KCPHeuristic(GCPHeuristic gcp, int k) {
+    public class Chams1987KCPHeuristic extends KCPHeuristic {
+        public Chams1987KCPHeuristic(GCPHeuristic gcp, int k, int[] coloring) {
             super(gcp, k);
-            this.solution = new Chams1987Solution(this, gcp.getColoring());
+            if (coloring == null) {
+                coloring = Solution.randomColoring(this.instance, this.instance.getMaxChromatic());
+            }
+            this.solution = new Chams1987Solution(this, coloring);
         }
 
         public void run() {

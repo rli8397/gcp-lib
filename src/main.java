@@ -111,21 +111,37 @@ public class main {
                     String key = parts[0].trim();
                     String value = parts[1].trim();
 
-                    // Ignore keys that are provided via CLI:
-                    String kl = key.toLowerCase();
-                    if (kl.equals("heuristic") || kl.equals("instance") || kl.equals("seed")
-                        || kl.equals("runtime") || kl.equals("verbosity")) {
-                        // intentionally ignore: CLI overrides params file for these
-                        continue;
-                    }
+                //Process known keys or add to extras
+                switch (key.toLowerCase()) {
+                    case "heuristic":
+                        heuristicName = value;
+                        break;
 
-                    // store into map for unordered access
-                    opts.extras.put(key, value);
+                    case "instance":
+                        opts.instance = new Instance(new File(value));
+                        break;
+
+                    case "seed":
+                        opts.seed = Long.parseLong(value);
+                        break;
+
+                    case "runtime":
+                        opts.runtime = Double.parseDouble(value);
+                        break;
+
+                    case "verbosity":
+                        opts.verbosity = Integer.parseInt(value);
+                        break;
+
+                    // If key is not recognized, add to extras
+                    default:
+                        opts.extras.put(key.toLowerCase(), value);  
+                        break;
                 }
-            } catch (IOException e) {
-                System.err.println("Error reading parameter file: " + e.getMessage());
-                return;
             }
+        } catch (IOException e) {
+            System.err.println("Error reading parameter file: " + e.getMessage());
+            return;
         }
 
         // ---- debug print of final options ----
@@ -142,8 +158,7 @@ public class main {
             GCPHeuristic heuristic = (GCPHeuristic) heuristicClass
                     .getConstructor(Options.class)
                     .newInstance(opts);
-
-            // run
+            System.out.println("Heuristic starting");
             heuristic.run();
             System.out.println("Heuristic " + heuristicName + " ran successfully.");
 

@@ -8,53 +8,76 @@ import general.SolutionClasses.SolutionConflictCounts;
 import java.util.*;
 import general.Options;
 
-
-public class Hertz1987Heuristic extends GCPWrapper<Hertz1987Heuristic.Hertz1987KCPHeuristic> {
+public class Hertz1987Heuristic extends GCPWrapper {
     public Hertz1987Heuristic(Options options) {
         super(
-            options, 
-            Solution.randomColoring(options.instance, options.instance.getMaxChromatic()),
-            "random_restart"
-            );
+                options,
+                "random_restart");
     }
 
-    public Hertz1987KCPHeuristic createKCPHeuristic(GCPHeuristic gcp,int k) {
-        return new Hertz1987KCPHeuristic(gcp, k);
+    public Hertz1987KCPHeuristic createKCPHeuristic(GCPHeuristic gcp, int k, int[] coloring) {
+        return new Hertz1987KCPHeuristic(gcp, k, coloring);
     }
 
-    public class Hertz1987KCPHeuristic extends KCPHeuristic<Hertz1987Solution> {
-        public Hertz1987KCPHeuristic(GCPHeuristic gcp, int k) {
+    public class Hertz1987KCPHeuristic extends KCPHeuristic {
+        public Hertz1987KCPHeuristic(GCPHeuristic gcp, int k, int[] coloring) {
             super(gcp, k);
-            this.solution = new Hertz1987Solution(this, gcp.getColoring());
+            try {
+                int rep = Integer.parseInt(gcp.get_cmdline_arg("rep"));
+                int nbmax = Integer.parseInt(gcp.get_cmdline_arg("nbmax"));
+                int tenure = Integer.parseInt(gcp.get_cmdline_arg("tenure"));
+                
+                if (coloring == null) {
+                    coloring = Solution.randomColoring(this.instance, this.instance.getMaxChromatic());
+                }
+
+                this.solution = new Hertz1987Solution(this, coloring, rep, nbmax, tenure);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Missing or invalid extended parameters for Hertz1987KCPHeuristic. Required parameters: rep, nbmax, tenure.");
+            }
+
         }
 
         public Hertz1987KCPHeuristic(Options options, int k) {
             super(options, k);
-            this.solution = new Hertz1987Solution(this, Solution.randomColoring(instance, k));
+            try {
+                int rep = Integer.parseInt(options.extras.get("rep"));
+                int nbmax = Integer.parseInt(options.extras.get("nbmax"));
+                int tenure = Integer.parseInt(options.extras.get("tenure"));
+
+                this.solution = new Hertz1987Solution(this, Solution.randomColoring(instance, k), rep, nbmax, tenure);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Missing or invalid extended parameters for Hertz1987KCPHeuristic. Required parameters: rep, nbmax, tenure.");
+            }
         }
 
         public void run() {
             ((Hertz1987Solution) this.solution).tabuSearch();
             if (gcp != null) {
-                gcp.report(this.solution, k);
+                gcp.report(this.solution);
             }
         }
     }
 
     public class Hertz1987Solution extends SolutionConflictCounts {
-        public Hertz1987Solution(Hertz1987KCPHeuristic heuristic, int[] coloring) {
+        // parameters
+        // rep = 250;
+        // tabuTenure = 7;
+        // nbmax = 100000;
+        private int rep;
+        private int nbmax;
+        private int tenure;
+
+        public Hertz1987Solution(Hertz1987KCPHeuristic heuristic, int[] coloring, int rep, int nbmax, int tenure) {
             super(heuristic.getInstance(), coloring, heuristic.getK());
+            this.rep = rep;
+            this.nbmax = nbmax;
+            this.tenure = tenure;
         }
 
         public class HertzTabuSearch extends TabuSearch<Move> {
-            private int rep;
-            private int nbmax;
-
-            public HertzTabuSearch(int tenure, int rep, int nbmax, SolutionConflictCounts solution) {
+            public HertzTabuSearch(SolutionConflictCounts solution) {
                 super(solution);
-                this.tenure = tenure;
-                this.rep = rep;
-                this.nbmax = nbmax;
             }
 
             public Move generateBestNeighbor(int iteration) {
@@ -113,7 +136,7 @@ public class Hertz1987Heuristic extends GCPWrapper<Hertz1987Heuristic.Hertz1987K
                 Move tabuMove = new Move(move.getNode(), solution.getColoring()[move.getNode()], solution);
                 // a move is still tabu as long as the iteration is
                 // <= curr iteration + tabuTenure
-                tabuMap.put(tabuMove, iteration + getTenure());
+                tabuMap.put(tabuMove, iteration + tenure);
             }
 
             public void makeMove(Move move) {
@@ -170,7 +193,7 @@ public class Hertz1987Heuristic extends GCPWrapper<Hertz1987Heuristic.Hertz1987K
                 } else if (conflicts.size() == 1) {
 
                     int n = conflicts.get(0);
-                    
+
                     HashSet<Integer> colors = avaliableColors(n, centralNode, c);
 
                     if (colors.size() != 0) {
@@ -186,7 +209,7 @@ public class Hertz1987Heuristic extends GCPWrapper<Hertz1987Heuristic.Hertz1987K
 
                     HashSet<Integer> colors1 = avaliableColors(n1, centralNode, c);
                     HashSet<Integer> colors2 = avaliableColors(n2, centralNode, c);
-                    
+
                     if (instance.getAdjacent(n1).contains(n2)) {
                         for (int i : colors1) {
                             if (colors2.contains(i)) {
@@ -197,7 +220,6 @@ public class Hertz1987Heuristic extends GCPWrapper<Hertz1987Heuristic.Hertz1987K
                         }
                     }
 
-
                     if (colors1.size() != 0 && colors2.size() != 0) {
                         this.coloring[centralNode] = c;
                         this.coloring[n1] = colors1.iterator().next();
@@ -207,18 +229,15 @@ public class Hertz1987Heuristic extends GCPWrapper<Hertz1987Heuristic.Hertz1987K
                 }
 
             }
-        
+
             return false;
         }
 
         // this is the tabucol local search that will run
         public void tabuSearch() {
-            // parameters
-            int rep = 250;
-            int tabuTenure = 4;
-            int nbmax = 1000;
 
-            HertzTabuSearch ts = new HertzTabuSearch(tabuTenure, rep, nbmax, this);
+            HertzTabuSearch ts = new HertzTabuSearch(this);
+            ts.tenure = this.tenure;
             ts.hertzTabuSearch();
         }
     }

@@ -3,3 +3,6 @@ instance = C:\Users\Ryan Li\gcp-lib\testInstances\test.txt
 seed = 1
 runtime = 10
 verbosity = 3
+rep = 250
+nbmax = 10000
+tenure = 7

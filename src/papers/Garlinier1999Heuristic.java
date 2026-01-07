@@ -101,7 +101,6 @@ public class Garlinier1999Heuristic extends GASkeleton {
 
         public void localSearch() {
             // read more about tabu tenure and rep count
-
             // parameters
             int iterations = 1000;
             int rep = 5;

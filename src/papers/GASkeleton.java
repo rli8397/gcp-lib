@@ -14,7 +14,7 @@ public class GASkeleton extends GCPHeuristic {
     public GASkeleton(Options options) {
         super(options);
         // First and only extra parameter is population size, parse
-        int popSize = Integer.parseInt(options.extras.get(0).trim());
+        int popSize = Integer.parseInt(options.extras.get("popsize").trim());
         this.k = instance.getMaxChromatic();
         this.population = new GASkeletonSolution[popSize];
     }
@@ -29,12 +29,15 @@ public class GASkeleton extends GCPHeuristic {
 
             solution = instantiateSolution(instance, crossOver(population[s1], population[s2]), this.k);
 
-            // if a valid solution is found, we will restart the algorithm looking for k - 1
-            // colors
+            // if a valid solution is found, we will restart the algorithm looking for 
+            // (the lowest k found) - 1 colors
+            // this is our own implementation of moving between k's
             if (solution.isValidSolution()) {
                 int lowestKFound = calcK(solution);
-                this.report(solution, lowestKFound);
+                solution.setK(lowestKFound);
+                this.report(solution);
                 this.k = lowestKFound - 1;
+                System.out.println("K found: " + lowestKFound);
                 InitPopulation(population.length);
             } else {
                 // updatePopulation
