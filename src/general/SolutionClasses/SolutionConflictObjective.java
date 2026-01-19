@@ -7,7 +7,7 @@ import general.*;
 import general.HeuristicClasses.GCPHeuristic;
 
 public class SolutionConflictObjective extends Solution {
-    protected int objective;
+    public int objective;
 
     public SolutionConflictObjective(Instance instance, int[] coloring, int colors) {
         super(instance, coloring, colors);
@@ -106,4 +106,6 @@ public class SolutionConflictObjective extends Solution {
         System.out.println("f: " + objective);
         System.out.println(this);
     }
+
+
 }

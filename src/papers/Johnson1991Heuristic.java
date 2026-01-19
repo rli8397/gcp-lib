@@ -1,4 +1,4 @@
-
+/* 
 package papers;
 import general.HeuristicClasses.*;
 import general.SolutionClasses.Solution;
@@ -118,3 +118,4 @@ public class Johnson1991Heuristic extends GCPWrapper<Johnson1991Heuristic.Johnso
     }
 
 }
+*/

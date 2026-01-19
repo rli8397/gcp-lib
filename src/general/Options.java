@@ -3,8 +3,7 @@ package general;
 import java.util.HashMap;
 
 public class Options {
-    public File instanceFile;                 
-    public Instance instance;                 
+    public Instance instance;
     public long seed = System.currentTimeMillis();
     public double runtime = 10.0; //default runtime 
     public int verbosity = 0; //default verbosity level {silent = 0, normal = 1, verbose = 2, debug = 3}
@@ -19,10 +18,5 @@ public class Options {
                 ", seed=" + seed +
                 ", runtime=" + runtime +
                 ", versbosity =" + verbosity + "}";
-    }
-
-    //returns extra or returns null, up to file to parse string into desired datatype
-    public String getExtra(String key){
-        return extras.get(key);
     }
 }
