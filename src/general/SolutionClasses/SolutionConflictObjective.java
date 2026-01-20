@@ -31,6 +31,12 @@ public class SolutionConflictObjective extends Solution {
         objective = obj;
     }
 
+    public SolutionConflictObjective clone() throws CloneNotSupportedException {
+        SolutionConflictObjective cloned = (SolutionConflictObjective) super.clone();
+        cloned.objective = this.objective;
+        return cloned;
+    }
+    
     // this calculates the objective function for a neigboring solution
     // O(n) - you must iterate through all adjacent nodes, which can be at most n
     // nodes

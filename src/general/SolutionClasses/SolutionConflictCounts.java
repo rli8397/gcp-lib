@@ -36,6 +36,12 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
         nb_cfl = conflictCount.size();
     }
 
+    public SolutionConflictCounts clone() throws CloneNotSupportedException {
+        SolutionConflictCounts cloned = (SolutionConflictCounts) super.clone();
+        cloned.conflictCount = new HashMap<Integer, Integer>(this.conflictCount);
+        return cloned;
+    }
+    
     public void doMakeMove(Move move) {
         int count = this.conflictCount.getOrDefault(move.getNode(), 0);
         int newColor = move.getColor();
