@@ -1,5 +1,5 @@
 heuristic = Chams1987Heuristic
 instance = testInstances\tracetester.txt
 seed = 1
-runtime = 0.05
+runtime = 0.1
 verbosity = 3
