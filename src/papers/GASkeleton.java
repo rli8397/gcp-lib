@@ -28,13 +28,7 @@ public class GASkeleton extends GCPHeuristic {
             int s2 = GCPHeuristic.randomNotEqual(population.length, s1);
 
             solution = instantiateSolution(instance, crossOver(population[s1], population[s2]), this.k);
-            try {
-                solution.validityCheck(this.k);
-                System.out.println(solution);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new IllegalStateException("Error in crossover solution validity check");
-            }
+
             // if a valid solution is found, we will restart the algorithm looking for 
             // (the lowest k found) - 1 colors
             // this is our own implementation of moving between k's

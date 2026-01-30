@@ -34,7 +34,6 @@ public class SolutionConflictObjective extends Solution {
             }
         }
         objective = obj;
-        System.out.println("Initial objective: " + objective);
     }
 
     // this calculates the objective function for a neigboring solution
@@ -49,22 +48,6 @@ public class SolutionConflictObjective extends Solution {
                 obj++;
             }
         }
-        // if (obj > instance.getNumEdges()) {
-        // System.out.println("\nError in calculating neighbor objective");
-        // System.out.println(this);
-        // System.out.println("Objective: " + obj);
-        // System.out.println("Num Edges: " + instance.getNumEdges());
-        // System.out.println("Move: " + move.getNode() + " to color " +
-        // move.getColor());
-        // }
-
-        // if (obj == 5) {
-        //     System.out.println("\nError in calculating neighbor objective but 8");
-        //     System.out.println(this);
-        //     System.out.println("Objective: " + obj);
-        //     System.out.println("Num Edges: " + instance.getNumEdges());
-        //     System.out.println("Move: " + move.getNode() + " to color " + move.getColor());
-        // }
         move.setObjective(obj);
     }
 
