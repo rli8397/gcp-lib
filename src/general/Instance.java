@@ -31,8 +31,8 @@ public class Instance {
             fileName = file.getName();
             
             this.numNodes = numNodes;
-            adjacencySet = new HashSet[numNodes];
-            for (int i = 0; i < adjacencySet.length; i++) {
+            adjacencySet = new HashSet[numNodes + 1];
+            for (int i = 1; i <= adjacencySet.length - 1; i++) {
                 adjacencySet[i] = new HashSet<Integer>();
             }
 
@@ -43,16 +43,18 @@ public class Instance {
                 String[] parts = line.split("\\s+");
 
                 if (parts[0].equalsIgnoreCase("e")) {
-                    int edge1 = Integer.parseInt(parts[1]) - 1;
-                    int edge2 = Integer.parseInt(parts[2]) - 1;
-                    if (edge1 < 0 || edge1 >= numNodes || edge2 < 0 || edge2 >= numNodes) {
+                    int edge1 = Integer.parseInt(parts[1]);
+                    int edge2 = Integer.parseInt(parts[2]);
+                    if (edge1 < 1 || edge1 > numNodes || edge2 < 1 || edge2 > numNodes || edge1 == edge2) {
+                        if (edge1 == edge2) continue; // skip self-loops
                         throw new IllegalArgumentException("Edge values cannot be less than 1 or greater than " + numNodes);
                     }
                     addEdge(edge1, edge2);
                 } else if (parts.length == 2) {
-                    int edge1 = Integer.parseInt(parts[0]) - 1;
-                    int edge2 = Integer.parseInt(parts[1]) - 1;     
-                    if (edge1 < 0 || edge1 >= numNodes || edge2 < 0 || edge2 >= numNodes) {
+                    int edge1 = Integer.parseInt(parts[0]);
+                    int edge2 = Integer.parseInt(parts[1]);     
+                    if (edge1 < 1 || edge1 > numNodes || edge2 < 1 || edge2 > numNodes || edge1 == edge2) {
+                        if (edge1 == edge2) continue; // skip self-loops
                         throw new IllegalArgumentException("Edge values cannot be less than 1 or greater than " + numNodes);
                     }
                     addEdge(edge1, edge2);
@@ -63,9 +65,9 @@ public class Instance {
 
             //Calculate the maxchromatic number for the instance (maxdegree + 1)
             int maxDegree = 0;
-            for (HashSet<Integer> adj : adjacencySet){
-                if (maxDegree < adj.size()){
-                    maxDegree = adj.size();
+            for (int i = 1; i <= numNodes; i++){
+                if (maxDegree < adjacencySet[i].size()){
+                    maxDegree = adjacencySet[i].size();
                 }
             }
 
@@ -110,7 +112,7 @@ public class Instance {
     }
     
     public void printInstance() {
-        for (int i = 0; i < adjacencySet.length; i++) {
+        for (int i = 1; i <= numNodes; i++) {
             System.out.print("Node " + i + ": ");
             for (Integer neighbor : adjacencySet[i]) {
                 System.out.print(neighbor + " ");

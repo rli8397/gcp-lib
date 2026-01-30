@@ -18,26 +18,45 @@ public abstract class Solution {
     init();
   }
 
-  public Solution clone() throws CloneNotSupportedException {
-    Solution cloned = (Solution) super.clone();
-    cloned.coloring = this.coloring.clone();
-    return cloned;
+  public Solution(Solution other) {
+    this.instance = other.instance;
+    this.coloring = other.coloring.clone();
+    this.k = other.k;
   }
-  
+
+  // the follow should be implemented by subclasses
+  public abstract void init();
+
+  public abstract void calcNeighborObjective(Move move);
+
+  public abstract boolean isValidSolution();
+
+  /*
+   * This makes the given move to the current coloring.
+   * A move is considered as changing the color of a node to a new color
+   * After updating the coloring, it also updates the objective function
+   * 
+   * Subclasses implement doMakeMove for specifiy their own functionalities
+   * 
+   * Break case:
+   * If a useless move is passed in (changing a node's color to the same color),
+   * the function returns immediately
+   */
+  public abstract void doMakeMove(Move move);
+
   // generates a random coloring array and returns it
   public static int[] randomColoring(Instance instance, int k) {
-    int[] coloring = new int[instance.getNumNodes()];
-    for (int i = 0; i < coloring.length; i++) {
+    int[] coloring = new int[instance.getNumNodes() + 1];
+    for (int i = 1; i <= instance.getNumNodes(); i++) {
       coloring[i] = GCPHeuristic.random(k) + 1; // colors start from 1 to k
     }
 
     return coloring;
   }
 
-
   public static ArrayList<Integer> randTraversalOrder(Instance instance) {
     ArrayList<Integer> order = new ArrayList<>();
-    for (int i = 0; i < instance.getNumNodes(); i++) {
+    for (int i = 1; i <= instance.getNumNodes(); i++) {
       order.add(i);
     }
     Collections.shuffle(order, GCPHeuristic.getRandom());
@@ -45,41 +64,24 @@ public abstract class Solution {
   }
 
   public int randomNode() {
-    return GCPHeuristic.random(instance.getNumNodes());
+    return GCPHeuristic.random(instance.getNumNodes()) + 1;
   }
-
-  public abstract void init();
-
-  public abstract void calcNeighborObjective(Move move);
-  
-  public abstract boolean isValidSolution();
-
-  // public abstract Move randConflictedMove();
-
-  /*
-    * This makes the given move to the current coloring. 
-    * A move is considered as changing the color of a node to a new color
-    * After updating the coloring, it also updates the objective function
-    * 
-    * Subclasses implement doMakeMove for specifiy their own functionalities
-    * 
-    * Break case:
-    *  If a useless move is passed in (changing a node's color to the same color), 
-    *  the function returns immediately
-    */
 
   public void makeMove(Move move) {
     if (this.coloring[move.getNode()] == move.getColor()) {
-      return; 
+      return;
     }
 
     doMakeMove(move);
+    try {
+      validityCheck(this.k);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
-  public abstract void doMakeMove(Move move);
-
   public Move randMove() {
-    int node = GCPHeuristic.random(coloring.length);
+    int node = GCPHeuristic.random(instance.getNumNodes()) + 1;
     int newColor = 0;
     do {
       newColor = GCPHeuristic.random(k) + 1;
@@ -95,7 +97,7 @@ public abstract class Solution {
   public int getNodeColor(int node) {
     return this.coloring[node];
   }
-  
+
   public int getK() {
     return this.k;
   }
@@ -110,7 +112,7 @@ public abstract class Solution {
 
   public String toString() {
     String str = "";
-    for (int i = 0; i < coloring.length; i++) {
+    for (int i = 1; i < coloring.length; i++) {
       str += "Node " + i + ": Color " + coloring[i] + "\n";
     }
     return str;
@@ -129,7 +131,8 @@ public abstract class Solution {
     boolean[] visited = new boolean[this.k + 1];
 
     int count = 0;
-    for (int c : coloring) {
+    for (int i = 1; i <= instance.getNumNodes(); i++) {
+      int c = coloring[i];
       // Unique Color
       if (!visited[c]) {
         visited[c] = true;
@@ -139,5 +142,16 @@ public abstract class Solution {
 
     return count;
 
+  }
+
+  public void validityCheck(int k) throws Exception {
+    if (k == -1) {
+      return;
+    }
+    for (int i = 1; i <= instance.getNumNodes(); i++) {
+      if (coloring[i] < 1 || coloring[i] > k) {
+        throw new Exception("Invalid coloring found at node " + i + " with color " + coloring[i]);
+      }
+    }
   }
 }

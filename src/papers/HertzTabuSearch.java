@@ -47,9 +47,11 @@ public abstract class HertzTabuSearch extends TabuSearch<Move> {
             // this is a judgement call and is not stated in the paper
             if (loopCount % 1000 == 0 && i == 0) {
                 // if no move has been made after 1000 iterations, return any random move
-                return solution.randMove();
-            }
+                Move move = solution.randMove();
 
+                return move;
+            }
+            
             Move currMove = conflictSolution.randConflictedMove();
             int currObj = currMove.getObjective();
             if (!isTabu(currMove, iteration) || currObj <= A[conflictSolution.getObjective()]) {

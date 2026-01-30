@@ -25,8 +25,8 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
             frequency = Integer.parseInt(options.extras.get("frequency"));
             threshold = Integer.parseInt(options.extras.get("threshold"));
             increment = Integer.parseInt(options.extras.get("increment"));
-            maxIterations = Integer.parseInt(options.extras.get("maxIterations"));
-            initialTenure = Integer.parseInt(options.extras.get("initialTenure"));
+            maxIterations = Integer.parseInt(options.extras.get("maxiterations"));
+            initialTenure = Integer.parseInt(options.extras.get("initialtenure"));
         } catch (Exception e) {
             throw new IllegalArgumentException(
                     "Missing or invalid extended parameters for Blochilger2008Heuristic. Required parameters: frequency, threshold, increment, initialTenure.");

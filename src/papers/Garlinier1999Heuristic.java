@@ -17,12 +17,12 @@ public class Garlinier1999Heuristic extends GASkeleton {
         super(options);
         try {
             this.a = Integer.parseInt(get_cmdline_arg("a"));
-            this.alpha = Integer.parseInt(get_cmdline_arg("alpha"));
+            this.alpha = Double.parseDouble(get_cmdline_arg("alpha"));
             this.rep = Integer.parseInt(get_cmdline_arg("rep"));
-            this.maxIterations = Integer.parseInt("maxIterations");
+            this.maxIterations = Integer.parseInt(get_cmdline_arg("maxiterations"));
         } catch (Exception e) {
             throw new IllegalArgumentException(
-                    "Missing or invalid extended parameters for Garlinier1999Heuristic. Required parameters: a, alpha, rep, iterations.");
+                    "Missing or invalid extended parameters for Garlinier1999Heuristic. Required parameters: a, alpha, rep, maxiterations.");
         }
     }
 
@@ -41,20 +41,18 @@ public class Garlinier1999Heuristic extends GASkeleton {
             super(instance, coloring, k);
         }
 
+        public Garlinier1999Solution(Garlinier1999Solution other) {
+            super(other);
+        }
+
         public class GarlinierTabuSearch extends HertzTabuSearch {
 
             public GarlinierTabuSearch(Garlinier1999Solution solution) {
                 super(solution, Garlinier1999Heuristic.this);
-                try {
-                    bestSolution = (Garlinier1999Solution) solution.clone();
-                } catch (CloneNotSupportedException e) {
-                    System.out.println("Clone not supported in GarlinierTabuSearch");
-                    e.printStackTrace();
-                }
+                bestSolution = new Garlinier1999Solution(solution);
             }
 
             public int getTenure() {
-                System.out.println("Garlinier tenure run");
                 return (int) (GCPHeuristic.random(a) + alpha * nb_cfl);
             }
 
@@ -62,13 +60,8 @@ public class Garlinier1999Heuristic extends GASkeleton {
                 Move bestMove = generateBestRepNeighbor(iteration, rep);
                 // in order to keep track of the best solution found overall
                 if (bestMove != null && bestMove.getObjective() < bestSolution.getObjective()) {
-                    try {
-                        bestSolution = (Garlinier1999Solution) solution.clone();
-                        bestSolution.makeMove(bestMove);
-                    } catch (CloneNotSupportedException e) {
-                        System.out.println("Clone not supported in GarlinierTabuSearch");
-                        e.printStackTrace();
-                    }
+                    bestSolution = new Garlinier1999Solution(Garlinier1999Solution.this);
+                    bestSolution.makeMove(bestMove);
                 }
                 return bestMove;
             }
