@@ -37,6 +37,7 @@ public abstract class GCPWrapper extends GCPHeuristic {
                 e.printStackTrace();
                 throw new RuntimeException("Failed to instantiate heuristic: " + e.getMessage());
             }
+        
         } while (report() && k > 1);
     }
 
@@ -48,12 +49,26 @@ public abstract class GCPWrapper extends GCPHeuristic {
             throw new RuntimeException("Cannot report a null solution");
         }
 
-        // Handles logging
+        System.out.println("GCPWRAPPER REPORTING");
+
+        //Verify the k of the solution
+        this.k = solution.calcK();
+        
+
         boolean res = super.report(solution);
+
+        System.out.println("RES: " + res + " SOL VALID: " + solution.isValidSolution());
 
         if (res && solution.isValidSolution()) {
             // reduce k strategy
+            //check k before reducing it, solution may have reduced k unintentionally
+            if (verbosity == 3){
+                System.out.println("[DEBUG] Valid solution found with k = " + solution.getK()
+                        + ", preparing to reduce k");
+            }
+
             this.k--;
+
             switch (reduceKStrategy) {
                 case "random_restart":
                     this.heuristic = createKCPHeuristic(this, this.k, randomRestart(this.k));

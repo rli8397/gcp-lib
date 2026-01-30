@@ -7,7 +7,7 @@ import general.*;
 import general.HeuristicClasses.GCPHeuristic;
 
 public class SolutionConflictObjective extends Solution {
-    protected int objective;
+    public int objective;
 
     public SolutionConflictObjective(Instance instance, int[] coloring, int colors) {
         super(instance, coloring, colors);
@@ -147,4 +147,5 @@ public class SolutionConflictObjective extends Solution {
             throw new Exception("Objective mismatch found! Expected: " + obj + ", Found: " + objective);
         }
     }
+
 }

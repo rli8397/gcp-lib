@@ -68,7 +68,6 @@ public abstract class GCPHeuristic extends Heuristic {
 
          // Level 3: Debug mode — print everything thats reported, and the coloring itself
         if (verbosity >= 3) {
-            log.push(new Entry(solution.getColoring(), getCurrRunTime(), solution.getK()));
             System.out.println("[DEBUG] k = " + solution.getK()
                     + " | time = " + getCurrRunTime() + "s"
                     + " | valid = " + solution.isValidSolution());
