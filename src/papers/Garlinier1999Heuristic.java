@@ -59,7 +59,7 @@ public class Garlinier1999Heuristic extends GASkeleton {
             public Move generateBestNeighbor(int iteration) {
                 Move bestMove = generateBestRepNeighbor(iteration, rep);
                 // in order to keep track of the best solution found overall
-                if (bestMove != null && bestMove.getObjective() < bestSolution.getObjective()) {
+                if (bestMove != null && bestMove.getObjective() <= bestSolution.getObjective()) {
                     bestSolution = new Garlinier1999Solution(Garlinier1999Solution.this);
                     bestSolution.makeMove(bestMove);
                 }

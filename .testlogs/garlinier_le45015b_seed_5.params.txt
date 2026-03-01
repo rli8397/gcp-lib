@@ -1,0 +1,10 @@
+heuristic = Garlinier1999Heuristic
+instance = testInstances\le450_15b.col
+seed = 5
+runtime = 20.0
+verbosity = 3
+popsize = 10
+a = 3
+alpha = 2
+rep = 5
+maxiterations = 10000
