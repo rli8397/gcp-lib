@@ -81,6 +81,10 @@ public class Heuristic {
         return r;
     }
 
+    public static int randomInRange(int min, int max) {
+        return min + Heuristic.random(max - min + 1);
+    }
+
     public String get_cmdline_arg(String key) {
         return cmdline_params.get(key);
     }

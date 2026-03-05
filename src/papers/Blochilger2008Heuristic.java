@@ -9,77 +9,128 @@ import general.SolutionClasses.Solution;
 import general.Options;
 
 public class Blochilger2008Heuristic extends GCPHeuristic {
-    // frequency - [500:5000]
-    // threshold - [5: 30]
-    // increment - [1:2]
+    // Paper parameter ranges: phi in [500, 5000], alpha in [5, 30], b in [1, 2]
+    private int fooFrequencyMin = 500;
+    private int fooFrequencyMax = 5000;
+    private int fooIncrementMin = 5;
+    private int fooIncrementMax = 30;
+    private int fooThresholdMin = 1;
+    private int fooThresholdMax = 2;
 
-    private int frequency;
-    private int threshold;
-    private int increment;
-    private int initialTenure;
+    private int initialK;
     private int maxIterations;
 
     public Blochilger2008Heuristic(Options options) {
         super(options);
         try {
-            frequency = Integer.parseInt(options.extras.get("frequency"));
-            threshold = Integer.parseInt(options.extras.get("threshold"));
-            increment = Integer.parseInt(options.extras.get("increment"));
             maxIterations = Integer.parseInt(options.extras.get("maxiterations"));
-            initialTenure = Integer.parseInt(options.extras.get("initialtenure"));
+            // providing an initial k is optional, defaults to the max chromatic number
+            initialK = options.extras.containsKey("initialk")
+                    ? Integer.parseInt(options.extras.get("initialk"))
+                    : this.instance.getMaxChromatic();
+
+            // Backward-compatible overrides for fixed values.
+            if (options.extras.containsKey("frequency")) {
+                int frequency = Integer.parseInt(options.extras.get("frequency"));
+                fooFrequencyMin = frequency;
+                fooFrequencyMax = frequency;
+            }
+            if (options.extras.containsKey("increment")) {
+                int increment = Integer.parseInt(options.extras.get("increment"));
+                fooIncrementMin = increment;
+                fooIncrementMax = increment;
+            }
+            if (options.extras.containsKey("threshold")) {
+                int threshold = Integer.parseInt(options.extras.get("threshold"));
+                fooThresholdMin = threshold;
+                fooThresholdMax = threshold;
+            }
+
+            // Explicit range overrides.
+            if (options.extras.containsKey("frequencymin")) {
+                fooFrequencyMin = Math.max(1, Integer.parseInt(options.extras.get("frequencymin")));
+            }
+            if (options.extras.containsKey("frequencymax")) {
+                fooFrequencyMax = Math.max(fooFrequencyMin + 1, Integer.parseInt(options.extras.get("frequencymax")));
+            }
+            if (options.extras.containsKey("incrementmin")) {
+                fooIncrementMin = Math.max(1, Integer.parseInt(options.extras.get("incrementmin")));
+            }
+            if (options.extras.containsKey("incrementmax")) {
+                fooIncrementMax = Math.max(fooIncrementMin + 1, Integer.parseInt(options.extras.get("incrementmax")));
+            }
+            if (options.extras.containsKey("thresholdmin")) {
+                fooThresholdMin = Math.max(1, Integer.parseInt(options.extras.get("thresholdmin")));
+            }
+            if (options.extras.containsKey("thresholdmax")) {
+                fooThresholdMax = Math.max(fooThresholdMin + 1, Integer.parseInt(options.extras.get("thresholdmax")));
+            }
+
+            if (fooFrequencyMin > fooFrequencyMax || fooIncrementMin > fooIncrementMax
+                    || fooThresholdMin > fooThresholdMax) {
+                throw new IllegalArgumentException("Invalid Blochilger2008Heuristic parameter ranges.");
+            }
         } catch (Exception e) {
             throw new IllegalArgumentException(
-                    "Missing or invalid extended parameters for Blochilger2008Heuristic. Required parameters: frequency, threshold, increment, initialTenure.");
+                    "Missing or invalid extended parameters for Blochilger2008Heuristic. Required parameter: maxiterations. Optional: initialk, frequency/frequencymin/frequencymax, increment/incrementmin/incrementmax, threshold/thresholdmin/thresholdmax.");
         }
 
     }
 
     public void run() {
-        int k = this.instance.getMaxChromatic();
-        // instantiate solution with an initial partial coloring
-        Blochilger2008Solution solution = new Blochilger2008Solution(this.getInstance(),
-                Blochilger2008Solution.partialColoring(this, k), k);
-        boolean revisitingK = false;
-        while (true) {
-            solution.tabuSearch();
+        int k = this.initialK;
+        // if blochilger breaks early and there is still time left
+        // do a random restart and rerun the paper's algorithm 
+        while (report()) {
+            // instantiate solution with an initial partial coloring
+            Blochilger2008Solution solution = new Blochilger2008Solution(this.getInstance(),
+                    Blochilger2008Solution.partialColoring(this, k), k);
+            boolean revisitingK = false;
+            while (true) {
+                solution.tabuSearch();
 
-            if (!this.report(solution.getBestSolution())) {
-                break;
-            }
-
-            if (solution.isValidSolution()) {
-                if (revisitingK) {
+                // ?
+                if (!this.report(solution.getBestSolution())) {
                     break;
                 }
-                k--;
-            } else {
-                // if no valid solution is found within max iterations, start revisitng k's
-                // until
-                // you find a valid solution, then stop
-                revisitingK = true;
-                k++;
+
+                if (solution.isValidSolution()) {
+                    if (revisitingK) {
+                        break;
+                    }
+                    k--;
+                } else {
+                    // if no valid solution is found within max iterations, start revisitng k's
+                    // until you find a valid solution, then stop
+                    revisitingK = true;
+                    k++;
+                }
+                // resets the coloring with the new k
+                solution = new Blochilger2008Solution(this.getInstance(),
+                        Blochilger2008Solution.partialColoring(this, k),
+                        k);
             }
-            // resets the coloring with the new k
-            solution = new Blochilger2008Solution(this.getInstance(), Blochilger2008Solution.partialColoring(this, k),
-                    k);
         }
     }
 
     public class Blochilger2008Solution extends PartialColoring {
-        protected int[][] countsMatrix;
-        private int bestObjective = Integer.MAX_VALUE;
-        private Solution bestSolution;
+        // countsMatrix[node][color] = number of adjacent nodes colored with that color        
+        protected int[][] countsMatrix; 
+        private int bestLocalObjective = Integer.MAX_VALUE;
+        private Solution bestLocalSolution;
 
         public Blochilger2008Solution(Instance instance, int[] coloring, int k) {
             super(instance, coloring, k);
-            this.countsMatrix = new int[instance.getNumNodes()][this.k + 1];
-            for (int n = 0; n < instance.getNumNodes(); n++) {
+            this.countsMatrix = new int[instance.getNumNodes() + 1][this.k + 1];
+            for (int n = 1; n <= instance.getNumNodes(); n++) {
                 HashSet<Integer> adj = instance.getAdjacent(n);
                 for (int adjv : adj) {
-                    this.countsMatrix[adjv][coloring[n]]++;
+                    if (coloring[n] > 0) {
+                        this.countsMatrix[adjv][coloring[n]]++;
+                    }
                 }
             }
-            updateBestSolution();
+            updateBestSolution(this);
         }
 
         public class BlochilgerTabuSearch extends TabuSearch<Move> {
@@ -89,15 +140,26 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
 
             // tabu search variables
             protected int tenure;
-            protected HashMap<Move, Integer> tabuMap;
+            protected int frequency;
+            protected int threshold;
+            protected int increment;
             protected ArrayList<Move> removedMoves; // used to mark moves tabu
             protected int maxIterations;
 
             public BlochilgerTabuSearch(Blochilger2008Solution solution, int maxIterations) {
                 super(solution, Blochilger2008Heuristic.this);
                 this.maxIterations = maxIterations;
-                this.tenure = initialTenure;
+                //  maybe just make this fixed start
+                this.tenure = (int) (0.6 * uncolored.size() + Heuristic.random(10));
+                randomizeFooParameters();
                 this.tabuMap = new HashMap<>();
+            }
+
+            // parameters can either be fixed or randomized every phi iterations
+            private void randomizeFooParameters() {
+                this.frequency = Heuristic.randomInRange(fooFrequencyMin, fooFrequencyMax);
+                this.increment = Heuristic.randomInRange(fooIncrementMin, fooIncrementMax);
+                this.threshold = Heuristic.randomInRange(fooThresholdMin, fooThresholdMax);
             }
 
             public void updateTenure() {
@@ -109,34 +171,35 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
                 }
                 maxObj = Integer.MIN_VALUE;
                 minObj = Integer.MAX_VALUE;
+                randomizeFooParameters();
             }
 
             public void dynTenure() {
                 this.tenure = (int) (0.6 * uncolored.size() + Heuristic.random(10));
             }
 
-            // checks to see if a move is tabu based on the tabu map and the current
-            // iteration
-            public boolean isTabu(Move move, int iteration) {
-                return tabuMap.containsKey(move) && iteration <= tabuMap.get(move);
-            }
-
             public Move generateBestNeighbor(int iteration) {
                 Move bestMove = null;
+                ArrayList<Move> tiedBestMoves = new ArrayList<>();
 
                 for (int node : uncolored) {
                     for (int color = 1; color <= k; color++) {
                         Move move = new Move(node, color, solution);
-                        if (!isTabu(move, iteration) || move.getObjective() < bestObjective) {
-                            // techianlly for ties should pick randomly among best, but it might not be
-                            // worth, but making a note for now
+                        if (!isTabu(move, iteration) || move.getObjective() < bestLocalObjective) {
                             if (bestMove == null || move.getObjective() < bestMove.getObjective()) {
-                                bestMove = move;
+                                bestMove = move; // possible break? make copy? shouldn't though
+                                tiedBestMoves.clear();
+                                tiedBestMoves.add(move);
+                            } else if (move.getObjective() == bestMove.getObjective()) {
+                                tiedBestMoves.add(move);
                             }
                         }
                     }
                 }
 
+                if (!tiedBestMoves.isEmpty()) {
+                    return tiedBestMoves.get(Heuristic.random(tiedBestMoves.size()));
+                }
                 return bestMove;
             }
 
@@ -163,39 +226,36 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
                     }
                 }
 
-                // Recalculate objective to ensure it matches uncolored.size()
-                updateObjective();
-                updateBestSolution();
-                minObj = Math.min(minObj, objective);
-                maxObj = Math.max(maxObj, objective);
+                updateBestSolution(Blochilger2008Solution.this);
+                minObj = Math.min(minObj, getObjective());
+                maxObj = Math.max(maxObj, getObjective());
             }
 
             public void tabuAppend(Move move, int iteration) {
                 for (Move m : removedMoves) {
                     tabuMap.put(m, iteration + this.tenure);
                 }
-                removedMoves = new ArrayList<>();
+                removedMoves.clear();
             }
 
             public void tabuSearch() {
-                int iteration = 0;
-
-                while (uncolored.size() > 0 && iteration < maxIterations) {
+                int iteration = 1;
+                while (uncolored.size() > 0 && iteration <= maxIterations && report()) {
                     Move move = generateBestNeighbor(iteration);
 
                     if (move == null) {
                         break; // No valid moves available
                     }
 
-                    if ((iteration + 1) % frequency == 0) {
+                    if ((iteration) % frequency == 0) {
                         updateTenure();
                     }
 
-                    if (move.getObjective() < bestObjective) {
-                        iteration = 0;
-                    }
-
                     makeMove(move);
+
+                    if(updateBestSolution(Blochilger2008Solution.this)) {
+                        iteration = 1;
+                    }
 
                     tabuAppend(move, iteration);
 
@@ -204,28 +264,21 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
             }
         }
 
-        public void updateObjective() {
-            objective = this.uncolored.size();
-        }
-
         public void calcNeighborObjective(Move move) {
-            move.setObjective(this.objective - 1 + this.countsMatrix[move.getNode()][move.getColor()]);
+            move.setObjective(getObjective() - 1 + this.countsMatrix[move.getNode()][move.getColor()]);
         }
 
-        public void setColoring(int[] coloring, int k) {
-            this.coloring = coloring;
-            this.k = k;
-        }
-
-        public void updateBestSolution() {
-            if (objective < bestObjective) {
-                this.bestObjective = objective;
-                this.bestSolution = new PartialColoring(this.instance, this.coloring.clone(), this.k);
-            }
+        public boolean updateBestSolution(PartialColoring solution) {
+            if (solution.getObjective() < bestLocalObjective) {
+                this.bestLocalObjective = solution.getObjective();
+                this.bestLocalSolution = new PartialColoring(solution);
+                return true;
+            } 
+            return false;
         }
 
         public Solution getBestSolution() {
-            return this.bestSolution;
+            return this.bestLocalSolution;
         }
 
         public void tabuSearch() {

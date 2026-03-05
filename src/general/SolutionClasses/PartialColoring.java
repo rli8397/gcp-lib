@@ -10,12 +10,16 @@ import general.Move;
 import general.HeuristicClasses.*;
 
 public class PartialColoring extends Solution {
-    protected int objective; // objective is the number of uncolored nodes
     protected HashSet<Integer> uncolored;
     
     public PartialColoring(Instance instance, int[] coloring, int k) {
         super(instance, coloring, k);
         init(); // sets objective and uncolored set
+    }
+
+    public PartialColoring(PartialColoring other) {
+        super(other.instance, other.coloring.clone(), other.k);
+        this.uncolored = new HashSet<>(other.uncolored);
     }
 
     // according to blochilger2008
@@ -61,21 +65,16 @@ public class PartialColoring extends Solution {
     }
 
     public void init() {
-        int obj = 0;        
         uncolored = new HashSet<Integer>();
-
         for (int i = 1; i < coloring.length; i++) {
             if (coloring[i] == 0) {
-                obj++;
                 uncolored.add(i);
             }
         }
-        
-        objective = obj;
     }
 
     public void calcNeighborObjective(Move move) {
-        int obj = objective;
+        int obj = uncolored.size();
         if (coloring[move.getNode()] == 0 && move.getColor() != 0) {
             obj--;
             for (int adj : this.instance.getAdjacent(move.getNode())) {
@@ -93,17 +92,24 @@ public class PartialColoring extends Solution {
     public void doMakeMove(Move move) {
         coloring[move.getNode()] = move.getColor();
         if (move.getColor() != 0) {
+            uncolored.remove(move.getNode());
             for (int adj : this.instance.getAdjacent(move.getNode())) {
                 if (coloring[adj] == move.getColor()) {
                     coloring[adj] = 0;
+                    uncolored.add(adj);
                 }
             }
+        } else {
+            uncolored.add(move.getNode());
         }
-        objective = move.getObjective();
     }
 
     public boolean isValidSolution() {
-        return objective == 0;
+        return uncolored.size() == 0;
     }   
+
+    public int getObjective() {
+        return uncolored.size();
+    }
 
 }
