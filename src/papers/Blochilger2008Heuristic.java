@@ -19,6 +19,8 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
 
     private int initialK;
     private int maxIterations;
+    private String tenureStrategy = "foo";
+    private int initialTenure; 
 
     public Blochilger2008Heuristic(Options options) {
         super(options);
@@ -45,8 +47,20 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
                 fooThresholdMin = threshold;
                 fooThresholdMax = threshold;
             }
+            if(options.extras.containsKey("initialtenure")) {
+                initialTenure = Integer.parseInt(options.extras.get("initialtenure"));
+            } else {
+                // if not initial tenure is not provided, use the dynamic formula from the paper as the default
+                initialTenure = (int) (0.6 * instance.getNumNodes() + Heuristic.random(10));
+            }
+            if(options.extras.containsKey("tenurestrategy")) {
+                tenureStrategy = options.extras.get("tenurestrategy");
+                if (!tenureStrategy.equals("foo") && !tenureStrategy.equals("dynamic") && !tenureStrategy.equals("static")) {
+                    throw new IllegalArgumentException("Invalid tenure strategy. Must be 'foo', 'dynamic', or 'static'.");
+                }
+            }
 
-            // Explicit range overrides.
+            // Explicit range overrides, if not provided, won't randomize
             if (options.extras.containsKey("frequencymin")) {
                 fooFrequencyMin = Math.max(1, Integer.parseInt(options.extras.get("frequencymin")));
             }
@@ -89,7 +103,6 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
             while (true) {
                 solution.tabuSearch();
 
-                // ?
                 if (!this.report(solution.getBestSolution())) {
                     break;
                 }
@@ -144,13 +157,10 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
             protected int threshold;
             protected int increment;
             protected ArrayList<Move> removedMoves; // used to mark moves tabu
-            protected int maxIterations;
 
-            public BlochilgerTabuSearch(Blochilger2008Solution solution, int maxIterations) {
-                super(solution, Blochilger2008Heuristic.this);
-                this.maxIterations = maxIterations;
-                //  maybe just make this fixed start
-                this.tenure = (int) (0.6 * uncolored.size() + Heuristic.random(10));
+            public BlochilgerTabuSearch() {
+                super(Blochilger2008Solution.this, Blochilger2008Heuristic.this);
+                this.tenure = Blochilger2008Heuristic.this.initialTenure;
                 randomizeFooParameters();
                 this.tabuMap = new HashMap<>();
             }
@@ -163,19 +173,32 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
             }
 
             public void updateTenure() {
-                // calculates tenure based on parameters
+                switch (tenureStrategy) {
+                    case "dynamic":
+                        dynTenure();
+                        break;
+                    case "foo":
+                        fooTenure();
+                        break;
+                    case "static":
+                        // do nothing, tenure does not change
+                        break;
+                }
+            }
+
+            public void dynTenure() {
+                this.tenure = (int) (0.6 * uncolored.size() + Heuristic.random(10));
+            }
+
+            public void fooTenure() {
                 if (maxObj - minObj <= threshold) {
                     this.tenure += increment;
                 } else {
                     this.tenure = Math.max(0, tenure - 1); // ensure not negative
                 }
                 maxObj = Integer.MIN_VALUE;
-                minObj = Integer.MAX_VALUE;
+                minObj = Integer.MAX_VALUE; 
                 randomizeFooParameters();
-            }
-
-            public void dynTenure() {
-                this.tenure = (int) (0.6 * uncolored.size() + Heuristic.random(10));
             }
 
             public Move generateBestNeighbor(int iteration) {
@@ -282,7 +305,7 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
         }
 
         public void tabuSearch() {
-            BlochilgerTabuSearch ts = new BlochilgerTabuSearch(this, maxIterations);
+            BlochilgerTabuSearch ts = new BlochilgerTabuSearch();
             ts.tabuSearch();
         }
     }

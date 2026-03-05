@@ -1,0 +1,10 @@
+heuristic = Blochilger2008Heuristic
+instance = C:/Users/Ryan Li/gcp-lib/testInstances/3_mat_test.txt
+seed = 1
+runtime = 2.0
+verbosity = 0
+maxiterations = 2000
+frequency = 10
+threshold = 5
+increment = 1
+initialtenure = 5
