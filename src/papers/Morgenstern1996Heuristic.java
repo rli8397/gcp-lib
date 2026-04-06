@@ -1,4 +1,4 @@
-/* 
+/*  
 package papers;
 
 import java.util.ArrayList;
@@ -35,4 +35,5 @@ public class Morgenstern1996Heuristic extends Heuristic {
     }
     
 }
+
 */

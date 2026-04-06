@@ -84,7 +84,9 @@ public class main {
                     .newInstance(opts);
             System.out.println("Heuristic starting");
             heuristic.run();
-            // Run heuristic or do whatever your framework does here
+            
+            heuristic.printLog();
+
             System.out.println("Heuristic " + heuristicName + " ran successfully.");
 
         } catch (NoSuchMethodException e) {
@@ -95,4 +97,3 @@ public class main {
         }
     }
 }
-

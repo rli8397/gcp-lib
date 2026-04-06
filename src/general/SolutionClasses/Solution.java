@@ -130,7 +130,8 @@ public abstract class Solution {
         count++;
       }
     }
-
+    
+    this.k = count;
     return count;
 
   }
