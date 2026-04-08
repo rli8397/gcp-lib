@@ -10,7 +10,6 @@ import general.Move;
 import general.HeuristicClasses.*;
 
 public class PartialColoring extends Solution {
-    protected int objective; // objective is the number of uncolored nodes
     protected HashSet<Integer> uncolored;
     
     public PartialColoring(Instance instance, int[] coloring, int k) {
@@ -18,16 +17,21 @@ public class PartialColoring extends Solution {
         init(); // sets objective and uncolored set
     }
 
+    public PartialColoring(PartialColoring other) {
+        super(other.instance, other.coloring.clone(), other.k);
+        this.uncolored = new HashSet<>(other.uncolored);
+    }
+
     // according to blochilger2008
     public static int[] partialColoring(GCPHeuristic heuristic, int k) {
         Instance instance = heuristic.getInstance();
         int n = instance.getNumNodes();
-        int[] coloring = new int[n];
+        int[] coloring = new int[n + 1];
 
         // convert adjancey set to bitset form
         List<BitSet> adjacencyList = new ArrayList<>();
-        for (int i = 0; i < n; i++) {
-            BitSet bs = new BitSet(n);
+        for (int i = 1; i <= n; i++) {
+            BitSet bs = new BitSet(n + 1);
             for (int neighbor : instance.getAdjacent(i)) {
                 bs.set(neighbor);
             }
@@ -36,7 +40,7 @@ public class PartialColoring extends Solution {
 
         BitSet[] classes = new BitSet[k + 1];
         for (int i = 1; i <= k; i++) {
-            classes[i] = new BitSet(n);
+            classes[i] = new BitSet(n + 1);
         }
 
         // choose verticies in random order and assign the smallest color class possible 
@@ -45,7 +49,7 @@ public class PartialColoring extends Solution {
         for (int v : vertices) {
             boolean placed = false;
             for (int c = 1; c <= k; c++) {
-                if (!adjacencyList.get(v).intersects(classes[c])) {
+                if (!adjacencyList.get(v - 1).intersects(classes[c])) {
                     coloring[v] = c;
                     classes[c].set(v);
                     placed = true;
@@ -61,21 +65,16 @@ public class PartialColoring extends Solution {
     }
 
     public void init() {
-        int obj = 0;        
         uncolored = new HashSet<Integer>();
-
-        for (int i = 0; i < coloring.length; i++) {
+        for (int i = 1; i < coloring.length; i++) {
             if (coloring[i] == 0) {
-                obj++;
                 uncolored.add(i);
             }
         }
-        
-        objective = obj;
     }
 
     public void calcNeighborObjective(Move move) {
-        int obj = objective;
+        int obj = uncolored.size();
         if (coloring[move.getNode()] == 0 && move.getColor() != 0) {
             obj--;
             for (int adj : this.instance.getAdjacent(move.getNode())) {
@@ -93,17 +92,24 @@ public class PartialColoring extends Solution {
     public void doMakeMove(Move move) {
         coloring[move.getNode()] = move.getColor();
         if (move.getColor() != 0) {
+            uncolored.remove(move.getNode());
             for (int adj : this.instance.getAdjacent(move.getNode())) {
                 if (coloring[adj] == move.getColor()) {
                     coloring[adj] = 0;
+                    uncolored.add(adj);
                 }
             }
+        } else {
+            uncolored.add(move.getNode());
         }
-        objective = move.getObjective();
     }
 
     public boolean isValidSolution() {
-        return objective == 0;
+        return uncolored.size() == 0;
     }   
+
+    public int getObjective() {
+        return uncolored.size();
+    }
 
 }

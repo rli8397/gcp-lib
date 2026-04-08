@@ -1,0 +1,10 @@
+heuristic = Garlinier1999Heuristic
+instance = testInstances\garlinier_sanity_8.txt
+seed = 2
+runtime = 3.0
+verbosity = 3
+popsize = 10
+a = 3
+alpha = 2
+rep = 5
+maxiterations = 3000
