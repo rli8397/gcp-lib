@@ -8,17 +8,13 @@ import general.SolutionClasses.Solution;
 public abstract class TabuSearch<T> {
     protected int tenure;
     protected HashMap<T, Integer> tabuMap;
-    protected int[] A;
     protected Solution solution;
     protected Heuristic heuristic;
 
-    public TabuSearch(Solution solution) {
+    public TabuSearch(Solution solution, Heuristic heuristic) {
         this.solution = solution;
-        this.A = new int[solution.getInstance().getNumEdges() + 1];
-        for (int i = 0; i < A.length; i++) {
-            this.A[i] = i - 1;
-        }
         tabuMap = new HashMap<>();
+        this.heuristic = heuristic;
     }
 
     // checks to see if a move is tabu based on the tabu map and the current
@@ -33,26 +29,16 @@ public abstract class TabuSearch<T> {
 
     public abstract T generateBestNeighbor(int iteration);
 
-    public abstract void tabuAppend(T move, int iteration);
-
-    public abstract void makeMove(T move);
+    public void tabuAppend(T tabuMove, int iteration) {
+        // a move is still tabu as long as the iteration is
+        // <= curr iteration + tabuTenure
+        tabuMap.put(tabuMove, iteration + tenure);
+    }
 
     public boolean stopCondition(int iteration) {
         return !heuristic.report();
     }
 
-    public void hertzTabuSearch() {
-        int iteration = 0;
+    public abstract void tabuSearch();
 
-        while (!stopCondition(iteration)) {
-            T neighbor = generateBestNeighbor(iteration);
-            if (neighbor == null) {
-                break;
-            }
-
-            tabuAppend(neighbor, iteration);
-            makeMove(neighbor);
-            iteration++;
-        }
-    }
 }

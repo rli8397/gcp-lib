@@ -4,9 +4,9 @@ import general.*;
 import general.HeuristicClasses.*;
 import general.SolutionClasses.Solution;
 import general.SolutionClasses.SolutionConflictCounts;
+import general.SolutionClasses.SolutionConflictObjective;
 
 import java.util.*;
-import general.Options;
 
 public class Hertz1987Heuristic extends GCPWrapper {
     public Hertz1987Heuristic(Options options) {
@@ -75,72 +75,24 @@ public class Hertz1987Heuristic extends GCPWrapper {
             this.tenure = tenure;
         }
 
-        public class HertzTabuSearch extends TabuSearch<Move> {
-            public HertzTabuSearch(SolutionConflictCounts solution) {
-                super(solution);
+        public class Hertz1987TabuSearch extends HertzTabuSearch {
+            public Hertz1987TabuSearch(SolutionConflictObjective solution, int tenure) {
+                super(solution, Hertz1987Heuristic.this);
+                this.tenure = tenure;
             }
 
             public Move generateBestNeighbor(int iteration) {
+                // breaks the loop if this method returns null
+                // if threeMoveSearch is found, means a valid solution is found
                 if (threeMoveSearch()) {
                     return null;
                 }
 
-                return generateBestRepNeighbor(iteration);
-            }
-
-            public Move generateBestRepNeighbor(int iteration) {
-                // in this paper, only a "rep" number of neighbors are generated
-                // out of those rep neighbors, the best is then returned
-                int bestObj = Integer.MAX_VALUE;
-                Move bestMove = null;
-                int i = 0;
-                int loopCount = 1;
-
-                while (i < rep) {
-                    // if 1000 iterations have passed without finding a single possible neighbor
-                    // we are assuming that a neighbor can't be found with
-                    // the given criteria and are going to return any random move
-                    // this is a judgement call and is not stated in the paper
-                    if (loopCount % 1000 == 0 && i == 0) {
-                        // if no move has been made after 1000 iterations, return any random move
-                        return solution.randMove();
-                    }
-
-                    Move currMove = randConflictedMove();
-                    int currObj = currMove.getObjective();
-                    if (!isTabu(currMove, iteration) || currObj <= A[objective]) {
-                        if (currObj < bestObj) {
-                            bestObj = currObj;
-                            bestMove = currMove;
-                            if (bestObj <= A[objective]) {
-                                A[objective] = bestObj - 1;
-                            }
-
-                            if (bestObj < objective) {
-                                break;
-                            }
-                        }
-                        i += 1;
-                    }
-                    loopCount++;
-
-                }
-                return bestMove;
+                return generateBestRepNeighbor(iteration, rep);
             }
 
             public boolean stopCondition(int iteration) {
                 return solution.isValidSolution() || !report() || iteration >= nbmax;
-            }
-
-            public void tabuAppend(Move move, int iteration) {
-                Move tabuMove = new Move(move.getNode(), solution.getColoring()[move.getNode()], solution);
-                // a move is still tabu as long as the iteration is
-                // <= curr iteration + tabuTenure
-                tabuMap.put(tabuMove, iteration + tenure);
-            }
-
-            public void makeMove(Move move) {
-                solution.makeMove(move);
             }
         }
 
@@ -170,6 +122,10 @@ public class Hertz1987Heuristic extends GCPWrapper {
             return avaliableColors;
         }
 
+
+        // A 3 move is a move that changes up to 3 colors at once
+        // This will be triggered when there is a central node that contains all the conflicted edges
+        // This method will edit the coloring directly if a 3-move is found and return true
         public boolean threeMoveSearch() {
             int centralNode = centralConflictNode();
 
@@ -235,10 +191,8 @@ public class Hertz1987Heuristic extends GCPWrapper {
 
         // this is the tabucol local search that will run
         public void tabuSearch() {
-
-            HertzTabuSearch ts = new HertzTabuSearch(this);
-            ts.tenure = this.tenure;
-            ts.hertzTabuSearch();
+            Hertz1987TabuSearch ts = new Hertz1987TabuSearch(this, this.tenure);
+            ts.tabuSearch();
         }
     }
 
