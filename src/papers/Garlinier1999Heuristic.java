@@ -1,115 +1,79 @@
 package papers;
 
-import general.Instance;
-import general.Move;
 import general.HeuristicClasses.*;
 import general.*;
 
+/*
+    Notes: Objective is the number of edges having both endpoints in the same class
+    
+ */
 public class Garlinier1999Heuristic extends GASkeleton {
+    private int a;
+    private double alpha;
+    private int rep;
+    private int maxIterations;
+
     public Garlinier1999Heuristic(Options options) {
         super(options);
+        try {
+            this.a = Integer.parseInt(get_cmdline_arg("a"));
+            this.alpha = Double.parseDouble(get_cmdline_arg("alpha"));
+            this.rep = Integer.parseInt(get_cmdline_arg("rep"));
+            this.maxIterations = Integer.parseInt(get_cmdline_arg("maxiterations"));
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                    "Missing or invalid extended parameters for Garlinier1999Heuristic. Required parameters: a, alpha, rep, maxiterations.");
+        }
     }
 
     public GASkeletonSolution instantiateSolution(Instance instance, int[] coloring, int k) {
-        return new Garlinier1999Solution(instance, coloring, k);
+        Garlinier1999Solution sol = new Garlinier1999Solution(instance, coloring, k);
+        sol.localSearch();
+        return sol.bestSolution;
     }
 
     public class Garlinier1999Solution extends GASkeleton.GASkeletonSolution {
+        private Garlinier1999Solution bestSolution;
+
         // instantiation will leave solution floating
         // would instantiate either with a greedy or a crossover, like factory
         public Garlinier1999Solution(Instance instance, int[] coloring, int k) {
             super(instance, coloring, k);
         }
 
-        public class GarlinierTabuSearch extends TabuSearch<Move> {
-            private int a;
-            private double alpha;
-            private int rep;
-            private int iterations;
+        public Garlinier1999Solution(Garlinier1999Solution other) {
+            super(other);
+        }
 
-            public GarlinierTabuSearch(int a, double alpha, int rep, int iterations, Garlinier1999Solution solution) {
-                super(solution);
-                this.a = a;
-                this.alpha = alpha;
+        public class GarlinierTabuSearch extends HertzTabuSearch {
+
+            public GarlinierTabuSearch(Garlinier1999Solution solution) {
+                super(solution, Garlinier1999Heuristic.this);
+                bestSolution = new Garlinier1999Solution(solution);
             }
 
             public int getTenure() {
                 return (int) (GCPHeuristic.random(a) + alpha * nb_cfl);
             }
 
-            public void makeMove(Move move) {
-                solution.makeMove(move);
-            }
-
             public Move generateBestNeighbor(int iteration) {
-                int bestObj = Integer.MAX_VALUE;
-                Move bestMove = null;
-                int i = 0;
-                int loopCount = 1;
-
-                while (i < rep) {
-                    // if 1000 iterations have passed, we are assuming that a neighbor can't with
-                    // the given criteria and are going
-                    // to return, this is a judgement call and is not stated in the paper
-                    if (loopCount % 1000 == 0) {
-                        // if no move has been made, return any random move, other return the best move
-                        // found so far
-                        if (i == 0) {
-                            return solution.randMove();
-                        } else {
-                            return bestMove;
-                        }
-                    }
-
-                    Move currMove = randConflictedMove();
-                    int currObj = currMove.getObjective();
-                    if (!isTabu(currMove, iteration) || currObj <= A[objective]) {
-                        if (currObj < bestObj) {
-                            bestObj = currObj;
-                            bestMove = currMove;
-                            if (bestObj < objective) {
-                                A[objective] = bestObj - 1;
-                                break;
-                            }
-                        }
-                        i += 1;
-                    }
-                    loopCount++;
-
+                Move bestMove = generateBestRepNeighbor(iteration, rep);
+                // in order to keep track of the best solution found overall
+                if (bestMove != null && bestMove.getObjective() <= bestSolution.getObjective()) {
+                    bestSolution = new Garlinier1999Solution(Garlinier1999Solution.this);
+                    bestSolution.makeMove(bestMove);
                 }
-
                 return bestMove;
             }
 
-            
-            public void tabuAppend(Move move, int iteration) {
-                Move tabuMove = new Move(move.getNode(), solution.getColoring()[move.getNode()], solution);
-                // a move is still tabu as long as the iteration is 
-                // <= curr iteration + tabuTenure
-                tabuMap.put(tabuMove, iteration + getTenure());
-            }
-
-            
             public boolean stopCondition(int iteration) {
-                return solution.isValidSolution() || iteration >= iterations || !heuristic.report();
+                return solution.isValidSolution() || iteration >= maxIterations || !heuristic.report();
             }
         }
 
-        // this is different than the normal calc objective because it also updates
-        // nb_cfl which will be used to
-        // determine the length of the tabu tenure at each iteration
-
         public void localSearch() {
-            // read more about tabu tenure and rep count
-            // parameters
-            int iterations = 1000;
-            int rep = 5;
-            int A = 10;
-            double alpha = 0.6;
-            
-            GarlinierTabuSearch ts = new GarlinierTabuSearch(A, alpha, rep, iterations, this);
-            ts.hertzTabuSearch();
-
+            GarlinierTabuSearch ts = new GarlinierTabuSearch(this);
+            ts.tabuSearch();
         }
 
     }
