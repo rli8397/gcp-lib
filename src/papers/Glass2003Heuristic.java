@@ -2,7 +2,6 @@ package papers;
 
 import general.Instance;
 import general.HeuristicClasses.GCPHeuristic;
-import general.SolutionClasses.SolutionConflictCounts;
 import general.*;
 
 import java.util.*;
@@ -27,81 +26,34 @@ public class Glass2003Heuristic extends GASkeleton {
         }
 
         public void localSearch() {
-
             int numNodes = instance.getNumNodes();
-            int[][] costMatrix = new int[numNodes][k];
+            int[][] costMatrix = new int[numNodes + 1][k + 1];
 
-            //Best color List Structure for each vertex
-            ArrayList<Integer>[] bestColorList = new ArrayList[numNodes];
+            // Best color list for each 1-indexed vertex.
+            ArrayList<Integer>[] bestColorList = new ArrayList[numNodes + 1];
 
-            int minConflict = Integer.MAX_VALUE;
-
-            // Initialize cost matrix and best color list
-            for (int i = 0; i < numNodes; i++) {
+            for (int i = 1; i <= numNodes; i++) {
                 bestColorList[i] = new ArrayList<Integer>();
-                
-                //Compute Cost of each Vertex if Moved to different color
-                for (int c = 1; c <= k; c++) {
-                    costMatrix[i][c-1] = computeCost(i, c);
-
-                    if (costMatrix[i][c-1] < minConflict){
-                        bestColorList[i].clear();
-                        bestColorList[i].add(c);
-                        minConflict =  costMatrix[i][c-1];
-                    }
-                    else if (costMatrix[i][c-1] == minConflict){
-                        bestColorList[i].add(c);
-                    }
-                }
-
+                recomputeBestColorsForVertex(i, costMatrix, bestColorList);
             }
 
             boolean changed = true;
 
             // Cycles until no changes can be made
             while (changed && report()) {
-
                 changed = false;
-                for (int i = 0; i < numNodes; i++) {
+                for (int i = 1; i <= numNodes; i++) {
                     int currentColor = coloring[i];
-                    minConflict = Integer.MAX_VALUE;
 
-                    if (bestColorList[i].size() > 0 && !bestColorList[i].contains(currentColor)) {
+                    if (!bestColorList[i].isEmpty() && !bestColorList[i].contains(currentColor)) {
                         int newColor = bestColorList[i].get(GCPHeuristic.random(bestColorList[i].size()));
                         coloring[i] = newColor;
                         changed = true;
 
-                        // Update cost matrix and bestColorList for neighbors
+                        // Update affected vertices only: moved vertex and its neighbors.
+                        recomputeBestColorsForVertex(i, costMatrix, bestColorList);
                         for (int neighbor : instance.getAdjacent(i)) {
-                            for (int c = 1; c <= k; c++) {
-                                costMatrix[neighbor][c-1] = computeCost(neighbor, c);
-
-                                if (costMatrix[neighbor][c-1] < minConflict){
-                                    bestColorList[neighbor].clear();
-                                    bestColorList[neighbor].add(c);
-                                    minConflict =  costMatrix[neighbor][c-1];
-
-                                }
-                                else if (costMatrix[neighbor][c-1] == minConflict){
-                                    bestColorList[neighbor].add(c);
-                                }   
-                            }
-                        }
-
-                        
-                        // Update own row too
-                        for (int c = 1; c <= k; c++) {
-                            costMatrix[i][c-1] = computeCost(i, c);
-
-                            if (costMatrix[i][c-1] < minConflict){
-                                    bestColorList[i].clear();
-                                    bestColorList[i].add(c);
-                                    minConflict =  costMatrix[i][c-1];
-
-                                }
-                            else if (costMatrix[i][c-1] == minConflict){
-                                bestColorList[i].add(c);
-                            }   
+                            recomputeBestColorsForVertex(neighbor, costMatrix, bestColorList);
                         }
                     }
                 }
@@ -109,6 +61,22 @@ public class Glass2003Heuristic extends GASkeleton {
 
             // Finally update the objective and conflict counters
             // calcObjective();
+        }
+
+        private void recomputeBestColorsForVertex(int vertex, int[][] costMatrix, ArrayList<Integer>[] bestColorList) {
+            int minConflict = Integer.MAX_VALUE;
+            bestColorList[vertex].clear();
+
+            for (int c = 1; c <= k; c++) {
+                costMatrix[vertex][c] = computeCost(vertex, c);
+                if (costMatrix[vertex][c] < minConflict) {
+                    bestColorList[vertex].clear();
+                    bestColorList[vertex].add(c);
+                    minConflict = costMatrix[vertex][c];
+                } else if (costMatrix[vertex][c] == minConflict) {
+                    bestColorList[vertex].add(c);
+                }
+            }
         }
 
         //Computes Cost of each move
@@ -126,7 +94,7 @@ public class Glass2003Heuristic extends GASkeleton {
         public void calcMaxCardinalityClass() {
             int[] counts = new int[this.k];
             int maxCardinality = -1;
-            for (int i = 0; i < instance.getNumNodes(); i++) {
+            for (int i = 1; i <= instance.getNumNodes(); i++) {
                 if (this.coloring[i] > 0) {
                     counts[this.coloring[i]-1]++;
                     if (counts[this.coloring[i]-1] > maxCardinality) {
