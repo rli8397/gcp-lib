@@ -11,7 +11,6 @@ public abstract class HertzTabuSearch extends TabuSearch<Move> {
 
     public HertzTabuSearch(SolutionConflictObjective solution, Heuristic heuristic) {
         super(solution, heuristic);
-        this.solution = solution;
         this.A = new int[solution.getInstance().getNumEdges() + 1];
         for (int i = 0; i < A.length; i++) {
             this.A[i] = i - 1;
