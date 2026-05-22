@@ -78,6 +78,7 @@ public abstract class Solution {
     } catch (Exception e) {
       e.printStackTrace();
     }
+    
   }
 
   public Move randMove() {
@@ -139,7 +140,7 @@ public abstract class Solution {
         count++;
       }
     }
-    
+
     this.k = count;
     return count;
 

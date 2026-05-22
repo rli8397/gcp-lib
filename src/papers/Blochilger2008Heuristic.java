@@ -65,19 +65,19 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
                 fooFrequencyMin = Math.max(1, Integer.parseInt(options.extras.get("frequencymin")));
             }
             if (options.extras.containsKey("frequencymax")) {
-                fooFrequencyMax = Math.max(fooFrequencyMin + 1, Integer.parseInt(options.extras.get("frequencymax")));
+                fooFrequencyMax = Math.max(fooFrequencyMin, Integer.parseInt(options.extras.get("frequencymax")));
             }
             if (options.extras.containsKey("incrementmin")) {
                 fooIncrementMin = Math.max(1, Integer.parseInt(options.extras.get("incrementmin")));
             }
             if (options.extras.containsKey("incrementmax")) {
-                fooIncrementMax = Math.max(fooIncrementMin + 1, Integer.parseInt(options.extras.get("incrementmax")));
+                fooIncrementMax = Math.max(fooIncrementMin, Integer.parseInt(options.extras.get("incrementmax")));
             }
             if (options.extras.containsKey("thresholdmin")) {
                 fooThresholdMin = Math.max(1, Integer.parseInt(options.extras.get("thresholdmin")));
             }
             if (options.extras.containsKey("thresholdmax")) {
-                fooThresholdMax = Math.max(fooThresholdMin + 1, Integer.parseInt(options.extras.get("thresholdmax")));
+                fooThresholdMax = Math.max(fooThresholdMin, Integer.parseInt(options.extras.get("thresholdmax")));
             }
 
             if (fooFrequencyMin > fooFrequencyMax || fooIncrementMin > fooIncrementMax
@@ -129,6 +129,7 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
     public class Blochilger2008Solution extends PartialColoring {
         // countsMatrix[node][color] = number of adjacent nodes colored with that color        
         protected int[][] countsMatrix; 
+        protected ArrayList<Move> removedMoves;
         private int bestLocalObjective = Integer.MAX_VALUE;
         private Solution bestLocalSolution;
 
@@ -146,6 +147,36 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
             updateBestSolution(this);
         }
 
+        @Override
+        public void doMakeMove(Move move) {
+            removedMoves = new ArrayList<>();
+            // Remove the node from uncolored and assign the color
+            uncolored.remove(move.getNode());
+            coloring[move.getNode()] = move.getColor();
+
+            // Update counts matrix for all neighbors of the moved node
+            for (int neighbor : instance.getAdjacent(move.getNode())) {
+                countsMatrix[neighbor][move.getColor()]++;
+
+                // If neighbor has the same color, it creates a conflict - uncolor it
+                if (coloring[neighbor] == move.getColor()) {
+                    removedMoves.add(new Move(neighbor, move.getColor(), this));
+                    uncolored.add(neighbor);
+                    coloring[neighbor] = 0;
+
+                    // Update counts matrix by removing the neighbor's color influence
+                    for (int adjv : instance.getAdjacent(neighbor)) {
+                        countsMatrix[adjv][move.getColor()]--;
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void makeMove(Move move) {
+            doMakeMove(move);
+        }
+
         public class BlochilgerTabuSearch extends TabuSearch<Move> {
             // to track the min and max objective in the last "frequency" moves
             protected int maxObj = Integer.MIN_VALUE;
@@ -156,7 +187,6 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
             protected int frequency;
             protected int threshold;
             protected int increment;
-            protected ArrayList<Move> removedMoves; // used to mark moves tabu
 
             public BlochilgerTabuSearch() {
                 super(Blochilger2008Solution.this, Blochilger2008Heuristic.this);
@@ -226,34 +256,6 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
                 return bestMove;
             }
 
-            public void makeMove(Move move) {
-                removedMoves = new ArrayList<>();
-                // Remove the node from uncolored and assign the color
-                uncolored.remove(move.getNode());
-                coloring[move.getNode()] = move.getColor();
-
-                // Update counts matrix for all neighbors of the moved node
-                for (int neighbor : instance.getAdjacent(move.getNode())) {
-                    countsMatrix[neighbor][move.getColor()]++;
-
-                    // If neighbor has the same color, it creates a conflict - uncolor it
-                    if (coloring[neighbor] == move.getColor()) {
-                        removedMoves.add(new Move(neighbor, move.getColor(), solution));
-                        uncolored.add(neighbor);
-                        coloring[neighbor] = 0;
-
-                        // Update counts matrix by removing the neighbor's color influence
-                        for (int adjv : instance.getAdjacent(neighbor)) {
-                            countsMatrix[adjv][move.getColor()]--;
-                        }
-                    }
-                }
-
-                updateBestSolution(Blochilger2008Solution.this);
-                minObj = Math.min(minObj, getObjective());
-                maxObj = Math.max(maxObj, getObjective());
-            }
-
             public void tabuAppend(Move move, int iteration) {
                 for (Move m : removedMoves) {
                     tabuMap.put(m, iteration + this.tenure);
@@ -274,11 +276,14 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
                         updateTenure();
                     }
 
-                    makeMove(move);
+                    solution.makeMove(move);
 
                     if(updateBestSolution(Blochilger2008Solution.this)) {
                         iteration = 1;
                     }
+
+                    minObj = Math.min(minObj, getObjective());
+                    maxObj = Math.max(maxObj, getObjective());
 
                     tabuAppend(move, iteration);
 

@@ -70,7 +70,7 @@ public class GASkeleton extends GCPHeuristic {
         int[] deterministicColoring = greedyConstructionNonConflicted(this, this.k);
         for (int i = 0; i < population.length; i++) {
             population[i] = instantiateSolution(instance,
-                    fillConflicts(deterministicColoring, this.k), this.k);
+                    fillConflicts(deterministicColoring.clone(), this.k), this.k);
         }
     }
 

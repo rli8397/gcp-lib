@@ -1,11 +1,6 @@
 import general.Instance;
 import general.Options;
 import general.HeuristicClasses.GCPHeuristic;
-import general.HeuristicClasses.Heuristic;
-
-import java.util.*;
-import papers.*;
-import general.SolutionClasses.*;
 import java.io.*;
 
 

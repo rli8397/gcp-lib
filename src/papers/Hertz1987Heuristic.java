@@ -143,7 +143,7 @@ public class Hertz1987Heuristic extends GCPWrapper {
 
                 if (conflicts.size() == 0) {
 
-                    this.coloring[centralNode] = c;
+                    doMakeMove(new Move(centralNode, c, this));
                     return true;
 
                 } else if (conflicts.size() == 1) {
@@ -153,8 +153,8 @@ public class Hertz1987Heuristic extends GCPWrapper {
                     HashSet<Integer> colors = avaliableColors(n, centralNode, c);
 
                     if (colors.size() != 0) {
-                        this.coloring[centralNode] = c;
-                        this.coloring[n] = colors.iterator().next();
+                        doMakeMove(new Move(centralNode, c, this));
+                        doMakeMove(new Move(n, colors.iterator().next(), this));
                         return true;
                     }
 
@@ -177,9 +177,9 @@ public class Hertz1987Heuristic extends GCPWrapper {
                     }
 
                     if (colors1.size() != 0 && colors2.size() != 0) {
-                        this.coloring[centralNode] = c;
-                        this.coloring[n1] = colors1.iterator().next();
-                        this.coloring[n2] = colors2.iterator().next();
+                        doMakeMove(new Move(centralNode, c, this));
+                        doMakeMove(new Move(n1, colors1.iterator().next(), this));
+                        doMakeMove(new Move(n2, colors2.iterator().next(), this));
                         return true;
                     }
                 }
