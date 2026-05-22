@@ -88,7 +88,6 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
             protected int minObj = Integer.MAX_VALUE;
 
             // tabu search variables
-            protected int tenure;
             protected ArrayList<Move> removedMoves; // used to mark moves tabu
             protected int maxIterations;
 
