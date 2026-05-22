@@ -89,7 +89,6 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
 
             // tabu search variables
             protected int tenure;
-            protected HashMap<Move, Integer> tabuMap;
             protected ArrayList<Move> removedMoves; // used to mark moves tabu
             protected int maxIterations;
 
