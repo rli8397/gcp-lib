@@ -1,10 +1,10 @@
 heuristic = Garlinier1999Heuristic
-instance = testInstances\le450_15b.col
+instance = testInstances\garlinier_sanity_8.txt
 seed = 1
-runtime = 20.0
+runtime = 3.0
 verbosity = 3
 popsize = 10
 a = 3
 alpha = 2
 rep = 5
-maxiterations = 10000
+maxiterations = 3000

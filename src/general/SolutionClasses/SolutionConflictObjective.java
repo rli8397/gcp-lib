@@ -13,12 +13,17 @@ public class SolutionConflictObjective extends Solution {
         super(instance, coloring, colors);
     }
 
+    public SolutionConflictObjective(SolutionConflictObjective other) {
+        super(other);
+        this.objective = other.objective;
+    }
+
     // Counts number of conflicting edges and updates objective
     // O(n^2) - outside loop iterates through coloring which is len n inside loop
     // iterates through all adj nodes which is max n nodes
     public void init() {
         int obj = 0;
-        for (int i = 0; i < coloring.length; i++) {
+        for (int i = 1; i <= instance.getNumNodes(); i++) {
             HashSet<Integer> adj = this.instance.getAdjacent(i);
             for (int adjv : adj) {
                 // If i < adjv, that edge hasn't been checked yet, this prevents from double
@@ -43,7 +48,6 @@ public class SolutionConflictObjective extends Solution {
                 obj++;
             }
         }
-
         move.setObjective(obj);
     }
 
@@ -61,7 +65,7 @@ public class SolutionConflictObjective extends Solution {
         }
 
         ArrayList<Integer> conflictedNodes = new ArrayList<Integer>();
-        for (int i = 0; i < coloring.length; i++) {
+        for (int i = 1; i <= instance.getNumNodes(); i++) {
             for (int neighbor : this.instance.getAdjacent(i)) {
                 if (coloring[i] == coloring[neighbor]) {
                     conflictedNodes.add(i);
@@ -102,10 +106,29 @@ public class SolutionConflictObjective extends Solution {
     // solution found so far
     // for debugging purposes
     public void printStatus() {
-        System.out.println("k: " + k);
+        System.out.println("\nk: " + k);
         System.out.println("f: " + objective);
         System.out.println(this);
     }
 
+    public void validityCheck(int k) throws Exception {
+        super.validityCheck(k);
+        int obj = 0;
+        for (int i = 1; i <= instance.getNumNodes(); i++) {
+            HashSet<Integer> adj = this.instance.getAdjacent(i);
+            for (int adjv : adj) {
+                // If i < adjv, that edge hasn't been checked yet, this prevents from double
+                // counting
+                if (coloring[i] == coloring[adjv] && i < adjv) {
+                    obj += 1;
+                }
+            }
+        }
+
+        if (objective != obj) {
+            System.out.println(this);
+            throw new Exception("Objective mismatch found! Expected: " + obj + ", Found: " + objective);
+        }
+    }
 
 }

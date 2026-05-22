@@ -1,6 +1,6 @@
 heuristic = Garlinier1999Heuristic
 instance = testInstances\le450_15b.col
-seed = 1
+seed = 9
 runtime = 20.0
 verbosity = 3
 popsize = 10

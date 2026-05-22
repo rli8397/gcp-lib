@@ -2,7 +2,6 @@ package papers;
 
 import general.Instance;
 import general.HeuristicClasses.GCPHeuristic;
-import general.SolutionClasses.SolutionConflictCounts;
 import general.*;
 
 import java.util.*;
