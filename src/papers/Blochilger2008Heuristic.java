@@ -29,7 +29,7 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
             initialTenure = Integer.parseInt(options.extras.get("initialtenure"));
         } catch (Exception e) {
             throw new IllegalArgumentException(
-                    "Missing or invalid extended parameters for Blochilger2008Heuristic. Required parameters: frequency, threshold, increment, initialTenure.");
+                    "Missing or invalid extended parameters for Blochilger2008Heuristic. Required parameters: frequency, threshold, increment, initialtenure.");
         }
 
     }
