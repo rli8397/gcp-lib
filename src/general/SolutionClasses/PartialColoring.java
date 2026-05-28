@@ -22,12 +22,12 @@ public class PartialColoring extends Solution {
     public static int[] partialColoring(GCPHeuristic heuristic, int k) {
         Instance instance = heuristic.getInstance();
         int n = instance.getNumNodes();
-        int[] coloring = new int[n];
+        int[] coloring = new int[n + 1];
 
         // convert adjancey set to bitset form
         List<BitSet> adjacencyList = new ArrayList<>();
-        for (int i = 0; i < n; i++) {
-            BitSet bs = new BitSet(n);
+        for (int i = 1; i <= n; i++) {
+            BitSet bs = new BitSet(n + 1);
             for (int neighbor : instance.getAdjacent(i)) {
                 bs.set(neighbor);
             }
@@ -36,7 +36,7 @@ public class PartialColoring extends Solution {
 
         BitSet[] classes = new BitSet[k + 1];
         for (int i = 1; i <= k; i++) {
-            classes[i] = new BitSet(n);
+            classes[i] = new BitSet(n + 1);
         }
 
         // choose verticies in random order and assign the smallest color class possible 
@@ -45,7 +45,7 @@ public class PartialColoring extends Solution {
         for (int v : vertices) {
             boolean placed = false;
             for (int c = 1; c <= k; c++) {
-                if (!adjacencyList.get(v).intersects(classes[c])) {
+                if (!adjacencyList.get(v - 1).intersects(classes[c])) {
                     coloring[v] = c;
                     classes[c].set(v);
                     placed = true;
@@ -64,7 +64,7 @@ public class PartialColoring extends Solution {
         int obj = 0;        
         uncolored = new HashSet<Integer>();
 
-        for (int i = 0; i < coloring.length; i++) {
+        for (int i = 1; i < coloring.length; i++) {
             if (coloring[i] == 0) {
                 obj++;
                 uncolored.add(i);

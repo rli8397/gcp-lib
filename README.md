@@ -8,3 +8,6 @@ In src directory, .\compile.ps1
 cd .. to get into gcp-lib directory 
 java -cp bin main <paramfilepath>
     This line executes the main class and related class objects
+
+You can also run the one liner:
+cd src; .\compile.ps1; cd ..; java -cp bin main paramFiles\<paramfilepath>
