@@ -34,7 +34,7 @@ public class Garlinier1999Heuristic extends GASkeleton {
             }
 
             public int getTenure() {
-                return (int) (GCPHeuristic.random(a) + alpha * nb_cfl);
+                return (int) (GCPHeuristic.random(a) + alpha * Garlinier1999Solution.this.conflictCount.size());
             }
 
             public void makeMove(Move move) {
@@ -95,9 +95,8 @@ public class Garlinier1999Heuristic extends GASkeleton {
             }
         }
 
-        // this is different than the normal calc objective because it also updates
-        // nb_cfl which will be used to
-        // determine the length of the tabu tenure at each iteration
+        // this is different than the normal calc objective because it updates
+        // the current conflict map used to determine tabu tenure at each iteration
 
         public void localSearch() {
             // read more about tabu tenure and rep count
