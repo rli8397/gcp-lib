@@ -13,6 +13,11 @@ public class SolutionConflictObjective extends Solution {
         super(instance, coloring, colors);
     }
 
+    public SolutionConflictObjective(SolutionConflictObjective other) {
+        super(other);
+        this.objective = other.objective;
+    }
+
     // Counts number of conflicting edges and updates objective
     // O(n^2) - outside loop iterates through coloring which is len n inside loop
     // iterates through all adj nodes which is max n nodes
@@ -82,10 +87,11 @@ public class SolutionConflictObjective extends Solution {
             return null;
         }
 
-        int newColor = 0;
-        do {
-            newColor = GCPHeuristic.random(k) + 1;
-        } while (newColor == coloring[node]);
+        int newColor = GCPHeuristic.random(k - 1) + 1;
+        
+        if(newColor >= coloring[node]) {
+            newColor++;
+        }
 
         return new Move(node, newColor, this);
     }

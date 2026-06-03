@@ -90,4 +90,36 @@ public abstract class GCPWrapper extends GCPHeuristic {
         return Solution.randomColoring(instance, k);
     }
 
+    protected int parseIntOption(String key, int defaultValue) {
+        if (cmdline_params.containsKey(key)) {
+            try {
+                return Integer.parseInt(cmdline_params.get(key).trim());
+            } catch (Exception e) {
+                return defaultValue;
+            }
+        }
+
+        return defaultValue;
+    }
+
+    protected double parseDoubleOption(String key, double defaultValue) {
+        if (cmdline_params.containsKey(key)) {
+            try {
+                return Double.parseDouble(cmdline_params.get(key).trim());
+            } catch (Exception e) {
+                return defaultValue;
+            }
+        }
+
+        return defaultValue;
+    }
+
+    protected String parseStringOption(String key, String defaultValue) {
+        if (cmdline_params.containsKey(key)) {
+            return cmdline_params.get(key).toLowerCase();
+        }
+
+        return defaultValue;
+    }
+
 }

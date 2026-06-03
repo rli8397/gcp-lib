@@ -18,6 +18,12 @@ public abstract class Solution {
     init();
   }
 
+  public Solution(Solution other) {
+    this.instance = other.instance;
+    this.coloring = other.coloring.clone();
+    this.k = other.k;
+  }
+
   // generates a random coloring array and returns it
   public static int[] randomColoring(Instance instance, int k) {
     int[] coloring = new int[instance.getNumNodes()];
