@@ -1,0 +1,10 @@
+heuristic = Fleurent1999Heuristic
+instance = testInstances\test.txt
+seed = 1
+runtime = 0.2
+verbosity = 1
+algorithm = string_ga
+crossover = graph_adapted
+popsize = 5
+nb_gen = 2
+nb_per_gen = 1

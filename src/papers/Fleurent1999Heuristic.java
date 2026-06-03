@@ -50,7 +50,8 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 
 	public class Fleurent1999KCPHeuristic extends KCPHeuristic {
 
-		// can just pass null for coloring since each new K can't build upon the last K's solution
+		// can just pass null for coloring since each new K can't build upon the last
+		// K's solution
 		public Fleurent1999KCPHeuristic(GCPHeuristic gcp, int k, int[] coloring) {
 			super(gcp, k);
 		}
@@ -99,17 +100,21 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 			}
 		}
 
-
 		/*
 		 * Hybrid GA implementation.
 		 *
-		 * The paper writes the algorithm options as GA(|P|, E in {P,S}, CR in {1,2,U,A}, MUT in {LS, TS_n, Pm}).
+		 * The paper writes the algorithm options as GA(|P|, E in {P,S}, CR in
+		 * {1,2,U,A}, MUT in {LS, TS_n, Pm}).
 		 * - |P|: population size.
 		 * - E: encoding scheme; P = permutation encoding, S = string/color encoding.
-		 * - CR: crossover operator; 1 = one-point, 2 = two-point, U = uniform, A = graph-adapted / order-based crossover.
-		 * - MUT: mutation operator; LS = local search, TSn = tabu search with n iterations, Pm = per-gene random recoloring mutation.
-		 *       - we are adding an additional mutation operator: scramble_sublist_mutation, which randomly shuffles a random sublist of the solution permutation or coloring string.
-		 * String based GA is run with E = S, CR = {1, 2, U}, MUT = Pm. 
+		 * - CR: crossover operator; 1 = one-point, 2 = two-point, U = uniform, A =
+		 * graph-adapted recombination.
+		 * - MUT: mutation operator; LS = local search, TSn = tabu search with n
+		 * iterations, Pm = per-gene random recoloring mutation.
+		 * - we are adding an additional mutation operator: scramble_sublist_mutation,
+		 * which randomly shuffles a random sublist of the solution permutation or
+		 * coloring string.
+		 * String based GA is run with E = S, CR = {1, 2, U}, MUT = Pm.
 		 * Order based GA is run with E = P, CR = A, MUT = scramble_sublist_mutation.
 		 */
 		private void runGA(String crossoverType, String mutType, String encoding) {
@@ -133,7 +138,7 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 						int[] childPerm = permutationCrossover(population.get(p1).permutation,
 								population.get(p2).permutation);
 						int[] childColor = greedyColoringFromPermutation(childPerm, this.k);
-						
+
 						SolutionConflictObjective mutated = mutate(childColor, mutType);
 
 						PermutationBasedSolution childSol = new PermutationBasedSolution(childPerm, mutated);
@@ -145,7 +150,11 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 						}
 					}
 
-					population = cullPopulation(population, children, PermutationBasedSolution::getObjective); // perm based uses conflict edges
+					population = cullPopulation(population, children, PermutationBasedSolution::getObjective); // perm
+																												// based
+																												// uses
+																												// conflict
+																												// edges
 					double D = computePopulationDiversity(population, this.k);
 					r = 1.0 + D;
 				}
@@ -163,14 +172,14 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 						int[] parents = selectTwoRankParents(population.size(), r);
 						int p1 = parents[0];
 						int p2 = parents[1];
-						
+
 						int[][] crossover = crossoverColorings(population.get(p1).getColoring(),
 								population.get(p2).getColoring(), crossoverType);
 						SolutionConflictCounts childSol1 = mutate(crossover[0], mutType);
 						SolutionConflictCounts childSol2 = mutate(crossover[1], mutType);
 						children.add(childSol1);
 						children.add(childSol2);
-						
+
 						if (childSol1.getConflictedNodeCount() == 0) {
 							this.solution = childSol1;
 							return;
@@ -181,7 +190,11 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 						}
 					}
 
-					population = cullPopulation(population, children, SolutionConflictCounts::getConflictedNodeCount); // string based uses conflict nodes
+					population = cullPopulation(population, children, SolutionConflictCounts::getConflictedNodeCount); // string
+																														// based
+																														// uses
+																														// conflict
+																														// nodes
 					double D = computePopulationDiversity(population, this.k);
 					r = 1.0 + D;
 				}
@@ -281,7 +294,7 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 				b = t;
 			}
 
-			for (int i = 0; i < a; i++){
+			for (int i = 0; i < a; i++) {
 				children[0][i] = s2[i];
 				children[1][i] = s1[i];
 			}
@@ -295,7 +308,7 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 				children[0][i] = s2[i];
 				children[1][i] = s1[i];
 			}
-			
+
 			return children;
 		}
 
@@ -314,12 +327,76 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 			return children;
 		}
 
+		private int[] graphAdaptedRecombination(int[] s1, int[] s2) {
+			int n = s1.length;
+			int[] child = new int[n];
+			boolean[] conflicted1 = conflictedNodes(s1);
+			boolean[] conflicted2 = conflictedNodes(s2);
+
+			for (int x = 0; x < n; x++) {
+				if (conflicted1[x] && !conflicted2[x]) {
+					child[x] = s2[x];
+				} else if (conflicted2[x] && !conflicted1[x]) {
+					child[x] = s1[x];
+				} else if (conflicted1[x] && conflicted2[x]) {
+					child[x] = leastSupportedNeighborColor(s1, s2, x);
+				} else if (Heuristic.random(2) == 1) {
+					child[x] = s1[x];
+				} else {
+					child[x] = s2[x];
+				}
+			}
+
+			return child;
+		}
+
+		private boolean[] conflictedNodes(int[] coloring) {
+			boolean[] conflicted = new boolean[coloring.length];
+			for (int x = 0; x < coloring.length; x++) {
+				for (int neighbor : instance.getAdjacent(x)) {
+					if (coloring[x] == coloring[neighbor]) {
+						conflicted[x] = true;
+						break;
+					}
+				}
+			}
+			return conflicted;
+		}
+
+		private int leastSupportedNeighborColor(int[] s1, int[] s2, int node) {
+			int bestColor = 1;
+			int bestSupport = Integer.MAX_VALUE;
+
+			for (int color = 1; color <= this.k; color++) {
+				int support = 0;
+				for (int neighbor : instance.getAdjacent(node)) {
+					if (s1[neighbor] == color || s2[neighbor] == color) {
+						support++;
+					}
+				}
+
+				if (support < bestSupport) {
+					bestSupport = support;
+					bestColor = color;
+				}
+			}
+
+			return bestColor;
+		}
+
 		private int[][] crossoverColorings(int[] s1, int[] s2, String crossoverType) {
-			switch (crossoverType) {
+			String type = crossoverType == null ? "one_point" : crossoverType.toLowerCase().trim();
+			switch (type) {
 				case "two_point":
 					return twoPointCrossover(s1, s2);
 				case "uniform":
 					return uniformCrossover(s1, s2);
+				case "graph-adapted":
+				case "A":
+					return new int[][] {
+							graphAdaptedRecombination(s1, s2),
+							graphAdaptedRecombination(s1, s2)
+					};
 				case "one_point":
 					return onePointCrossover(s1, s2);
 				default:
@@ -394,8 +471,9 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 			return mutated;
 		}
 
-		/*  
-		 * search the neighborhood of the given solution by iteratively picking a random conflicted node 
+		/*
+		 * search the neighborhood of the given solution by iteratively picking a random
+		 * conflicted node
 		 * and recoloring it with a random color, accepting strictly improving moves
 		 * Repeat for a given number of iterations or until no conflicted nodes remain.
 		 */
@@ -472,8 +550,10 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 
 			/*
 			 * Dynamic Tabu Tenure
-			 * - the based tenure is the square root of the current objective function value times k/2 
-			 * - the tenure is then randomly selected in the range [0.9*base, 1.1*base] to introduce some noise
+			 * - the based tenure is the square root of the current objective function value
+			 * times k/2
+			 * - the tenure is then randomly selected in the range [0.9*base, 1.1*base] to
+			 * introduce some noise
 			 * - the tenure is updated every 2*tMax iterations
 			 */
 			private void updateTenure(int iteration) {
@@ -550,7 +630,7 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 		 * Selects an index for a parent based on parameter r, see paper for formula
 		 */
 		private int rankSelectIndex(int N, double r) {
-			double u = Heuristic.random() * Math.pow(N, 1/r); // random number in [0, N^(1/r))
+			double u = Heuristic.random() * Math.pow(N, 1 / r); // random number in [0, N^(1/r))
 			int idx = (int) Math.ceil(Math.pow(u, r)); // index is ceiling of u^r
 			if (idx < 0)
 				idx = 0;
@@ -615,9 +695,12 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 		}
 
 		/*
-		 * Assigns the lowest possible non-conflicted color to each node in the order specified by the given permutation
-		 * If there is no unconflicted color, assign the color that is used by the fewest neighbors
-		 * To break ties when multiple colors class are the same size, pick the "earlier" color class
+		 * Assigns the lowest possible non-conflicted color to each node in the order
+		 * specified by the given permutation
+		 * If there is no unconflicted color, assign the color that is used by the
+		 * fewest neighbors
+		 * To break ties when multiple colors class are the same size, pick the
+		 * "earlier" color class
 		 */
 		private int[] greedyColoringFromPermutation(int[] permutation, int k) {
 			int n = this.instance.getNumNodes();
