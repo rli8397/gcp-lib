@@ -150,11 +150,7 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 						}
 					}
 
-					population = cullPopulation(population, children, PermutationBasedSolution::getObjective); // perm
-																												// based
-																												// uses
-																												// conflict
-																												// edges
+					population = cullPopulation(population, children, PermutationBasedSolution::getObjective); // perm based scheme uses conflicted edges 
 					double D = computePopulationDiversity(population, this.k);
 					r = 1.0 + D;
 				}
@@ -190,11 +186,7 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 						}
 					}
 
-					population = cullPopulation(population, children, SolutionConflictCounts::getConflictedNodeCount); // string
-																														// based
-																														// uses
-																														// conflict
-																														// nodes
+					population = cullPopulation(population, children, SolutionConflictCounts::getConflictedNodeCount); // string based scheme uses conflicted node count
 					double D = computePopulationDiversity(population, this.k);
 					r = 1.0 + D;
 				}
