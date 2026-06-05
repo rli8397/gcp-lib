@@ -5,10 +5,7 @@ import general.HeuristicClasses.*;
 
 public class Chams1987Heuristic extends GCPWrapper {
     public Chams1987Heuristic(Options options) {
-        super (
-            options,
-            "random_restart"
-        );
+        super (options);
     }
 
     public Chams1987KCPHeuristic createKCPHeuristic(GCPHeuristic gcp, int k, int[] coloring) {

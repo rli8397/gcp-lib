@@ -10,9 +10,7 @@ import java.util.*;
 
 public class Hertz1987Heuristic extends GCPWrapper {
     public Hertz1987Heuristic(Options options) {
-        super(
-                options,
-                "random_restart");
+        super(options);
     }
 
     public Hertz1987KCPHeuristic createKCPHeuristic(GCPHeuristic gcp, int k, int[] coloring) {

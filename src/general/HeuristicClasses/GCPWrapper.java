@@ -11,20 +11,21 @@ import general.SolutionClasses.Solution;
 public abstract class GCPWrapper extends GCPHeuristic {
     private KCPHeuristic heuristic;
     private int k;
-    private String reduceKStrategy;
+    private String reduceKStrategy = "random_restart"; // default strategy for reducing k
 
     // constructor takes flag for k reducing strategy
-    public GCPWrapper(Options options, String reduceKStrategy) {
+    public GCPWrapper(Options options) {
         super(options);
+        if (options.extras.containsKey("reduce_k_strategy")) {
+            reduceKStrategy = options.extras.get("reduce_k_strategy");
+        } 
         this.k = options.instance.getMaxChromatic();
         if (
             reduceKStrategy != "random_restart"
-            // && other strategies
+            // && other strategies when implemented in the future
         ) {
             throw new RuntimeException("Unknown k reducing strategy: " + reduceKStrategy);
         }
-
-        this.reduceKStrategy = reduceKStrategy;
     }
 
     public void run() {

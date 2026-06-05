@@ -7,6 +7,10 @@ import general.*;
  * This is different from GCPHeuristic because once it finds a valid k-coloring
  * it stops. Instead of a log of solutions, it maintains a single solution, which is
  * either a valid k-coloring (if found) or the best coloring found so far (minimizes objective function)
+ * 
+ * If GCPHeuristic is null (either the first constructor is used or the second constructor is used with a null GCPHeuristic), 
+ * then this KCPHeuristic is standalone and will not report to any GCPHeuristic.
+ * Otherwise, it will report to the provided GCPHeuristic when it finds a valid k-coloring or when it finishes running.
  */
 public abstract class KCPHeuristic extends Heuristic {
     protected int k;

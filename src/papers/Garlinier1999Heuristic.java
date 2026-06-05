@@ -53,7 +53,7 @@ public class Garlinier1999Heuristic extends GASkeleton {
             }
 
             public int getTenure() {
-                return (int) (GCPHeuristic.random(a) + alpha * nb_cfl);
+                return (int) (GCPHeuristic.random(a) + alpha * Garlinier1999Solution.this.conflictCount.size());
             }
 
             public Move generateBestNeighbor(int iteration) {
