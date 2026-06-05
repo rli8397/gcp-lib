@@ -17,7 +17,6 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
     public SolutionConflictCounts(SolutionConflictCounts other) {
         super(other);
         this.conflictCount = new HashMap<>(other.conflictCount);
-        this.nb_cfl = other.nb_cfl;
     }
 
     public void init() {
@@ -141,8 +140,8 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
         }
         
         // Check if nb_cfl matches the size of conflictCount
-        if (nb_cfl != conflictCount.size()) {
-            throw new Exception("VALIDITY ERROR: nb_cfl mismatch. Expected " + conflictCount.size() + ", got " + nb_cfl);
+        if (expectedConflictCount.size() != conflictCount.size()) {
+            throw new Exception("VALIDITY ERROR: nb_cfl mismatch. Expected " + conflictCount.size() + ", got " + expectedConflictCount.size());
         }
     }
 }
