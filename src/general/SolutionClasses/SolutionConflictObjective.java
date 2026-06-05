@@ -23,7 +23,7 @@ public class SolutionConflictObjective extends Solution {
     // iterates through all adj nodes which is max n nodes
     public void init() {
         int obj = 0;
-        for (int i = 1; i <= instance.getNumNodes(); i++) {
+        for (int i = 0; i < instance.getNumNodes(); i++) {
             HashSet<Integer> adj = this.instance.getAdjacent(i);
             for (int adjv : adj) {
                 // If i < adjv, that edge hasn't been checked yet, this prevents from double
@@ -65,7 +65,7 @@ public class SolutionConflictObjective extends Solution {
         }
 
         ArrayList<Integer> conflictedNodes = new ArrayList<Integer>();
-        for (int i = 1; i <= instance.getNumNodes(); i++) {
+        for (int i = 0; i < instance.getNumNodes(); i++) {
             for (int neighbor : this.instance.getAdjacent(i)) {
                 if (coloring[i] == coloring[neighbor]) {
                     conflictedNodes.add(i);
@@ -114,7 +114,7 @@ public class SolutionConflictObjective extends Solution {
     public void validityCheck(int k) throws Exception {
         super.validityCheck(k);
         int obj = 0;
-        for (int i = 1; i <= instance.getNumNodes(); i++) {
+        for (int i = 0; i < instance.getNumNodes(); i++) {
             HashSet<Integer> adj = this.instance.getAdjacent(i);
             for (int adjv : adj) {
                 // If i < adjv, that edge hasn't been checked yet, this prevents from double

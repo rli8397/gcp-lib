@@ -59,12 +59,12 @@ public class GASkeleton extends GCPHeuristic {
     }
 
     public int[] crossOver(GASkeletonSolution s1, GASkeletonSolution s2) {
-        int[] coloring = new int[instance.getNumNodes() + 1];
-        int[] c1 = new int[instance.getNumNodes() + 1];
-        int[] c2 = new int[instance.getNumNodes() + 1];
+        int[] coloring = new int[instance.getNumNodes()];
+        int[] c1 = new int[instance.getNumNodes()];
+        int[] c2 = new int[instance.getNumNodes()];
 
         // making copies of the colorings
-        for (int i = 1; i <= instance.getNumNodes(); i++) {
+        for (int i = 0; i < instance.getNumNodes(); i++) {
             c1[i] = s1.getColoring()[i];
             c2[i] = s2.getColoring()[i];
         }
@@ -72,7 +72,7 @@ public class GASkeleton extends GCPHeuristic {
         for (int l = 1; l <= k; l++) {
             if (l % 2 == 1) {
                 int color = getMaxCardinalityClass(c1);
-                for (int i = 1; i <= instance.getNumNodes(); i++) {
+                for (int i = 0; i < instance.getNumNodes(); i++) {
                     if (c1[i] == color) {
                         c1[i] = -1;
                         c2[i] = -1;
@@ -81,7 +81,7 @@ public class GASkeleton extends GCPHeuristic {
                 }
             } else {
                 int color = getMaxCardinalityClass(c2);
-                for (int i = 1; i <= instance.getNumNodes(); i++) {
+                for (int i = 0; i < instance.getNumNodes(); i++) {
                     if (c2[i] == color) {
                         c1[i] = -1;
                         c2[i] = -1;
@@ -92,7 +92,7 @@ public class GASkeleton extends GCPHeuristic {
         }
 
         // if there are leftover nodes, just randomly assign them
-        for (int i = 1; i <= instance.getNumNodes(); i++) {
+        for (int i = 0; i < instance.getNumNodes(); i++) {
             if (coloring[i] <= 0) {
                 coloring[i] = GCPHeuristic.random(this.k) + 1;
             }
@@ -108,10 +108,10 @@ public class GASkeleton extends GCPHeuristic {
         boolean[] visited = new boolean[this.k + 1];
 
         int count = 0;
-        for (int i = 1; i <= instance.getNumNodes(); i++) {
+        for (int i = 0; i < instance.getNumNodes(); i++) {
             int c = solution.getColoring()[i];
             // Unique Color
-            if (!visited[c]) {
+            if (c > 0 && !visited[c]) {
                 visited[c] = true;
                 count++;
             }
@@ -125,7 +125,7 @@ public class GASkeleton extends GCPHeuristic {
         int[] counts = new int[this.k + 1];
         int maxCardinality = -1;
         int maxCardinalityClass = 0;
-        for (int i = 1; i <= instance.getNumNodes(); i++) {
+        for (int i = 0; i < instance.getNumNodes(); i++) {
             if (coloring[i] > 0) {
                 counts[coloring[i]]++;
                 if (counts[coloring[i]] > maxCardinality) {
@@ -163,24 +163,24 @@ public class GASkeleton extends GCPHeuristic {
     protected static int[] greedyConstructionNonConflicted(GCPHeuristic heuristic, int k) {
         // Initialization
         Instance instance = heuristic.getInstance();
-        HashSet<Integer>[] satDegree = new HashSet[instance.getNumNodes() + 1];
-        int[] coloring = new int[instance.getNumNodes() + 1];
+        HashSet<Integer>[] satDegree = new HashSet[instance.getNumNodes()];
+        int[] coloring = new int[instance.getNumNodes()];
 
         // saturation degree refers to the number of different color class in adjacent
         // nodes
         // satDegree[i] is the set of colors that are assigned to adjacent nodes to node
         // i
-        for (int i = 1; i <= instance.getNumNodes(); i++) {
+        for (int i = 0; i < instance.getNumNodes(); i++) {
             satDegree[i] = new HashSet<Integer>();
         }
 
-        for (int i = 1; i <= instance.getNumNodes(); i++) {
+        for (int i = 0; i < instance.getNumNodes(); i++) {
             int minAllowed = Integer.MAX_VALUE;
             int currNode = -1;
 
             // loops through all nodes and searches for the node with the minimum colors
             // allowed without giving penalty
-            for (int node = 1; node <= instance.getNumNodes(); node++) {
+            for (int node = 0; node < instance.getNumNodes(); node++) {
                 if (coloring[node] == 0) { // Note: 0 means unvisited
                     int allowed = k - satDegree[node].size();
                     // -1 will notate that there is no allowed color
@@ -231,7 +231,7 @@ public class GASkeleton extends GCPHeuristic {
     public static int[] fillConflicts(int[] coloring, int k) {
         // randomly colors any nodes that couldn't be colored without penalty
         // (aka where this.coloring[i] == -1)
-        for (int i = 1; i < coloring.length; i++) {
+        for (int i = 0; i < coloring.length; i++) {
             if (coloring[i] == -1) {
                 coloring[i] = GCPHeuristic.random(k) + 1; // colors are 1 indexed
             }

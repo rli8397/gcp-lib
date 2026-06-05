@@ -25,7 +25,7 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
         int obj = 0;
         conflictCount = new HashMap<Integer, Integer>();
 
-        for (int i = 1; i <= instance.getNumNodes(); i++) {
+        for (int i = 0; i < instance.getNumNodes(); i++) {
             // Placeholder
             HashSet<Integer> adj = this.instance.getAdjacent(i);
 
@@ -88,7 +88,7 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
     public String toString() {
         System.out.println("\nPrint Start:");
         String str = "";
-        for (int i = 1; i <= instance.getNumNodes(); i++) {
+        for (int i = 0; i < instance.getNumNodes(); i++) {
             str += "Node " + i + ": Color " + coloring[i] + "\n";
         }
 
@@ -105,7 +105,7 @@ public class SolutionConflictCounts extends SolutionConflictObjective {
         
         // Recalculate conflictCount based on current coloring
         HashMap<Integer, Integer> expectedConflictCount = new HashMap<>();
-        for (int i = 1; i <= instance.getNumNodes(); i++) {
+        for (int i = 0; i < instance.getNumNodes(); i++) {
             HashSet<Integer> adj = this.instance.getAdjacent(i);
             int count = 0;
             for (int adjv : adj) {

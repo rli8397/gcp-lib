@@ -46,8 +46,8 @@ public abstract class Solution {
 
   // generates a random coloring array and returns it
   public static int[] randomColoring(Instance instance, int k) {
-    int[] coloring = new int[instance.getNumNodes() + 1];
-    for (int i = 1; i <= instance.getNumNodes(); i++) {
+    int[] coloring = new int[instance.getNumNodes()];
+    for (int i = 0; i < instance.getNumNodes(); i++) {
       coloring[i] = GCPHeuristic.random(k) + 1; // colors start from 1 to k
     }
 
@@ -56,7 +56,7 @@ public abstract class Solution {
 
   public static ArrayList<Integer> randTraversalOrder(Instance instance) {
     ArrayList<Integer> order = new ArrayList<>();
-    for (int i = 1; i <= instance.getNumNodes(); i++) {
+    for (int i = 0; i < instance.getNumNodes(); i++) {
       order.add(i);
     }
     Collections.shuffle(order, GCPHeuristic.getRandom());
@@ -64,7 +64,7 @@ public abstract class Solution {
   }
 
   public int randomNode() {
-    return GCPHeuristic.random(instance.getNumNodes()) + 1;
+    return GCPHeuristic.random(instance.getNumNodes());
   }
 
   public void makeMove(Move move) {
@@ -81,7 +81,7 @@ public abstract class Solution {
   }
 
   public Move randMove() {
-    int node = GCPHeuristic.random(instance.getNumNodes()) + 1;
+    int node = GCPHeuristic.random(instance.getNumNodes());
     int newColor = 0;
     do {
       newColor = GCPHeuristic.random(k) + 1;
@@ -112,7 +112,7 @@ public abstract class Solution {
 
   public String toString() {
     String str = "";
-    for (int i = 1; i < coloring.length; i++) {
+    for (int i = 0; i < coloring.length; i++) {
       str += "Node " + i + ": Color " + coloring[i] + "\n";
     }
     return str;
@@ -131,10 +131,10 @@ public abstract class Solution {
     boolean[] visited = new boolean[this.k + 1];
 
     int count = 0;
-    for (int i = 1; i <= instance.getNumNodes(); i++) {
+    for (int i = 0; i < instance.getNumNodes(); i++) {
       int c = coloring[i];
       // Unique Color
-      if (!visited[c]) {
+      if (c > 0 && !visited[c]) {
         visited[c] = true;
         count++;
       }
@@ -149,7 +149,7 @@ public abstract class Solution {
     if (k == -1) {
       return;
     }
-    for (int i = 1; i <= instance.getNumNodes(); i++) {
+    for (int i = 0; i < instance.getNumNodes(); i++) {
       if (coloring[i] < 1 || coloring[i] > k) {
         throw new Exception("Invalid coloring found at node " + i + " with color " + coloring[i]);
       }
