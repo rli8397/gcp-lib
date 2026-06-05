@@ -60,16 +60,16 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 		public void run() {
 			switch (algorithm) {
 				case "order_ga":
-					runGA(crossover, "scramble_sublist_mutation", "perm");
+					this.solution = runGA(crossover, "scramble_sublist_mutation", "perm");
 					break;
 				case "string_ga":
 					String stringMut = parseStringOption("mut", "pm");
-					runGA(crossover, stringMut, "string");
+					this.solution = runGA(crossover, stringMut, "string");
 					break;
 				case "hybrid_tabu":
 					String mutParam = parseStringOption("mut", "pm");
 					String encoding = parseStringOption("encoding", "string");
-					runGA(crossover, mutParam, encoding);
+					this.solution = runGA(crossover, mutParam, encoding);
 					break;
 				default:
 					throw new RuntimeException("Unknown algorithm: " + algorithm);
@@ -117,8 +117,9 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 		 * String based GA is run with E = S, CR = {1, 2, U}, MUT = Pm.
 		 * Order based GA is run with E = P, CR = A, MUT = scramble_sublist_mutation.
 		 */
-		private void runGA(String crossoverType, String mutType, String encoding) {
+		private Solution runGA(String crossoverType, String mutType, String encoding) {
 			int n = this.instance.getNumNodes();
+			Solution best = null;
 			if ("perm".equalsIgnoreCase(encoding)) {
 				ArrayList<PermutationBasedSolution> population = new ArrayList<>(popSize);
 				for (int i = 0; i < popSize; i++) {
@@ -127,6 +128,7 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 					population.add(new PermutationBasedSolution(perm, coloring));
 				}
 				population.sort(Comparator.comparingInt(PermutationBasedSolution::getObjective));
+				best = population.get(0);
 
 				for (int gen = 0; gen < nb_gen && report(); gen++) {
 					ArrayList<PermutationBasedSolution> children = new ArrayList<>(nb_per_gen);
@@ -144,13 +146,17 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 						PermutationBasedSolution childSol = new PermutationBasedSolution(childPerm, mutated);
 						children.add(childSol);
 
+						if (childSol.getObjective() < ((PermutationBasedSolution) best).getObjective()) {
+							best = childSol;
+						}
+
 						if (childSol.getObjective() == 0) {
-							this.solution = childSol;
-							return;
+							return childSol;
 						}
 					}
 
 					population = cullPopulation(population, children, PermutationBasedSolution::getObjective); // perm based scheme uses conflicted edges 
+					best = population.get(0);
 					double D = computePopulationDiversity(population, this.k);
 					r = 1.0 + D;
 				}
@@ -160,6 +166,7 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 					population.add(new SolutionConflictCounts(this.instance, randomColorString(n, this.k), this.k));
 				}
 				population.sort(Comparator.comparingInt(SolutionConflictCounts::getConflictedNodeCount));
+				best = population.get(0);
 
 				for (int gen = 0; gen < nb_gen && report(); gen++) {
 					ArrayList<SolutionConflictCounts> children = new ArrayList<>(nb_per_gen);
@@ -176,23 +183,31 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 						children.add(childSol1);
 						children.add(childSol2);
 
+						if (childSol1.getConflictedNodeCount() < ((SolutionConflictCounts) best).getConflictedNodeCount()) {
+							best = childSol1;
+						}
+						if (childSol2.getConflictedNodeCount() < ((SolutionConflictCounts) best).getConflictedNodeCount()) {
+							best = childSol2;
+						}
+
 						if (childSol1.getConflictedNodeCount() == 0) {
-							this.solution = childSol1;
-							return;
+							return childSol1;
 						}
 						if (childSol2.getConflictedNodeCount() == 0) {
-							this.solution = childSol2;
-							return;
+							return childSol2;
 						}
 					}
 
 					population = cullPopulation(population, children, SolutionConflictCounts::getConflictedNodeCount); // string based scheme uses conflicted node count
+					best = population.get(0);
 					double D = computePopulationDiversity(population, this.k);
 					r = 1.0 + D;
 				}
+				return best;
 			} else {
 				throw new RuntimeException("Unknown encoding type: " + encoding);
 			}
+			return best;
 		}
 
 		/* ----------------- GA helpers ----------------- */
@@ -383,7 +398,7 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 					return twoPointCrossover(s1, s2);
 				case "uniform":
 					return uniformCrossover(s1, s2);
-				case "graph-adapted":
+				case "graph_adapted":
 				case "A":
 					return new int[][] {
 							graphAdaptedRecombination(s1, s2),

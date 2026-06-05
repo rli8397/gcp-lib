@@ -85,7 +85,9 @@ public class main {
             System.out.println("Heuristic starting");
             heuristic.run();
             
-            heuristic.printLog();
+            if (opts.verbosity >= 3) {
+                heuristic.printLog();
+            }
 
             System.out.println("Heuristic " + heuristicName + " ran successfully.");
 
