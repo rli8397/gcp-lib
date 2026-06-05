@@ -95,7 +95,6 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
                 super(solution, Blochilger2008Heuristic.this);
                 this.maxIterations = maxIterations;
                 this.tenure = initialTenure;
-                this.tabuMap = new HashMap<>();
             }
 
             public void updateTenure() {
@@ -111,12 +110,6 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
 
             public void dynTenure() {
                 this.tenure = (int) (0.6 * uncolored.size() + Heuristic.random(10));
-            }
-
-            // checks to see if a move is tabu based on the tabu map and the current
-            // iteration
-            public boolean isTabu(Move move, int iteration) {
-                return tabuMap.containsKey(move) && iteration <= tabuMap.get(move);
             }
 
             public Move generateBestNeighbor(int iteration) {
