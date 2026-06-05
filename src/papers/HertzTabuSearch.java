@@ -1,7 +1,5 @@
 package papers;
 
-import java.util.HashMap;
-
 import general.Move;
 import general.HeuristicClasses.Heuristic;
 import general.SolutionClasses.SolutionConflictObjective;
@@ -15,13 +13,6 @@ public abstract class HertzTabuSearch extends TabuSearch<Move> {
         for (int i = 0; i < A.length; i++) {
             this.A[i] = i - 1;
         }
-        tabuMap = new HashMap<>();
-    }
-
-    // checks to see if a move is tabu based on the tabu map and the current
-    // iteration
-    public boolean isTabu(Move move, int iteration) {
-        return tabuMap.containsKey(move) && iteration <= tabuMap.get(move);
     }
 
     public int getTenure() {
