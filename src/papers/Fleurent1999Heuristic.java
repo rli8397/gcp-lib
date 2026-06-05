@@ -500,16 +500,16 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 
 		private SolutionConflictCounts tabuSearchMutateString(SolutionConflictCounts s, int iterations) {
 			FleurentTabuSearch ts = new FleurentTabuSearch(s, iterations);
-			ts.hertzTabuSearch();
+			ts.tabuSearch();
 			return s;
 		}
 
-		private class FleurentTabuSearch extends TabuSearch<Move> {
+		private class FleurentTabuSearch extends HertzTabuSearch {
 			private final int iterations;
 			private int nextTenureUpdate;
 
 			FleurentTabuSearch(SolutionConflictCounts solution, int iterations) {
-				super(solution);
+				super(solution, Fleurent1999KCPHeuristic.this);
 				this.iterations = iterations;
 				this.nextTenureUpdate = 0;
 			}
@@ -549,10 +549,6 @@ public class Fleurent1999Heuristic extends GCPWrapper {
 				Move tabuMove = new Move(move.getNode(), solution.getColoring()[move.getNode()],
 						solution);
 				tabuMap.put(tabuMove, iteration + tenure);
-			}
-
-			public void makeMove(Move move) {
-				solution.makeMove(move);
 			}
 
 			/*
