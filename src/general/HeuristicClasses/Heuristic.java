@@ -66,6 +66,11 @@ public class Heuristic {
         return rand.nextInt(n);
     }
 
+    // generates a double in [0, 1)
+    public static double random() {
+        return rand.nextDouble();
+    }
+
     // generates a number from 0 - n exclusive of n, and not "not"
     public static int randomNotEqual(int n, int not) {
         // for an invalid not, just return random number
@@ -83,6 +88,28 @@ public class Heuristic {
 
     public String get_cmdline_arg(String key) {
         return cmdline_params.get(key);
+    }
+
+    public int getIntOption(String key, int defaultValue) {
+        try {
+            String value = get_cmdline_arg(key);
+            if (value != null) {
+                return Integer.parseInt(value.trim());
+            }
+        } catch (Exception e) {
+        }
+        return defaultValue;
+    }
+
+    public double getDoubleOption(String key, double defaultValue) {
+        try {
+            String value = get_cmdline_arg(key);
+            if (value != null) {
+                return Double.parseDouble(value.trim());
+            }
+        } catch (Exception e) {
+        }
+        return defaultValue;
     }
 
     // returns the Random object

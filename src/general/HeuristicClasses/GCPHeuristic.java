@@ -54,6 +54,7 @@ public abstract class GCPHeuristic extends Heuristic {
             if (isBetter) {
                 System.out.println("[BEST] New best solution found: k = " + solution.getK()
                         + " | time = " + getCurrRunTime() + "s");
+                System.out.println("Coloring: " + Arrays.toString(solution.getColoring()));
             }
         }
 
@@ -63,6 +64,7 @@ public abstract class GCPHeuristic extends Heuristic {
             if (solution.isValidSolution()) {
                 System.out.println("[SOLUTION] k = " + solution.getK()
                         + " | time = " + getCurrRunTime() + "s");
+                System.out.println("Coloring: " + Arrays.toString(solution.getColoring()));
             }
         }
 

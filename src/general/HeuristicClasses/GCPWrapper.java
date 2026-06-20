@@ -18,11 +18,10 @@ public abstract class GCPWrapper extends GCPHeuristic {
         super(options);
         if (options.extras.containsKey("reduce_k_strategy")) {
             reduceKStrategy = options.extras.get("reduce_k_strategy");
-        } 
+        }
         this.k = options.instance.getMaxChromatic();
-        if (
-            reduceKStrategy != "random_restart"
-            // && other strategies when implemented in the future
+        if (reduceKStrategy != "random_restart"
+        // && other strategies when implemented in the future
         ) {
             throw new RuntimeException("Unknown k reducing strategy: " + reduceKStrategy);
         }
@@ -38,7 +37,7 @@ public abstract class GCPWrapper extends GCPHeuristic {
                 e.printStackTrace();
                 throw new RuntimeException("Failed to instantiate heuristic: " + e.getMessage());
             }
-        
+
         } while (report() && k > 1);
     }
 
@@ -50,20 +49,20 @@ public abstract class GCPWrapper extends GCPHeuristic {
             throw new RuntimeException("Cannot report a null solution");
         }
 
-        System.out.println("GCPWRAPPER REPORTING");
-
-        //Verify the k of the solution
+        // Verify the k of the solution
         this.k = solution.calcK();
-        
 
         boolean res = super.report(solution);
 
-        System.out.println("RES: " + res + " SOL VALID: " + solution.isValidSolution());
+        if (verbosity == 3) {
+            System.out.println("GCPWRAPPER REPORTING");
+            System.out.println("RES: " + res + " SOL VALID: " + solution.isValidSolution());
+        }
 
         if (res && solution.isValidSolution()) {
             // reduce k strategy
-            //check k before reducing it, solution may have reduced k unintentionally
-            if (verbosity == 3){
+            // check k before reducing it, solution may have reduced k unintentionally
+            if (verbosity == 3) {
                 System.out.println("[DEBUG] Valid solution found with k = " + solution.getK()
                         + ", preparing to reduce k");
             }
@@ -82,12 +81,44 @@ public abstract class GCPWrapper extends GCPHeuristic {
             // what should we do if kcp heuristic ends and no valid solution is found?
             this.heuristic = createKCPHeuristic(this, this.k, randomRestart(this.k));
         }
-        
+
         return res;
     }
 
     public int[] randomRestart(int k) {
         return Solution.randomColoring(instance, k);
+    }
+
+    protected int parseIntOption(String key, int defaultValue) {
+        if (cmdline_params.containsKey(key)) {
+            try {
+                return Integer.parseInt(cmdline_params.get(key).trim());
+            } catch (Exception e) {
+                return defaultValue;
+            }
+        }
+
+        return defaultValue;
+    }
+
+    protected double parseDoubleOption(String key, double defaultValue) {
+        if (cmdline_params.containsKey(key)) {
+            try {
+                return Double.parseDouble(cmdline_params.get(key).trim());
+            } catch (Exception e) {
+                return defaultValue;
+            }
+        }
+
+        return defaultValue;
+    }
+
+    protected String parseStringOption(String key, String defaultValue) {
+        if (cmdline_params.containsKey(key)) {
+            return cmdline_params.get(key).toLowerCase();
+        }
+
+        return defaultValue;
     }
 
 }

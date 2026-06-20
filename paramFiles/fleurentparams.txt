@@ -1,0 +1,10 @@
+heuristic = Fleurent1999Heuristic
+instance = testInstances\fpsol2.i.1.col
+seed = 1
+runtime = 5.0
+verbosity = 3
+algorithm = string_ga
+crossover = graph_adapted
+popsize = 5
+nb_gen = 2
+nb_per_gen = 1
