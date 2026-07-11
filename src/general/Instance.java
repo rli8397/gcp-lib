@@ -24,6 +24,37 @@ public class Instance {
      * ... 
      * 
      */
+    /**
+     * Builds an empty graph with the given number of nodes.
+     * Call {@link #finalizeMetrics()} after adding edges programmatically.
+     */
+    public Instance(int numNodes, String name) {
+        this.numNodes = numNodes;
+        this.fileName = name;
+        adjacencySet = new HashSet[numNodes];
+        for (int i = 0; i < numNodes; i++) {
+            adjacencySet[i] = new HashSet<Integer>();
+        }
+        finalizeMetrics();
+    }
+
+    /** Recomputes maxChromatic and edge count after programmatic edge insertion. */
+    public void finalizeMetrics() {
+        numEdges = 0;
+        for (int i = 0; i < numNodes; i++) {
+            numEdges += adjacencySet[i].size();
+        }
+        numEdges /= 2;
+
+        int maxDegree = 0;
+        for (HashSet<Integer> adj : adjacencySet) {
+            if (maxDegree < adj.size()) {
+                maxDegree = adj.size();
+            }
+        }
+        maxChromatic = maxDegree + 1;
+    }
+
     public Instance (File file) throws IllegalArgumentException {
         try {
             Scanner scanner = new Scanner(file);
