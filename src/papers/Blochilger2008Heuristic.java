@@ -9,10 +9,15 @@ import general.SolutionClasses.Solution;
 import general.Options;
 
 public class Blochilger2008Heuristic extends GCPHeuristic {
+    // frequency - [500:5000]
+    // threshold - [5: 30]
+    // increment - [1:2]
+
     private int frequency;
     private int threshold;
     private int increment;
     private int initialTenure;
+    private int maxIterations;
 
     public Blochilger2008Heuristic(Options options) {
         super(options);
@@ -20,9 +25,11 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
             frequency = Integer.parseInt(options.extras.get("frequency"));
             threshold = Integer.parseInt(options.extras.get("threshold"));
             increment = Integer.parseInt(options.extras.get("increment"));
-            initialTenure = Integer.parseInt(options.extras.get("initialTenure"));
+            maxIterations = Integer.parseInt(options.extras.get("maxiterations"));
+            initialTenure = Integer.parseInt(options.extras.get("initialtenure"));
         } catch (Exception e) {
-            throw new IllegalArgumentException("Missing or invalid extended parameters for Blochilger2008Heuristic. Required parameters: frequency, threshold, increment, initialTenure.");
+            throw new IllegalArgumentException(
+                    "Missing or invalid extended parameters for Blochilger2008Heuristic. Required parameters: frequency, threshold, increment, initialtenure.");
         }
 
     }
@@ -53,7 +60,8 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
                 k++;
             }
             // resets the coloring with the new k
-            solution = new Blochilger2008Solution(this.getInstance(), Blochilger2008Solution.partialColoring(this, k), k);
+            solution = new Blochilger2008Solution(this.getInstance(), Blochilger2008Solution.partialColoring(this, k),
+                    k);
         }
     }
 
@@ -61,7 +69,7 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
         protected int[][] countsMatrix;
         private int bestObjective = Integer.MAX_VALUE;
         private Solution bestSolution;
-        
+
         public Blochilger2008Solution(Instance instance, int[] coloring, int k) {
             super(instance, coloring, k);
             this.countsMatrix = new int[instance.getNumNodes()][this.k + 1];
@@ -79,13 +87,13 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
             protected int maxObj = Integer.MIN_VALUE;
             protected int minObj = Integer.MAX_VALUE;
 
-            // used to mark moves tabu
-            protected ArrayList<Move> removedMoves;
-            
-            protected int tenure;
+            // tabu search variables
+            protected ArrayList<Move> removedMoves; // used to mark moves tabu
+            protected int maxIterations;
 
-            public BlochilgerTabuSearch(Blochilger2008Solution solution) {
-                super(solution);
+            public BlochilgerTabuSearch(Blochilger2008Solution solution, int maxIterations) {
+                super(solution, Blochilger2008Heuristic.this);
+                this.maxIterations = maxIterations;
                 this.tenure = initialTenure;
             }
 
@@ -155,9 +163,35 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
 
             public void tabuAppend(Move move, int iteration) {
                 for (Move m : removedMoves) {
-                    tabuMap.put(m, iteration + getTenure());
+                    tabuMap.put(m, iteration + this.tenure);
                 }
                 removedMoves = new ArrayList<>();
+            }
+
+            public void tabuSearch() {
+                int iteration = 0;
+
+                while (uncolored.size() > 0 && iteration < maxIterations) {
+                    Move move = generateBestNeighbor(iteration);
+
+                    if (move == null) {
+                        break; // No valid moves available
+                    }
+
+                    if ((iteration + 1) % frequency == 0) {
+                        updateTenure();
+                    }
+
+                    if (move.getObjective() < bestObjective) {
+                        iteration = 0;
+                    }
+
+                    makeMove(move);
+
+                    tabuAppend(move, iteration);
+
+                    iteration++;
+                }
             }
         }
 
@@ -186,34 +220,8 @@ public class Blochilger2008Heuristic extends GCPHeuristic {
         }
 
         public void tabuSearch() {
-            // frequency - [500:5000]
-            // threshold - [5: 30]
-            // increment - [1:2]
-            BlochilgerTabuSearch ts = new BlochilgerTabuSearch(this);
-            int maxIterations = 10000;
-            int iteration = 0;
-
-            while (uncolored.size() > 0 && iteration < maxIterations) {
-                Move move = ts.generateBestNeighbor(iteration);
-
-                if (move == null) {
-                    break; // No valid moves available
-                }
-
-                if ((iteration + 1) % frequency == 0) {
-                    ts.updateTenure();
-                }
-
-                if (move.getObjective() < this.bestObjective) {
-                    iteration = 0;
-                }
-
-                ts.makeMove(move);
-
-                ts.tabuAppend(move, iteration);
-
-                iteration++;
-            }
+            BlochilgerTabuSearch ts = new BlochilgerTabuSearch(this, maxIterations);
+            ts.tabuSearch();
         }
     }
 }
