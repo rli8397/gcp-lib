@@ -1,0 +1,8 @@
+heuristic = Glover1995Heuristic
+instance = testInstances\test.txt
+seed = 1
+runtime = 30
+verbosity = 2
+upbnd = 1
+lobnd = 4
+phase1iterations = 5

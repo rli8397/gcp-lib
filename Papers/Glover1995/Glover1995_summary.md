@@ -66,6 +66,56 @@
     - A move is uncoloring a colored node or coloring an uncolored node
     - Objective value for a solution is the number of uncolored nodes
 
-## 
+## Tabu Branch and Bound Phase
+    - start from a initial feasible coloring
+    - uncolor some nodes to escape the local minima and then forcing a different recoloring to explore other branches
+        - Use d* to decided how far back to backtrack (how many nodes to uncolor)
+        - F(d*) = number of nodes to uncolor to escape local min
+        - Note: F(d*) would be an identity function if the optimal escape path were known
+    - Tabu ranges + apsiration - avoid cycling through bad backtrack positions
+    - backtrack nodes must not be cc-dependent and must have an alterante color
+    - Backtrack node: earliest node in the current sequence that is uncolored by a backtrack step (the node we “backtrack to”)
+        - Candidate backtrack nodes must be not cc-dependent and have at least one color available besides their current color
+    - Search for a backtrack node in positions n − up_bnd · d* through n − lo_bnd · d*, where n is the number of currently assigned nodes
+    - Tabu ranges for backtrack position p:
+        - Tabu if n ≥ p > n − up_bnd · d*
+        - Tabu if n − lo_bnd · d* > p ≥ min_colors (min_colors = lower bound on chromatic number)
+    - Aspiration criterion: overrides the first tabu range if no acceptable backtrack node exists in n − up_bnd · d* ≥ p ≥ n − lo_bnd · d*
+    - Practical parameters: up_bnd = 1, lo_bnd = 3 — good for quickly finding strong colorings; increasing lo_bnd makes behavior approach traditional branch and bound
+    - Enhances depth-first search by backtracking to “good” regions for escaping local minima
+    - Bound on d*:
+        - d* ≤ α · current_color / (current_color + 1)²
+        - α = size of the largest independent set; approximated in implementation by the maximum number of nodes assigned any single color
 
+## Lower Bound Identification
+    - While reading the graph, compute each vertex’s degree
+    - Large cliques usually contain a high-degree vertex, so take vertices among the top three degrees as roots for clique search
+    - For each root, heuristically find a maximal clique containing that vertex
+        - For each neighbor, a greedy algorithm finds the largest clique containing both the neighbor and the root
+    - The maximum-cardinality clique found is used as the lower bound on the chromatic number
+    - Fast heuristic that tends to find large cliques
 
+## The algorithm
+    Phase 1 - Use danger to find feasible intial colorings
+        1. define lower bound, L (heuristically identify a large clique in the graph)
+        2. iteratively examine alternate parameters for constants in danger and color danger formulas
+        3. For each set of parameter values, color G by the choice rules specified, without a target for max_color and without allowing backtracking
+        4. Identify the parameter values that produce the smallest number of colors in step 3. Let U, upper bound for max_color, be this number of color. 
+        5. Select a starting value of max_color as a function of L and U
+        Note: In practice, 
+            - Do 5 iterations of step 2 and 3
+            - Increase the value of the exponent for both node danger and color danger (k and k_2) by 1 for each iteration. 
+            - let starting value of max color = U - 1
+    Phase 2
+        1. Use parameters that gave the best coloring from the intial danger phase. If max_color = U, stop.
+        2. Destructive phase part 1 - Backtrack to the first occurrence of color (max_color + 1) --> call this the nth node
+        3. destructive phase part 2 - backtrack up_bnb + d* more nodes, continue backtracking until an eligble node is found or either node n - lo_bnd * d* or the max backtrack depth is reached 
+            - max backtracking depth = L + number of cc-dependent nodes from the intial clique coloring
+        4. Constructive phase: color with the danger heuristic, using target of max_color colors
+            - if no coloring found, go loop back to step 2
+            - if coloring is found, set U = max_color and select a value of max_color as a function of L and U, then go to step 1
+        Note: In practice 
+            - max_color is updated with U - 1
+            - lo-bnb and up-bnb are set to 4 and 1 respectively
+
+     
